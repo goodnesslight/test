@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "vue.volar",
+    "redhat.vscode-yaml",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "eamodio.gitlens",
+    "ethansk.restore-terminals",
+    "emmanuelbeziat.vscode-great-icons"
+  ]
+}

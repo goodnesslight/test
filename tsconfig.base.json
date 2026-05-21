@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": false,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noEmitOnError": true,
+    "isolatedModules": true,
+    "importHelpers": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+    "composite": true,
+    "lib": ["es2022"],
+    "customConditions": ["@org/platform"]
+  }
+}

@@ -1,0 +1,13 @@
+diff --git a/src/plugins/plugin.js b/src/plugins/plugin.js
+index 6e0b9b130d83e46bb0b0123f9fdf3d10b779b972..3d1f5b738604eee1fce4828f015ff37990718f05 100644
+--- a/src/plugins/plugin.js
++++ b/src/plugins/plugin.js
+@@ -130,7 +130,7 @@ async function getInfoFromNuxtConfig(configFilePath, context, projectRoot) {
+     let config;
+     if (process.env.NX_ISOLATE_PLUGINS !== 'false') {
+         config = await (await (0, executor_utils_1.loadNuxtKitDynamicImport)()).loadNuxtConfig({
+-            configFile: configFilePath,
++            cwd: (0, path_1.join)(context.workspaceRoot, projectRoot),
+         });
+     }
+     else {

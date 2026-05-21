@@ -1,0 +1,16 @@
+.nx
+.git
+.claude
+.vscode
+.idea
+.output
+.nuxt
+.nitro
+
+*.tsbuildinfo
+
+**/node_modules
+
+dist
+test-output
+coverage

@@ -1,0 +1,62 @@
+{
+  "files.eol": "\n",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "eslint.useFlatConfig": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "eslint.options": {
+    "overrideConfigFile": "eslint.config.mjs"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue",
+    "json",
+    "jsonc"
+  ],
+  "restoreTerminals.terminals": [
+    {
+      "splitTerminals": [
+        {
+          "name": "Website API",
+          "commands": ["cd apps/website-api", "pnpm dev"]
+        },
+        {
+          "name": "Website Client",
+          "commands": ["cd apps/website-client", "pnpm dev"]
+        }
+      ]
+    },
+    {
+      "splitTerminals": [
+        {
+          "name": "Root"
+        }
+      ]
+    },
+    {
+      "splitTerminals": [
+        {
+          "name": "Claude Code",
+          "commands": ["claude --dangerously-skip-permissions"]
+        }
+      ]
+    }
+  ]
+}

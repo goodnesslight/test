@@ -1,0 +1,139 @@
+{
+  "name": "@org/website-api",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "website-api",
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "webpack-cli build",
+          "cwd": "apps/website-api",
+          "args": [
+            "--node-env=production"
+          ]
+        },
+        "configurations": {
+          "development": {
+            "args": [
+              "--node-env=development"
+            ]
+          }
+        }
+      },
+      "prune-lockfile": {
+        "executor": "@nx/js:prune-lockfile",
+        "cache": true,
+        "options": {
+          "buildTarget": "build"
+        },
+        "dependsOn": [
+          "build"
+        ],
+        "outputs": [
+          "{workspaceRoot}/apps/website-api/dist/package.json",
+          "{workspaceRoot}/apps/website-api/dist/package-lock.json"
+        ]
+      },
+      "copy-workspace-modules": {
+        "executor": "@nx/js:copy-workspace-modules",
+        "cache": true,
+        "options": {
+          "buildTarget": "build"
+        },
+        "dependsOn": [
+          "build"
+        ],
+        "outputs": [
+          "{workspaceRoot}/apps/website-api/dist/workspace_modules"
+        ]
+      },
+      "prune": {
+        "executor": "nx:noop",
+        "dependsOn": [
+          "prune-lockfile",
+          "copy-workspace-modules"
+        ]
+      },
+      "serve": {
+        "executor": "@nx/js:node",
+        "defaultConfiguration": "development",
+        "continuous": true,
+        "options": {
+          "buildTarget": "website-api:build",
+          "runBuildTargetDependencies": false
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "website-api:build:development"
+          },
+          "production": {
+            "buildTarget": "website-api:build:production"
+          }
+        },
+        "dependsOn": [
+          "build"
+        ]
+      },
+      "test": {
+        "options": {
+          "passWithNoTests": true
+        }
+      }
+    }
+  },
+  "scripts": {
+    "dev": "nx run website-api:serve --no-tui",
+    "typeorm": "ts-node --project tsconfig.app.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "migration:create": "pnpm typeorm migration:create migration/migration",
+    "migration:generate": "pnpm typeorm migration:generate migration/migration -d database.config.ts",
+    "migration:run": "pnpm typeorm migration:run -d database.config.ts",
+    "migration:revert": "pnpm typeorm migration:revert -d database.config.ts"
+  },
+  "dependencies": {
+    "@nestjs/axios": "^4.0.1",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.3",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/schedule": "^6.1.1",
+    "@nestjs/swagger": "^11.2.6",
+    "@nestjs/typeorm": "^11.0.0",
+    "@shared/dtos": "workspace:*",
+    "@shared/types": "workspace:*",
+    "@shared/utils": "workspace:*",
+    "axios": "^1.13.6",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "gamedig": "^5.3.2",
+    "ioredis": "^5.10.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "passport-steam": "^1.0.18",
+    "pg": "^8.20.0",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.0",
+    "tslib": "^2.3.0",
+    "typeorm": "^0.3.28"
+  },
+  "devDependencies": {
+    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/testing": "^11.0.0",
+    "@nx/nest": "^22.5.3",
+    "@nx/webpack": "22.5.3",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/gamedig": "^5.0.3",
+    "@types/multer": "^2.0.0",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/passport-steam": "^1.0.6",
+    "tsconfig-paths": "^4.2.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

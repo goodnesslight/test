@@ -1,0 +1,12 @@
+.claude
+pnpm-lock.yaml
+
+/.nx/cache
+/.nx/workspace-data
+
+**/.nuxt
+**/.output
+**/dist
+**/out-tsc
+
+/coverage

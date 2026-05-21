@@ -1,0 +1,22 @@
+{
+  "jsc": {
+    "target": "es2017",
+    "sourceMaps": true,
+    "keepClassNames": true,
+    "externalHelpers": true,
+    "loose": true,
+    "transform": {
+      "decoratorMetadata": true,
+      "legacyDecorator": true
+    },
+    "parser": {
+      "syntax": "typescript",
+      "decorators": true,
+      "dynamicImport": true
+    }
+  },
+  "module": {
+    "type": "es6"
+  },
+  "exclude": []
+}

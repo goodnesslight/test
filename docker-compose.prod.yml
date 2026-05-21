@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    env_file:
+      - apps/website-api/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  website-api:
+    build:
+      context: .
+      dockerfile: apps/website-api/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - apps/website-api/.env
+    environment:
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+    ports:
+      - '3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  website-client:
+    build:
+      context: .
+      dockerfile: apps/website-client/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - apps/website-client/.env
+    environment:
+      NITRO_PORT: 3000
+    ports:
+      - '4200:3000'
+    depends_on:
+      - website-api
+
+volumes:
+  postgres_data:
+  redis_data:

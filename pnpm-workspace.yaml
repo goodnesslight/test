@@ -1,0 +1,5 @@
+packages:
+  - 'apps/*'
+  - 'libs/**'
+patchedDependencies:
+  '@nx/nuxt@22.5.3': patches/@nx__nuxt@22.5.3.patch

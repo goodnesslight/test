@@ -1,0 +1,62 @@
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# Compiled output
+dist
+tmp
+out-tsc
+*.tsbuildinfo
+
+# Dependencies
+node_modules
+
+# AI
+.claude
+
+# IDEs and editors
+/.idea
+.c9/
+.settings/
+.project
+.classpath
+*.launch
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Misc
+/.sass-cache
+/connect.lock
+/libpeerconnection.log
+/coverage
+/typings
+npm-debug.log
+yarn-error.log
+testem.log
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# System Files
+.DS_Store
+Thumbs.db
+
+.nx/cache
+.nx/workspace-data
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
+
+test-output
+
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache

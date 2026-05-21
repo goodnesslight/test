@@ -1,0 +1,8 @@
+echo "Formatting code.."
+pnpm format:check
+
+echo "Lint checking.."
+pnpm lint:check
+
+echo "Type checking.."
+pnpm type:check

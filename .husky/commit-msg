@@ -1,0 +1,10 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+commit_msg=$(cat "$1")
+pattern="^(fix|feat|chore|update|refactor|revert): [a-z0-9].*"
+
+if ! echo "$commit_msg" | grep -Eq "$pattern"; then
+  echo "Wrong commit message!"
+  exit 1
+fi
