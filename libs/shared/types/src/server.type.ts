@@ -1,5 +1,0 @@
-export enum ServerType {
-  DEATHMATCH = 'DEATHMATCH',
-  RETAKE = 'RETAKE',
-  KREEDZ_CLIMBING = 'KREEDZ_CLIMBING',
-}
