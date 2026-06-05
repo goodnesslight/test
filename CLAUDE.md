@@ -51,6 +51,7 @@ Keep registration/re-export lists sorted alphabetically:
   ) {}
   ```
 
+- **Auth strategies and guards share the `<scheme>-auth` name.** A strategy file is named like its guard: `jwt-auth.strategy.ts` (`JwtAuthStrategy`) pairs with `jwt-auth.guard.ts` (`JwtAuthGuard`), `google-auth.strategy.ts` (`GoogleAuthStrategy`) with `google-auth.guard.ts` (`GoogleAuthGuard`) — not `jwt.strategy.ts`/`JwtStrategy`.
 - **Thin controllers — no logic in controllers, everything lives in services.** A handler body is a single delegation: `return await this.someService.method(...)`. No branching, no cookie/token work, no `return null` after a void call (the service returns `null` itself), no building responses. When HTTP primitives are needed (cookies, redirects), pass `request`/`response` through to the service and let it do the work there.
 - **Route paths come from the shared `ApiRoute` enum** (`@shared/types`). Never hand-write route strings in controller decorators: `@Delete(ApiRoute.TEAM_MEMBERS_BY_ID)`, not `@Delete('teams/:id/members/:memberId')`.
 - **Parameter order in controller handlers and service methods:** entity ids first (in path order: `id` → `memberId`), then `user`, then `dto`:
@@ -76,6 +77,15 @@ Keep registration/re-export lists sorted alphabetically:
   ```
 
   Constant-like `private readonly` class members are named in `UPPER_CASE`, same as regular constants (`private readonly MANAGER_ROLES`, not `managerRoles`).
+
+## Migrations (`apps/website-api/migrations`)
+
+- **One migration = one complete action.** A migration covers exactly one feature/action in full — and nothing else. Never bundle unrelated entities into one migration (no `auth-organizations-teams`-style migrations).
+- "Complete" means the migration carries everything its action needs: the table plus its enums, indexes, constraints and sub-entity tables. Sub-entities go in the same migration as their parent module (e.g. `team-create` includes `team_members`, `event-create` includes `event_attendances`).
+- A shared enum is created in the migration of the first module that uses it (`team_member_role` is created in `team-create`; `invite-create` just references it).
+- **File naming:** `<timestamp>-<resource>-<action>.ts`, singular resource first, then the action: `1780444800000-user-create.ts`, `<timestamp>-user-add-profile.ts`. Class name mirrors it in PascalCase + timestamp: `UserCreate1780444800000`.
+- **While a migration has not been run anywhere, edit it in place** instead of stacking a new alter-migration on top (no `user-create` + `user-add-profile` pairs for unreleased schema).
+- `down()` reverses `up()` exactly, in reverse statement order.
 
 ## Shared DTOs (`libs/shared/dtos`)
 

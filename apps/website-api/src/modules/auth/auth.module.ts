@@ -8,15 +8,15 @@ import { PassportModule } from '@nestjs/passport';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { GoogleAuthStrategy } from './strategies/google.strategy';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { GoogleAuthStrategy } from './strategies/google-auth.strategy';
+import { JwtAuthStrategy } from './strategies/jwt-auth.strategy';
 
 @Module({
   imports: [PassportModule, JwtModule.register({}), UserModule],
   controllers: [AuthController],
   providers: [
     AuthService,
-    JwtStrategy,
+    JwtAuthStrategy,
     {
       provide: GoogleAuthStrategy,
       inject: [ConfigService, AuthService],
