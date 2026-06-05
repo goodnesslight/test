@@ -4,9 +4,9 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { UserEntity } from '@modules/user/user.entity';
 
 import {
-  CreateOrganizationDto,
+  OrganizationCreateDto,
   OrganizationDto,
-  UpdateOrganizationDto,
+  OrganizationUpdateDto,
 } from '@shared/dtos';
 
 import {
@@ -34,7 +34,7 @@ export class OrganizationController {
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
   async create(
     @CurrentUser() user: UserEntity,
-    @Body() dto: CreateOrganizationDto
+    @Body() dto: OrganizationCreateDto
   ): Promise<OrganizationEntity> {
     return await this.organizationService.create(user, dto);
   }
@@ -60,7 +60,7 @@ export class OrganizationController {
   async update(
     @CurrentUser() user: UserEntity,
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateOrganizationDto
+    @Body() dto: OrganizationUpdateDto
   ): Promise<OrganizationEntity> {
     return await this.organizationService.update(id, user.id, dto);
   }

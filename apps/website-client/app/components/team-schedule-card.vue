@@ -5,7 +5,7 @@ import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue';
 
 import type { EventAttendanceDto, EventDto, TeamDto } from '@shared/dtos';
 import {
-  AttendanceStatus,
+  EventAttendanceStatus,
   EventType,
   type HttpResponse,
   TeamMemberRole,
@@ -74,12 +74,12 @@ const TYPE_SEVERITIES: Record<EventType, string> = {
 };
 
 const ATTENDANCE_OPTIONS: {
-  status: AttendanceStatus;
+  status: EventAttendanceStatus;
   icon: string;
 }[] = [
-  { status: AttendanceStatus.GOING, icon: 'pi pi-check' },
-  { status: AttendanceStatus.MAYBE, icon: 'pi pi-question' },
-  { status: AttendanceStatus.DECLINED, icon: 'pi pi-times' },
+  { status: EventAttendanceStatus.GOING, icon: 'pi pi-check' },
+  { status: EventAttendanceStatus.MAYBE, icon: 'pi pi-question' },
+  { status: EventAttendanceStatus.DECLINED, icon: 'pi pi-times' },
 ];
 
 function startOfToday(): Date {
@@ -145,7 +145,7 @@ function confirmDelete(event: EventDto): void {
 
 async function setAttendance(
   event: EventDto,
-  status: AttendanceStatus
+  status: EventAttendanceStatus
 ): Promise<void> {
   const response: HttpResponse<EventDto> = await eventService.setAttendance(
     event.id,
@@ -165,7 +165,7 @@ async function setAttendance(
   }
 }
 
-function getOwnAttendance(event: EventDto): AttendanceStatus | null {
+function getOwnAttendance(event: EventDto): EventAttendanceStatus | null {
   const attendance: EventAttendanceDto | undefined = event.attendances.find(
     (candidate: EventAttendanceDto): boolean =>
       candidate.userId === currentUserId.value
@@ -174,7 +174,7 @@ function getOwnAttendance(event: EventDto): AttendanceStatus | null {
   return attendance?.status ?? null;
 }
 
-function countAttendance(event: EventDto, status: AttendanceStatus): number {
+function countAttendance(event: EventDto, status: EventAttendanceStatus): number {
   return event.attendances.filter(
     (attendance: EventAttendanceDto): boolean => attendance.status === status
   ).length;

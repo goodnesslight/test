@@ -1,7 +1,7 @@
 import { useState } from 'nuxt/app';
 import { computed, type ComputedRef, type Ref } from 'vue';
 
-import type { LoginDto, RegisterDto, UserDto } from '@shared/dtos';
+import type { AuthLoginDto, AuthRegisterDto, UserDto } from '@shared/dtos';
 import { ApiRoute, type HttpResponse } from '@shared/types';
 
 import type { ApiService } from '../../api/composables/use-api-service';
@@ -11,8 +11,8 @@ import { ConfigKey } from '../../config/types';
 export interface AuthService {
   user: Ref<UserDto | null>;
   isAuthenticated: ComputedRef<boolean>;
-  register(dto: RegisterDto): Promise<HttpResponse<UserDto>>;
-  login(dto: LoginDto): Promise<HttpResponse<UserDto>>;
+  register(dto: AuthRegisterDto): Promise<HttpResponse<UserDto>>;
+  login(dto: AuthLoginDto): Promise<HttpResponse<UserDto>>;
   logout(): Promise<void>;
   fetchMe(): Promise<UserDto | null>;
   getGoogleLoginUrl(): string;
@@ -30,7 +30,7 @@ export function useAuthService(): AuthService {
     (): boolean => user.value !== null
   );
 
-  async function register(dto: RegisterDto): Promise<HttpResponse<UserDto>> {
+  async function register(dto: AuthRegisterDto): Promise<HttpResponse<UserDto>> {
     const response: HttpResponse<UserDto> = await apiService.post<UserDto>(
       ApiRoute.AUTH_REGISTER,
       { ...dto }
@@ -43,7 +43,7 @@ export function useAuthService(): AuthService {
     return response;
   }
 
-  async function login(dto: LoginDto): Promise<HttpResponse<UserDto>> {
+  async function login(dto: AuthLoginDto): Promise<HttpResponse<UserDto>> {
     const response: HttpResponse<UserDto> = await apiService.post<UserDto>(
       ApiRoute.AUTH_LOGIN,
       { ...dto }

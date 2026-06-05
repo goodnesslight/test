@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { ConfigKey } from '@common/types/config.type';
 
-import { UpdateProfileDto } from '@shared/dtos';
+import { UserUpdateProfileDto } from '@shared/dtos';
 import { EnvironmentType } from '@shared/types';
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -24,7 +24,7 @@ export class UserService {
 
   async updateProfile(
     user: UserEntity,
-    dto: UpdateProfileDto
+    dto: UserUpdateProfileDto
   ): Promise<UserEntity> {
     await this.userRepository.update(user.id, {
       firstName:

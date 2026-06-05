@@ -5,7 +5,7 @@ import { UserEntity } from '@modules/user/user.entity';
 import { UserRepository } from '@modules/user/user.repository';
 import { DataSource, EntityManager } from 'typeorm';
 
-import { CreateInviteDto } from '@shared/dtos';
+import { InviteCreateDto } from '@shared/dtos';
 import { InviteStatus } from '@shared/types';
 
 import {
@@ -30,7 +30,7 @@ export class InviteService {
   async create(
     teamId: number,
     userId: number,
-    dto: CreateInviteDto
+    dto: InviteCreateDto
   ): Promise<InviteEntity> {
     const team: TeamEntity = await this.teamService.getById(teamId);
 

@@ -1,6 +1,6 @@
 import { UserEntity } from '@modules/user/user.entity';
 
-import { CreateOrganizationDto, UpdateOrganizationDto } from '@shared/dtos';
+import { OrganizationCreateDto, OrganizationUpdateDto } from '@shared/dtos';
 
 import {
   ForbiddenException,
@@ -19,7 +19,7 @@ export class OrganizationService {
 
   async create(
     owner: UserEntity,
-    dto: CreateOrganizationDto
+    dto: OrganizationCreateDto
   ): Promise<OrganizationEntity> {
     const organization: OrganizationEntity =
       await this.organizationRepository.save(
@@ -62,7 +62,7 @@ export class OrganizationService {
   async update(
     id: number,
     userId: number,
-    dto: UpdateOrganizationDto
+    dto: OrganizationUpdateDto
   ): Promise<OrganizationEntity> {
     const organization: OrganizationEntity = await this.getOwnedById(
       id,

@@ -1,9 +1,9 @@
 import type {
-  CreateOrganizationDto,
-  CreateTeamDto,
+  OrganizationCreateDto,
   OrganizationDto,
+  OrganizationUpdateDto,
+  TeamCreateDto,
   TeamDto,
-  UpdateOrganizationDto,
 } from '@shared/dtos';
 import { ApiRoute, type HttpResponse } from '@shared/types';
 
@@ -12,13 +12,13 @@ import type { ApiService } from '../../api/composables/use-api-service';
 export interface OrganizationService {
   getMyOrganizations(): Promise<HttpResponse<OrganizationDto[]>>;
   getById(id: number): Promise<HttpResponse<OrganizationDto>>;
-  create(dto: CreateOrganizationDto): Promise<HttpResponse<OrganizationDto>>;
+  create(dto: OrganizationCreateDto): Promise<HttpResponse<OrganizationDto>>;
   update(
     id: number,
-    dto: UpdateOrganizationDto
+    dto: OrganizationUpdateDto
   ): Promise<HttpResponse<OrganizationDto>>;
   remove(id: number): Promise<HttpResponse<null>>;
-  createTeam(id: number, dto: CreateTeamDto): Promise<HttpResponse<TeamDto>>;
+  createTeam(id: number, dto: TeamCreateDto): Promise<HttpResponse<TeamDto>>;
 }
 
 export function useOrganizationService(): OrganizationService {
@@ -38,7 +38,7 @@ export function useOrganizationService(): OrganizationService {
   }
 
   async function create(
-    dto: CreateOrganizationDto
+    dto: OrganizationCreateDto
   ): Promise<HttpResponse<OrganizationDto>> {
     return await apiService.post<OrganizationDto>(ApiRoute.ORGANIZATIONS, {
       ...dto,
@@ -47,7 +47,7 @@ export function useOrganizationService(): OrganizationService {
 
   async function update(
     id: number,
-    dto: UpdateOrganizationDto
+    dto: OrganizationUpdateDto
   ): Promise<HttpResponse<OrganizationDto>> {
     return await apiService.put<OrganizationDto>(
       ApiRoute.ORGANIZATIONS_BY_ID,
@@ -61,7 +61,7 @@ export function useOrganizationService(): OrganizationService {
 
   async function createTeam(
     id: number,
-    dto: CreateTeamDto
+    dto: TeamCreateDto
   ): Promise<HttpResponse<TeamDto>> {
     return await apiService.post<TeamDto>(ApiRoute.ORGANIZATION_TEAMS, {
       id,

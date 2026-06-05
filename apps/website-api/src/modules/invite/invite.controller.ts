@@ -3,7 +3,7 @@ import { CurrentUser } from '@modules/auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { UserEntity } from '@modules/user/user.entity';
 
-import { CreateInviteDto, InviteDto } from '@shared/dtos';
+import { InviteCreateDto, InviteDto } from '@shared/dtos';
 
 import {
   Body,
@@ -30,7 +30,7 @@ export class InviteController {
   async create(
     @CurrentUser() user: UserEntity,
     @Param('id', ParseIntPipe) teamId: number,
-    @Body() dto: CreateInviteDto
+    @Body() dto: InviteCreateDto
   ): Promise<InviteEntity> {
     return await this.inviteService.create(teamId, user.id, dto);
   }

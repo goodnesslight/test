@@ -3,7 +3,7 @@ import { ConfigKey } from '@common/types/config.type';
 import { UserEntity } from '@modules/user/user.entity';
 import type { CookieOptions, Request, Response } from 'express';
 
-import { LoginDto, RegisterDto, UserDto } from '@shared/dtos';
+import { AuthLoginDto, AuthRegisterDto, UserDto } from '@shared/dtos';
 import { CookieKey, EnvironmentType } from '@shared/types';
 
 import {
@@ -35,7 +35,7 @@ export class AuthController {
   @Post('register')
   @UseInterceptors(new ResponseInterceptor(UserDto))
   async register(
-    @Body() dto: RegisterDto,
+    @Body() dto: AuthRegisterDto,
     @Res({ passthrough: true }) response: Response
   ): Promise<UserEntity> {
     const result: AuthResult = await this.authService.register(dto);
@@ -48,7 +48,7 @@ export class AuthController {
   @Post('login')
   @UseInterceptors(new ResponseInterceptor(UserDto))
   async login(
-    @Body() dto: LoginDto,
+    @Body() dto: AuthLoginDto,
     @Res({ passthrough: true }) response: Response
   ): Promise<UserEntity> {
     const result: AuthResult = await this.authService.login(dto);

@@ -2,7 +2,7 @@ import { BasicEntity } from '@modules/database/basic/entity.basic';
 import { UserEntity } from '@modules/user/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 
-import { AttendanceStatus } from '@shared/types';
+import { EventAttendanceStatus } from '@shared/types';
 
 import { EventEntity } from './event.entity';
 
@@ -17,10 +17,10 @@ export class EventAttendanceEntity extends BasicEntity {
 
   @Column({
     type: 'enum',
-    enum: AttendanceStatus,
+    enum: EventAttendanceStatus,
     enumName: 'attendance_status',
   })
-  status: AttendanceStatus;
+  status: EventAttendanceStatus;
 
   @ManyToOne(
     () => EventEntity,

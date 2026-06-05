@@ -1,7 +1,7 @@
 import { useState } from 'nuxt/app';
 import type { Ref } from 'vue';
 
-import type { CreateInviteDto, InviteDto } from '@shared/dtos';
+import type { InviteCreateDto, InviteDto } from '@shared/dtos';
 import { ApiRoute, type HttpResponse } from '@shared/types';
 
 import type { ApiService } from '../../api/composables/use-api-service';
@@ -13,7 +13,7 @@ export interface InviteService {
   getTeamInvites(teamId: number): Promise<HttpResponse<InviteDto[]>>;
   create(
     teamId: number,
-    dto: CreateInviteDto
+    dto: InviteCreateDto
   ): Promise<HttpResponse<InviteDto>>;
   accept(id: number): Promise<HttpResponse<null>>;
   decline(id: number): Promise<HttpResponse<null>>;
@@ -50,7 +50,7 @@ export function useInviteService(): InviteService {
 
   async function create(
     teamId: number,
-    dto: CreateInviteDto
+    dto: InviteCreateDto
   ): Promise<HttpResponse<InviteDto>> {
     return await apiService.post<InviteDto>(ApiRoute.TEAM_INVITES, {
       id: teamId,

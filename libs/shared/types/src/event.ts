@@ -5,7 +5,7 @@ export enum EventType {
   TOURNAMENT = 'tournament',
 }
 
-export enum AttendanceStatus {
+export enum EventAttendanceStatus {
   GOING = 'going',
   MAYBE = 'maybe',
   DECLINED = 'declined',

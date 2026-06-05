@@ -1,4 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
+import { IsEnum, IsOptional, IsString, Length } from 'class-validator';
 
 import { Locale } from '@shared/types';
 
@@ -30,4 +31,20 @@ export class UserDto {
 
   @Expose()
   createdAt: Date;
+}
+
+export class UserUpdateProfileDto {
+  @IsOptional()
+  @IsString()
+  @Length(0, 64)
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(0, 64)
+  lastName?: string;
+
+  @IsOptional()
+  @IsEnum(Locale)
+  locale?: Locale;
 }

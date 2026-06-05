@@ -8,7 +8,7 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import type { Request } from 'express';
 import { diskStorage } from 'multer';
 
-import { UpdateProfileDto, UserDto } from '@shared/dtos';
+import { UserDto,UserUpdateProfileDto } from '@shared/dtos';
 
 import {
   BadRequestException,
@@ -48,7 +48,7 @@ export class UserController {
   @UseInterceptors(new ResponseInterceptor(UserDto))
   async updateProfile(
     @CurrentUser() user: UserEntity,
-    @Body() dto: UpdateProfileDto
+    @Body() dto: UserUpdateProfileDto
   ): Promise<UserEntity> {
     return await this.userService.updateProfile(user, dto);
   }

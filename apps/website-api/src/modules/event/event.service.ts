@@ -2,7 +2,7 @@ import { TeamEntity } from '@modules/team/team.entity';
 import { TeamService } from '@modules/team/team.service';
 import { TeamMemberEntity } from '@modules/team/team-member.entity';
 
-import { CreateEventDto, SetAttendanceDto, UpdateEventDto } from '@shared/dtos';
+import { EventCreateDto, EventSetAttendanceDto, EventUpdateDto } from '@shared/dtos';
 import { TeamMemberRole } from '@shared/types';
 
 import {
@@ -33,7 +33,7 @@ export class EventService {
   async create(
     teamId: number,
     userId: number,
-    dto: CreateEventDto
+    dto: EventCreateDto
   ): Promise<EventEntity> {
     const team: TeamEntity = await this.teamService.getById(teamId);
 
@@ -75,7 +75,7 @@ export class EventService {
   async update(
     id: number,
     userId: number,
-    dto: UpdateEventDto
+    dto: EventUpdateDto
   ): Promise<EventEntity> {
     const event: EventEntity = await this.getById(id);
 
@@ -110,7 +110,7 @@ export class EventService {
   async setAttendance(
     id: number,
     userId: number,
-    dto: SetAttendanceDto
+    dto: EventSetAttendanceDto
   ): Promise<EventEntity> {
     const event: EventEntity = await this.getById(id);
     const isMember: boolean = event.team.members.some(

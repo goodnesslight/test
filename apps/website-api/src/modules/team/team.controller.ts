@@ -4,10 +4,10 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { UserEntity } from '@modules/user/user.entity';
 
 import {
-  CreateTeamDto,
+  TeamCreateDto,
   TeamDto,
-  UpdateTeamDto,
-  UpdateTeamMemberDto,
+  TeamUpdateDto,
+  TeamUpdateMemberDto,
 } from '@shared/dtos';
 
 import {
@@ -36,7 +36,7 @@ export class TeamController {
   async create(
     @CurrentUser() user: UserEntity,
     @Param('organizationId', ParseIntPipe) organizationId: number,
-    @Body() dto: CreateTeamDto
+    @Body() dto: TeamCreateDto
   ): Promise<TeamEntity> {
     return await this.teamService.createInOrganization(
       organizationId,
@@ -56,7 +56,7 @@ export class TeamController {
   async update(
     @CurrentUser() user: UserEntity,
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateTeamDto
+    @Body() dto: TeamUpdateDto
   ): Promise<TeamEntity> {
     return await this.teamService.update(id, user.id, dto);
   }
@@ -78,7 +78,7 @@ export class TeamController {
     @CurrentUser() user: UserEntity,
     @Param('id', ParseIntPipe) id: number,
     @Param('memberId', ParseIntPipe) memberId: number,
-    @Body() dto: UpdateTeamMemberDto
+    @Body() dto: TeamUpdateMemberDto
   ): Promise<TeamEntity> {
     return await this.teamService.updateMemberRole(
       id,

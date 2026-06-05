@@ -1,9 +1,9 @@
 import { OrganizationService } from '@modules/organization/organization.service';
 
 import {
-  CreateTeamDto,
-  UpdateTeamDto,
-  UpdateTeamMemberDto,
+  TeamCreateDto,
+  TeamUpdateDto,
+  TeamUpdateMemberDto,
 } from '@shared/dtos';
 
 import {
@@ -28,7 +28,7 @@ export class TeamService {
   async createInOrganization(
     organizationId: number,
     userId: number,
-    dto: CreateTeamDto
+    dto: TeamCreateDto
   ): Promise<TeamEntity> {
     await this.organizationService.getOwnedById(organizationId, userId);
 
@@ -57,7 +57,7 @@ export class TeamService {
   async update(
     id: number,
     userId: number,
-    dto: UpdateTeamDto
+    dto: TeamUpdateDto
   ): Promise<TeamEntity> {
     const team: TeamEntity = await this.getById(id);
 
@@ -81,7 +81,7 @@ export class TeamService {
     teamId: number,
     memberId: number,
     userId: number,
-    dto: UpdateTeamMemberDto
+    dto: TeamUpdateMemberDto
   ): Promise<TeamEntity> {
     const team: TeamEntity = await this.getById(teamId);
 

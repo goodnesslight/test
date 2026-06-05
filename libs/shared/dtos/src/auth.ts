@@ -1,6 +1,15 @@
 import { IsEmail, IsString, Length, Matches } from 'class-validator';
 
-export class RegisterDto {
+export class AuthLoginDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @Length(8, 64)
+  password: string;
+}
+
+export class AuthRegisterDto {
   @IsEmail()
   email: string;
 

@@ -1,8 +1,8 @@
 import type {
-  CreateEventDto,
+  EventCreateDto,
   EventDto,
-  SetAttendanceDto,
-  UpdateEventDto,
+  EventSetAttendanceDto,
+  EventUpdateDto,
 } from '@shared/dtos';
 import { ApiRoute, type HttpResponse } from '@shared/types';
 
@@ -14,12 +14,12 @@ export interface EventService {
     from?: string,
     to?: string
   ): Promise<HttpResponse<EventDto[]>>;
-  create(teamId: number, dto: CreateEventDto): Promise<HttpResponse<EventDto>>;
-  update(id: number, dto: UpdateEventDto): Promise<HttpResponse<EventDto>>;
+  create(teamId: number, dto: EventCreateDto): Promise<HttpResponse<EventDto>>;
+  update(id: number, dto: EventUpdateDto): Promise<HttpResponse<EventDto>>;
   remove(id: number): Promise<HttpResponse<null>>;
   setAttendance(
     id: number,
-    dto: SetAttendanceDto
+    dto: EventSetAttendanceDto
   ): Promise<HttpResponse<EventDto>>;
 }
 
@@ -40,7 +40,7 @@ export function useEventService(): EventService {
 
   async function create(
     teamId: number,
-    dto: CreateEventDto
+    dto: EventCreateDto
   ): Promise<HttpResponse<EventDto>> {
     return await apiService.post<EventDto>(ApiRoute.TEAM_EVENTS, {
       id: teamId,
@@ -50,7 +50,7 @@ export function useEventService(): EventService {
 
   async function update(
     id: number,
-    dto: UpdateEventDto
+    dto: EventUpdateDto
   ): Promise<HttpResponse<EventDto>> {
     return await apiService.put<EventDto>(ApiRoute.EVENTS_BY_ID, {
       id,
@@ -64,7 +64,7 @@ export function useEventService(): EventService {
 
   async function setAttendance(
     id: number,
-    dto: SetAttendanceDto
+    dto: EventSetAttendanceDto
   ): Promise<HttpResponse<EventDto>> {
     return await apiService.post<EventDto>(ApiRoute.EVENT_ATTENDANCE, {
       id,

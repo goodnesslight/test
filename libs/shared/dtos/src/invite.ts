@@ -1,9 +1,10 @@
 import { Exclude, Expose, Type } from 'class-transformer';
+import { IsEnum, IsString, Length } from 'class-validator';
 
 import { InviteStatus, TeamMemberRole } from '@shared/types';
 
-import { TeamDto } from '../team/team.dto';
-import { UserDto } from '../user/user.dto';
+import { TeamDto } from './team';
+import { UserDto } from './user';
 
 @Exclude()
 export class InviteDto {
@@ -29,4 +30,14 @@ export class InviteDto {
 
   @Expose()
   createdAt: Date;
+}
+
+export class InviteCreateDto {
+  /** Username or email of the invited player. */
+  @IsString()
+  @Length(3, 320)
+  identifier: string;
+
+  @IsEnum(TeamMemberRole)
+  role: TeamMemberRole;
 }

@@ -1,4 +1,4 @@
-import type { UpdateProfileDto, UserDto } from '@shared/dtos';
+import type { UserDto,UserUpdateProfileDto } from '@shared/dtos';
 import { ApiRoute, type HttpResponse } from '@shared/types';
 
 import type { ApiService } from '../../api/composables/use-api-service';
@@ -6,7 +6,7 @@ import type { ApiService } from '../../api/composables/use-api-service';
 import type { AuthService } from './use-auth-service';
 
 export interface UserService {
-  updateProfile(dto: UpdateProfileDto): Promise<HttpResponse<UserDto>>;
+  updateProfile(dto: UserUpdateProfileDto): Promise<HttpResponse<UserDto>>;
   uploadAvatar(file: File): Promise<HttpResponse<UserDto>>;
 }
 
@@ -15,7 +15,7 @@ export function useUserService(): UserService {
   const authService: AuthService = useAuthService();
 
   async function updateProfile(
-    dto: UpdateProfileDto
+    dto: UserUpdateProfileDto
   ): Promise<HttpResponse<UserDto>> {
     const response: HttpResponse<UserDto> = await apiService.put<UserDto>(
       ApiRoute.USERS_ME,

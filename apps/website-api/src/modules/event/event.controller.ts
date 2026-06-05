@@ -4,11 +4,11 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { UserEntity } from '@modules/user/user.entity';
 
 import {
-  CreateEventDto,
+  EventCreateDto,
   EventDto,
-  GetEventsDto,
-  SetAttendanceDto,
-  UpdateEventDto,
+  EventGetListDto,
+  EventSetAttendanceDto,
+  EventUpdateDto,
 } from '@shared/dtos';
 
 import {
@@ -38,7 +38,7 @@ export class EventController {
   async create(
     @CurrentUser() user: UserEntity,
     @Param('id', ParseIntPipe) teamId: number,
-    @Body() dto: CreateEventDto
+    @Body() dto: EventCreateDto
   ): Promise<EventEntity> {
     return await this.eventService.create(teamId, user.id, dto);
   }
@@ -48,7 +48,7 @@ export class EventController {
   async getForTeam(
     @CurrentUser() user: UserEntity,
     @Param('id', ParseIntPipe) teamId: number,
-    @Query() query: GetEventsDto
+    @Query() query: EventGetListDto
   ): Promise<EventEntity[]> {
     return await this.eventService.getForTeam(
       teamId,
@@ -63,7 +63,7 @@ export class EventController {
   async update(
     @CurrentUser() user: UserEntity,
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateEventDto
+    @Body() dto: EventUpdateDto
   ): Promise<EventEntity> {
     return await this.eventService.update(id, user.id, dto);
   }
@@ -84,7 +84,7 @@ export class EventController {
   async setAttendance(
     @CurrentUser() user: UserEntity,
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: SetAttendanceDto
+    @Body() dto: EventSetAttendanceDto
   ): Promise<EventEntity> {
     return await this.eventService.setAttendance(id, user.id, dto);
   }

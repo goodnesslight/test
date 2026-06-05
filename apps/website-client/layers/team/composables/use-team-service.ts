@@ -1,7 +1,7 @@
 import type {
   TeamDto,
-  UpdateTeamDto,
-  UpdateTeamMemberDto,
+  TeamUpdateDto,
+  TeamUpdateMemberDto,
 } from '@shared/dtos';
 import { ApiRoute, type HttpResponse } from '@shared/types';
 
@@ -9,12 +9,12 @@ import type { ApiService } from '../../api/composables/use-api-service';
 
 export interface TeamService {
   getById(id: number): Promise<HttpResponse<TeamDto>>;
-  update(id: number, dto: UpdateTeamDto): Promise<HttpResponse<TeamDto>>;
+  update(id: number, dto: TeamUpdateDto): Promise<HttpResponse<TeamDto>>;
   remove(id: number): Promise<HttpResponse<null>>;
   updateMemberRole(
     teamId: number,
     memberId: number,
-    dto: UpdateTeamMemberDto
+    dto: TeamUpdateMemberDto
   ): Promise<HttpResponse<TeamDto>>;
   removeMember(
     teamId: number,
@@ -31,7 +31,7 @@ export function useTeamService(): TeamService {
 
   async function update(
     id: number,
-    dto: UpdateTeamDto
+    dto: TeamUpdateDto
   ): Promise<HttpResponse<TeamDto>> {
     return await apiService.put<TeamDto>(ApiRoute.TEAMS_BY_ID, {
       id,
@@ -46,7 +46,7 @@ export function useTeamService(): TeamService {
   async function updateMemberRole(
     teamId: number,
     memberId: number,
-    dto: UpdateTeamMemberDto
+    dto: TeamUpdateMemberDto
   ): Promise<HttpResponse<TeamDto>> {
     return await apiService.put<TeamDto>(ApiRoute.TEAM_MEMBERS_BY_ID, {
       id: teamId,

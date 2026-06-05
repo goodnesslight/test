@@ -7,7 +7,7 @@ import { UserEntity } from '@modules/user/user.entity';
 import { UserRepository } from '@modules/user/user.repository';
 import * as argon2 from 'argon2';
 
-import { LoginDto, RegisterDto } from '@shared/dtos';
+import { AuthLoginDto, AuthRegisterDto } from '@shared/dtos';
 
 import {
   ConflictException,
@@ -34,7 +34,7 @@ export class AuthService {
     private readonly cacheService: CacheService
   ) {}
 
-  async register(dto: RegisterDto): Promise<AuthResult> {
+  async register(dto: AuthRegisterDto): Promise<AuthResult> {
     const existingByEmail: UserEntity | null =
       await this.userRepository.findByEmail(dto.email);
 
@@ -62,7 +62,7 @@ export class AuthService {
     return { user, tokens };
   }
 
-  async login(dto: LoginDto): Promise<AuthResult> {
+  async login(dto: AuthLoginDto): Promise<AuthResult> {
     const user: UserEntity | null = await this.userRepository.findByEmail(
       dto.email
     );
