@@ -37,7 +37,7 @@ Keep registration/re-export lists sorted alphabetically:
 - NestJS module `imports` arrays: feature modules sorted alphabetically (`AuthModule`, `EventModule`, `InviteModule`, `OrganizationModule`, `TeamModule`, `UserModule`). Infrastructure/config modules (`ConfigModule`, `ScheduleModule`, `CacheModule`, `DatabaseModule`) stay first as their own group.
 - The same applies to any similar list (providers, exports, plugin registrations): new entries go in alphabetical position, not at the end.
 
-## API module structure (`apps/website-api/src/modules`)
+## API module structure (`apps/erp-api/src/modules`)
 
 - Files named after the module itself live at the module root: `team/team.module.ts`, `team/team.entity.ts`, `team/team.service.ts`, etc.
 - **Sub-entity files get their own subfolder** named after the sub-entity. Any file whose name differs from the module name (a nested/secondary entity) goes into `modules/<module>/<sub-entity>/`: e.g. `team/team-member/team-member.entity.ts`, `team/team-member/team-member.repository.ts`, `event/event-attendance/event-attendance.entity.ts`.
@@ -87,7 +87,7 @@ Keep registration/re-export lists sorted alphabetically:
 - Routes are grouped by URL prefix, not by serving controller (`TEAM_EVENTS` is served by `EventController` — that's fine; the enum is a map of the URL space, not of modules).
 - OAuth callback routes are named `callback` (`auth/google/callback`), not `return`.
 
-## Migrations (`apps/website-api/migrations`)
+## Migrations (`apps/erp-api/migrations`)
 
 - **One migration = one complete action.** A migration covers exactly one feature/action in full — and nothing else. Never bundle unrelated entities into one migration (no `auth-organizations-teams`-style migrations).
 - "Complete" means the migration carries everything its action needs: the table plus its enums, indexes, constraints and sub-entity tables. Sub-entities go in the same migration as their parent module (e.g. `team-create` includes `team_members`, `event-create` includes `event_attendances`).

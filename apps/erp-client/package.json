@@ -1,12 +1,12 @@
 {
-  "name": "@org/website-client",
+  "name": "@org/erp-client",
   "version": "0.0.1",
   "private": true,
   "nx": {
-    "name": "website-client"
+    "name": "erp-client"
   },
   "scripts": {
-    "dev": "nx run website-client:serve --no-tui"
+    "dev": "nx run erp-client:serve --no-tui"
   },
   "dependencies": {
     "@primeuix/themes": "^2.0.3",

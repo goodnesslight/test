@@ -15,7 +15,7 @@ import { ScheduleModule } from '@nestjs/schedule';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: 'apps/website-api/.env',
+      envFilePath: 'apps/erp-api/.env',
     }),
     ScheduleModule.forRoot(),
     CacheModule,

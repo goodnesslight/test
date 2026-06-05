@@ -10,8 +10,8 @@ cd platform-app
 
 pnpm install
 
-cp apps/website-api/.env.example apps/website-api/.env
-cp apps/website-client/.env.example apps/website-client/.env
+cp apps/erp-api/.env.example apps/erp-api/.env
+cp apps/erp-client/.env.example apps/erp-client/.env
 ```
 
 ## Running
@@ -19,8 +19,8 @@ cp apps/website-client/.env.example apps/website-client/.env
 ```bash
 docker compose -f docker-compose.dev.yml up -d
 
-pnpm --filter website-api migration:run
+pnpm --filter erp-api migration:run
 
-pnpm nx run website-api:serve
-pnpm nx run website-client:serve
+pnpm nx run erp-api:serve
+pnpm nx run erp-client:serve
 ```

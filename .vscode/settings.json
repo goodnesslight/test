@@ -34,12 +34,12 @@
     {
       "splitTerminals": [
         {
-          "name": "Website API",
-          "commands": ["cd apps/website-api", "pnpm dev"]
+          "name": "ERP API",
+          "commands": ["cd apps/erp-api", "pnpm dev"]
         },
         {
-          "name": "Website Client",
-          "commands": ["cd apps/website-client", "pnpm dev"]
+          "name": "ERP Client",
+          "commands": ["cd apps/erp-client", "pnpm dev"]
         }
       ]
     },

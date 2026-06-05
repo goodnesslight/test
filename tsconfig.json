@@ -4,10 +4,10 @@
   "files": [],
   "references": [
     {
-      "path": "./apps/website-api"
+      "path": "./apps/erp-api"
     },
     {
-      "path": "./apps/website-client"
+      "path": "./apps/erp-client"
     },
     {
       "path": "./libs/shared/types"

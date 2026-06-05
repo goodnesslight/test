@@ -1,15 +1,15 @@
 {
-  "name": "@org/website-api",
+  "name": "@org/erp-api",
   "version": "0.0.1",
   "private": true,
   "nx": {
-    "name": "website-api",
+    "name": "erp-api",
     "targets": {
       "build": {
         "executor": "nx:run-commands",
         "options": {
           "command": "webpack-cli build",
-          "cwd": "apps/website-api",
+          "cwd": "apps/erp-api",
           "args": [
             "--node-env=production"
           ]
@@ -32,8 +32,8 @@
           "build"
         ],
         "outputs": [
-          "{workspaceRoot}/apps/website-api/dist/package.json",
-          "{workspaceRoot}/apps/website-api/dist/package-lock.json"
+          "{workspaceRoot}/apps/erp-api/dist/package.json",
+          "{workspaceRoot}/apps/erp-api/dist/package-lock.json"
         ]
       },
       "copy-workspace-modules": {
@@ -46,7 +46,7 @@
           "build"
         ],
         "outputs": [
-          "{workspaceRoot}/apps/website-api/dist/workspace_modules"
+          "{workspaceRoot}/apps/erp-api/dist/workspace_modules"
         ]
       },
       "prune": {
@@ -61,15 +61,15 @@
         "defaultConfiguration": "development",
         "continuous": true,
         "options": {
-          "buildTarget": "website-api:build",
+          "buildTarget": "erp-api:build",
           "runBuildTargetDependencies": false
         },
         "configurations": {
           "development": {
-            "buildTarget": "website-api:build:development"
+            "buildTarget": "erp-api:build:development"
           },
           "production": {
-            "buildTarget": "website-api:build:production"
+            "buildTarget": "erp-api:build:production"
           }
         },
         "dependsOn": [
@@ -84,7 +84,7 @@
     }
   },
   "scripts": {
-    "dev": "nx run website-api:serve --no-tui",
+    "dev": "nx run erp-api:serve --no-tui",
     "typeorm": "ts-node --project tsconfig.app.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:create": "pnpm typeorm migration:create migration/migration",
     "migration:generate": "pnpm typeorm migration:generate migration/migration -d database.config.ts",
