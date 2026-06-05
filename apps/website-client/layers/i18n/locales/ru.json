@@ -9,11 +9,10 @@
   "nav": {
     "brand": "Platform",
     "section": "Аккаунт",
-    "other": "Прочее",
     "greeting": "Привет, {username}",
     "dashboard": "Дашборд",
     "organizations": "Организации",
-    "settings": "Настройки",
+    "profile": "Личный кабинет",
     "logout": "Выйти"
   },
   "auth": {

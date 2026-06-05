@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { navigateTo } from 'nuxt/app';
-import { computed, type ComputedRef, onMounted, watch } from 'vue';
+import type Menu from 'primevue/menu';
+import type { MenuItem } from 'primevue/menuitem';
+import {
+  computed,
+  type ComputedRef,
+  onMounted,
+  type Ref,
+  ref,
+  watch,
+} from 'vue';
 
 import type { UserDto } from '@shared/dtos';
 
@@ -12,6 +21,32 @@ const { t } = useI18n();
 const authService: AuthService = useAuthService();
 const inviteService: InviteService = useInviteService();
 const localeService: LocaleService = useLocaleService();
+
+const profileMenu: Ref<InstanceType<typeof Menu> | null> = ref(null);
+
+const profileMenuItems: ComputedRef<MenuItem[]> = computed(
+  (): MenuItem[] => [
+    {
+      label: t('nav.profile'),
+      icon: 'pi pi-user',
+      command: (): void => {
+        void navigateTo('/settings');
+      },
+    },
+    { separator: true },
+    {
+      label: t('nav.logout'),
+      icon: 'pi pi-sign-out',
+      command: (): void => {
+        void logout();
+      },
+    },
+  ]
+);
+
+function toggleProfileMenu(event: MouseEvent): void {
+  profileMenu.value?.toggle(event);
+}
 
 const user: ComputedRef<UserDto | null> = computed(
   (): UserDto | null => authService.user.value
@@ -74,15 +109,6 @@ async function logout(): Promise<void> {
           <span>{{ t('nav.organizations') }}</span>
         </NuxtLink>
 
-        <span class="nav__label nav__label--other">{{ t('nav.other') }}</span>
-        <NuxtLink
-          to="/settings"
-          class="nav__item"
-          active-class="nav__item--active"
-        >
-          <i class="pi pi-cog" />
-          <span>{{ t('nav.settings') }}</span>
-        </NuxtLink>
       </nav>
     </aside>
 
@@ -107,22 +133,23 @@ async function logout(): Promise<void> {
             </OverlayBadge>
             <i v-else class="pi pi-bell" />
           </NuxtLink>
-          <Avatar
-            :image="user.avatarUrl ?? undefined"
-            :label="
-              user.avatarUrl ? undefined : user.username[0]?.toUpperCase()
-            "
-            shape="circle"
-          />
-          <span class="topbar__username">{{ user.username }}</span>
-          <Button
-            icon="pi pi-sign-out"
-            severity="secondary"
-            text
-            rounded
-            :aria-label="t('nav.logout')"
-            @click="logout"
-          />
+          <button
+            type="button"
+            class="topbar__profile"
+            :aria-label="t('nav.profile')"
+            @click="toggleProfileMenu"
+          >
+            <Avatar
+              :image="user.avatarUrl ?? undefined"
+              :label="
+                user.avatarUrl ? undefined : user.username[0]?.toUpperCase()
+              "
+              shape="circle"
+            />
+            <span class="topbar__username">{{ user.username }}</span>
+            <i class="pi pi-angle-down topbar__chevron" />
+          </button>
+          <Menu ref="profileMenu" :model="profileMenuItems" popup />
         </div>
       </header>
 
@@ -188,10 +215,6 @@ async function logout(): Promise<void> {
     text-transform: uppercase;
     color: $text-muted;
     margin-bottom: 0.6rem;
-
-    &--other {
-      margin-top: 1.5rem;
-    }
   }
 
   &__item {
@@ -278,10 +301,32 @@ async function logout(): Promise<void> {
     }
   }
 
+  &__profile {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.35rem 0.6rem;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover {
+      background: $bg-card-hover;
+    }
+  }
+
   &__username {
     font-size: 0.92rem;
     font-weight: 500;
     color: $text-secondary;
+  }
+
+  &__chevron {
+    font-size: 0.8rem;
+    color: $text-muted;
   }
 }
 

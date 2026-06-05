@@ -9,11 +9,10 @@
   "nav": {
     "brand": "Platform",
     "section": "Account",
-    "other": "Other",
     "greeting": "Welcome, {username}",
     "dashboard": "Dashboard",
     "organizations": "Organizations",
-    "settings": "Settings",
+    "profile": "Account settings",
     "logout": "Log out"
   },
   "auth": {
