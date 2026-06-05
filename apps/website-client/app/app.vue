@@ -1,14 +1,11 @@
 <template>
-  <div class="app">
-    <SidebarPanel />
-    <main class="content">
-      <nuxt-page />
-    </main>
-  </div>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>
 
 <style lang="scss">
-@import url('https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 * {
   margin: 0;
@@ -17,30 +14,17 @@
 }
 
 body {
-  font-family: 'Play', sans-serif;
-  background: $bg-card-alt;
+  font-family: 'Inter', sans-serif;
+  background: $bg-page;
   color: $text-primary;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-.app {
-  display: flex;
-  min-height: 100vh;
-}
-
-.content {
-  flex: 1;
-  min-width: 0;
-}
-
-@media (max-width: $mobile) {
-  .app {
-    flex-direction: column;
-    padding-bottom: $bottom-bar-height;
-  }
-
-  .content {
-    order: -1;
-  }
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 </style>

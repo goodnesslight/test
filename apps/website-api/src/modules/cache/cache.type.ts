@@ -1,3 +1,4 @@
 export enum CacheKey {
   SERVERS = 'SERVERS',
+  AUTH_REFRESH_TOKENS = 'AUTH_REFRESH_TOKENS',
 }

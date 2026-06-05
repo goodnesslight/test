@@ -1,23 +1,25 @@
-$accent: #f00375;
+$accent: #4f7df9;
+$accent-soft: rgba(79, 125, 249, 0.12);
+$accent-border: rgba(79, 125, 249, 0.45);
 
-$bg-page: #0a0a0a;
-$bg-dark: #0d0d0d;
-$bg-card: #111111;
-$bg-card-alt: #0e0e0e;
-$bg-card-hover: #161616;
-$bg-sidebar: #141414;
+$bg-page: #0e0f12;
+$bg-dark: #0b0c0e;
+$bg-card: #17181c;
+$bg-card-alt: #131417;
+$bg-card-hover: #1c1e23;
+$bg-sidebar: #111216;
 
-$border: #1a1a1a;
-$border-light: #1e1e1e;
+$border: #232529;
+$border-light: #2c2e36;
 
-$text-primary: #e0e0e0;
-$text-secondary: #c8c8c8;
-$text-dim: #888;
-$text-muted: #555;
-$text-subtle: #444;
+$text-primary: #e8e9ec;
+$text-secondary: #c9ccd4;
+$text-dim: #8b8e98;
+$text-muted: #5b5e6a;
+$text-subtle: #3f424d;
 
-$color-win: #4caf50;
-$color-loss: #f44336;
+$color-win: #34c77b;
+$color-loss: #e5484d;
 
 $mobile: 768px;
 $bottom-bar-height: 56px;

@@ -1,1 +1,136 @@
-{}
+{
+  "common": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "error": "Ошибка"
+  },
+  "nav": {
+    "brand": "Platform",
+    "section": "Аккаунт",
+    "other": "Прочее",
+    "greeting": "Привет, {username}",
+    "dashboard": "Дашборд",
+    "organizations": "Организации",
+    "settings": "Настройки",
+    "logout": "Выйти"
+  },
+  "auth": {
+    "loginTitle": "Вход",
+    "registerTitle": "Регистрация",
+    "email": "Email",
+    "username": "Никнейм",
+    "password": "Пароль",
+    "login": "Войти",
+    "register": "Создать аккаунт",
+    "google": "Войти через Google",
+    "noAccount": "Нет аккаунта?",
+    "haveAccount": "Уже есть аккаунт?",
+    "toRegister": "Зарегистрироваться",
+    "toLogin": "Войти",
+    "or": "или"
+  },
+  "dashboard": {
+    "organizations": "Организации",
+    "teams": "Команды",
+    "players": "Игроки",
+    "myOrganizations": "Мои организации",
+    "goToOrganizations": "К организациям"
+  },
+  "organizations": {
+    "title": "Мои организации",
+    "create": "Создать организацию",
+    "edit": "Редактировать организацию",
+    "empty": "У тебя пока нет организаций — создай первую!",
+    "name": "Название",
+    "tag": "Тег",
+    "logoUrl": "Ссылка на лого",
+    "teamsCount": "Команды",
+    "created": "Создана",
+    "deleteHeader": "Удаление организации",
+    "deleteConfirm": "Удалить организацию «{name}» со всеми её командами? Это действие необратимо."
+  },
+  "teams": {
+    "title": "Команды",
+    "create": "Создать команду",
+    "edit": "Редактировать команду",
+    "empty": "В организации пока нет команд — создай первую!",
+    "name": "Название",
+    "game": "Игра",
+    "members": "Состав",
+    "noMembers": "В составе пока никого — приглашения игроков появятся в следующей фиче",
+    "role": "Роль",
+    "created": "Создана",
+    "joined": "В команде с",
+    "deleteHeader": "Удаление команды",
+    "deleteConfirm": "Удалить команду «{name}»? Это действие необратимо."
+  },
+  "roles": {
+    "coach": "Тренер",
+    "captain": "Капитан",
+    "player": "Игрок",
+    "substitute": "Запасной"
+  },
+  "invites": {
+    "title": "Приглашения",
+    "invite": "Пригласить игрока",
+    "identifier": "Никнейм или email",
+    "send": "Отправить",
+    "pending": "Ожидают ответа",
+    "accept": "Принять",
+    "decline": "Отклонить",
+    "revoke": "Отозвать",
+    "empty": "Входящих приглашений нет",
+    "invitedYou": "приглашает тебя в команду «{team}»",
+    "acceptedToast": "Ты в составе «{team}»!",
+    "kick": "Исключить",
+    "kickHeader": "Исключение из состава",
+    "kickConfirm": "Исключить {username} из состава?",
+    "leave": "Покинуть",
+    "leaveHeader": "Выход из команды",
+    "leaveConfirm": "Покинуть состав этой команды?"
+  },
+  "settings": {
+    "title": "Личный кабинет",
+    "profile": "Профиль",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "language": "Язык интерфейса",
+    "languages": {
+      "ru": "Русский",
+      "en": "English"
+    },
+    "changeAvatar": "Сменить аватар",
+    "avatarHint": "PNG, JPEG или WEBP, до 2 МБ",
+    "avatarUpdated": "Аватар обновлён",
+    "saved": "Настройки сохранены"
+  },
+  "events": {
+    "title": "Расписание",
+    "create": "Добавить событие",
+    "edit": "Редактировать событие",
+    "type": "Тип",
+    "eventTitle": "Название",
+    "opponent": "Соперник",
+    "startsAt": "Начало",
+    "endsAt": "Окончание",
+    "description": "Описание",
+    "empty": "Событий пока нет — запланируй первую тренировку!",
+    "noUpcoming": "Предстоящих событий нет",
+    "past": "Прошедшие",
+    "deleteHeader": "Удаление события",
+    "deleteConfirm": "Удалить событие «{title}»?",
+    "types": {
+      "practice": "Тренировка",
+      "scrim": "Скрим",
+      "match": "Матч",
+      "tournament": "Турнир"
+    },
+    "attendance": {
+      "going": "Иду",
+      "maybe": "Возможно",
+      "declined": "Не иду"
+    }
+  }
+}

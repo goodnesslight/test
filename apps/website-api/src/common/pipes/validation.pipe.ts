@@ -9,7 +9,9 @@ export class ValidationPipe extends NestValidationPipe {
     super({
       transform: true,
       whitelist: true,
-      validateCustomDecorators: true,
+      // Custom param decorators (e.g. @CurrentUser) return entities without
+      // class-validator metadata; validating them strips all properties.
+      validateCustomDecorators: false,
       validationError: {
         target: false,
         value: false,

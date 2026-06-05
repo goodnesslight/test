@@ -13,10 +13,13 @@
   },
   "references": [
     {
-      "path": "../../libs/shared/dtos"
+      "path": "../../libs/shared/utils"
     },
     {
       "path": "../../libs/shared/types"
+    },
+    {
+      "path": "../../libs/shared/dtos"
     }
   ],
   "include": [

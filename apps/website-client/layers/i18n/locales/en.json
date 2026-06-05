@@ -1,1 +1,136 @@
-{}
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "error": "Error"
+  },
+  "nav": {
+    "brand": "Platform",
+    "section": "Account",
+    "other": "Other",
+    "greeting": "Welcome, {username}",
+    "dashboard": "Dashboard",
+    "organizations": "Organizations",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "auth": {
+    "loginTitle": "Sign in",
+    "registerTitle": "Sign up",
+    "email": "Email",
+    "username": "Username",
+    "password": "Password",
+    "login": "Sign in",
+    "register": "Create account",
+    "google": "Sign in with Google",
+    "noAccount": "No account?",
+    "haveAccount": "Already have an account?",
+    "toRegister": "Sign up",
+    "toLogin": "Sign in",
+    "or": "or"
+  },
+  "dashboard": {
+    "organizations": "Organizations",
+    "teams": "Teams",
+    "players": "Players",
+    "myOrganizations": "My organizations",
+    "goToOrganizations": "Go to organizations"
+  },
+  "organizations": {
+    "title": "My organizations",
+    "create": "Create organization",
+    "edit": "Edit organization",
+    "empty": "You have no organizations yet — create your first one!",
+    "name": "Name",
+    "tag": "Tag",
+    "logoUrl": "Logo URL",
+    "teamsCount": "Teams",
+    "created": "Created",
+    "deleteHeader": "Delete organization",
+    "deleteConfirm": "Delete organization \"{name}\" with all of its teams? This cannot be undone."
+  },
+  "teams": {
+    "title": "Teams",
+    "create": "Create team",
+    "edit": "Edit team",
+    "empty": "No teams in this organization yet — create the first one!",
+    "name": "Name",
+    "game": "Game",
+    "members": "Roster",
+    "noMembers": "No players yet — invites are coming in the next feature",
+    "role": "Role",
+    "created": "Created",
+    "joined": "Joined",
+    "deleteHeader": "Delete team",
+    "deleteConfirm": "Delete team \"{name}\"? This cannot be undone."
+  },
+  "roles": {
+    "coach": "Coach",
+    "captain": "Captain",
+    "player": "Player",
+    "substitute": "Substitute"
+  },
+  "invites": {
+    "title": "Invites",
+    "invite": "Invite player",
+    "identifier": "Username or email",
+    "send": "Send",
+    "pending": "Pending",
+    "accept": "Accept",
+    "decline": "Decline",
+    "revoke": "Revoke",
+    "empty": "No incoming invites",
+    "invitedYou": "invites you to join \"{team}\"",
+    "acceptedToast": "You joined \"{team}\"!",
+    "kick": "Kick",
+    "kickHeader": "Remove from roster",
+    "kickConfirm": "Remove {username} from the roster?",
+    "leave": "Leave",
+    "leaveHeader": "Leave team",
+    "leaveConfirm": "Leave this team's roster?"
+  },
+  "settings": {
+    "title": "Account settings",
+    "profile": "Profile",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "language": "Interface language",
+    "languages": {
+      "ru": "Русский",
+      "en": "English"
+    },
+    "changeAvatar": "Change avatar",
+    "avatarHint": "PNG, JPEG or WEBP, up to 2 MB",
+    "avatarUpdated": "Avatar updated",
+    "saved": "Settings saved"
+  },
+  "events": {
+    "title": "Schedule",
+    "create": "Add event",
+    "edit": "Edit event",
+    "type": "Type",
+    "eventTitle": "Title",
+    "opponent": "Opponent",
+    "startsAt": "Starts",
+    "endsAt": "Ends",
+    "description": "Description",
+    "empty": "No events yet — schedule your first practice!",
+    "noUpcoming": "No upcoming events",
+    "past": "Past",
+    "deleteHeader": "Delete event",
+    "deleteConfirm": "Delete event \"{title}\"?",
+    "types": {
+      "practice": "Practice",
+      "scrim": "Scrim",
+      "match": "Match",
+      "tournament": "Tournament"
+    },
+    "attendance": {
+      "going": "Going",
+      "maybe": "Maybe",
+      "declined": "Not going"
+    }
+  }
+}

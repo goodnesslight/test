@@ -1,3 +1,5 @@
+import { join } from 'node:path';
+
 import { AppModule } from '@app/app.module';
 import { ExceptionFilter } from '@common/filters/exception.filter';
 import { ValidationPipe } from '@common/pipes/validation.pipe';
@@ -6,15 +8,17 @@ import cookieParser from 'cookie-parser';
 
 import { EnvironmentType } from '@shared/types';
 
-import { INestApplication, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 
 import 'reflect-metadata';
 
 async function bootstrap(): Promise<void> {
-  const app: INestApplication = await NestFactory.create(AppModule);
+  const app: NestExpressApplication =
+    await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.enableCors({
     origin: true,
@@ -27,6 +31,12 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new ExceptionFilter());
 
   const configService: ConfigService = app.get(ConfigService);
+
+  app.useStaticAssets(
+    join(process.cwd(), configService.getOrThrow(ConfigKey.UPLOADS_DIR)),
+    { prefix: '/uploads' }
+  );
+
   const host: string = configService.getOrThrow(ConfigKey.HOST);
   const port: number | undefined = configService.getOrThrow(ConfigKey.PORT);
   const isDevelopment: boolean =

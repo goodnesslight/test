@@ -1,9 +1,11 @@
 import {
   type ApiRoute,
+  type HttpErrorResponse,
   HttpMethod,
   type HttpResponse,
   type HttpSuccessResponse,
 } from '@shared/types';
+import { isRecord } from '@shared/utils';
 
 import { ConfigKey } from '../../config/types';
 
@@ -22,6 +24,11 @@ export interface ApiService {
   ): Promise<HttpResponse<T>>;
   get<T>(
     route: ApiRoute,
+    dto?: Record<string, unknown>
+  ): Promise<HttpResponse<T>>;
+  upload<T>(
+    route: ApiRoute,
+    file: File,
     dto?: Record<string, unknown>
   ): Promise<HttpResponse<T>>;
 }
@@ -59,45 +66,93 @@ export function useApiService(): ApiService {
     return request<T>(route, HttpMethod.GET, dto);
   }
 
+  async function upload<T>(
+    route: ApiRoute,
+    file: File,
+    dto?: Record<string, unknown>
+  ): Promise<HttpResponse<T>> {
+    try {
+      const formData: FormData = new FormData();
+
+      formData.append('file', file);
+
+      return await $fetch<HttpSuccessResponse<T>>(
+        buildUrl(route, HttpMethod.POST, dto),
+        {
+          method: HttpMethod.POST,
+          credentials: 'include',
+          body: formData,
+        }
+      );
+    } catch (error: unknown) {
+      return toErrorResponse(error);
+    }
+  }
+
   async function request<T>(
     route: ApiRoute,
     method: HttpMethod,
     dto?: Record<string, unknown>
   ): Promise<HttpResponse<T>> {
     try {
-      const params: Record<string, unknown> = dto ? { ...dto } : {};
-      let path: string = String(route);
-
-      for (const [key, value] of Object.entries(params)) {
-        if (path.includes(`:${key}`)) {
-          path = path.replace(`:${key}`, String(value));
-          delete params[key];
+      return await $fetch<HttpSuccessResponse<T>>(
+        buildUrl(route, method, dto),
+        {
+          method,
+          credentials: 'include',
+          body: method !== HttpMethod.GET ? dto : undefined,
         }
-      }
-
-      let url: string = `${apiUrl}/${path}`;
-
-      if (method === HttpMethod.GET && Object.keys(params).length > 0) {
-        const query: string = new URLSearchParams(
-          Object.entries(params).map(([key, value]) => [key, String(value)])
-        ).toString();
-        url += `?${query}`;
-      }
-
-      return await $fetch<HttpSuccessResponse<T>>(url, {
-        method,
-        credentials: 'include',
-        body: method !== HttpMethod.GET ? dto : undefined,
-      });
-    } catch {
-      return {
-        error: 'Request failed',
-        isSuccess: false,
-        data: null,
-        timestamp: new Date().toISOString(),
-      };
+      );
+    } catch (error: unknown) {
+      return toErrorResponse(error);
     }
   }
 
-  return { post, put, delete: del, get };
+  function buildUrl(
+    route: ApiRoute,
+    method: HttpMethod,
+    dto?: Record<string, unknown>
+  ): string {
+    const params: Record<string, unknown> = dto ? { ...dto } : {};
+    let path: string = String(route);
+
+    for (const [key, value] of Object.entries(params)) {
+      if (path.includes(`:${key}`)) {
+        path = path.replace(`:${key}`, String(value));
+        delete params[key];
+      }
+    }
+
+    let url: string = `${apiUrl}/${path}`;
+
+    if (method === HttpMethod.GET && Object.keys(params).length > 0) {
+      const query: string = new URLSearchParams(
+        Object.entries(params).map(([key, value]) => [key, String(value)])
+      ).toString();
+      url += `?${query}`;
+    }
+
+    return url;
+  }
+
+  function toErrorResponse(error: unknown): HttpErrorResponse {
+    const payload: unknown = isRecord(error) ? error.data : null;
+
+    if (
+      isRecord(payload) &&
+      typeof payload.error === 'string' &&
+      payload.isSuccess === false
+    ) {
+      return payload as unknown as HttpErrorResponse;
+    }
+
+    return {
+      error: 'Request failed',
+      isSuccess: false,
+      data: null,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  return { post, put, delete: del, get, upload };
 }
