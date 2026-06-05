@@ -26,11 +26,6 @@ export interface ApiService {
     route: ApiRoute,
     dto?: Record<string, unknown>
   ): Promise<HttpResponse<T>>;
-  upload<T>(
-    route: ApiRoute,
-    file: File,
-    dto?: Record<string, unknown>
-  ): Promise<HttpResponse<T>>;
 }
 
 export function useApiService(): ApiService {
@@ -64,29 +59,6 @@ export function useApiService(): ApiService {
     dto?: Record<string, unknown>
   ): Promise<HttpResponse<T>> {
     return request<T>(route, HttpMethod.GET, dto);
-  }
-
-  async function upload<T>(
-    route: ApiRoute,
-    file: File,
-    dto?: Record<string, unknown>
-  ): Promise<HttpResponse<T>> {
-    try {
-      const formData: FormData = new FormData();
-
-      formData.append('file', file);
-
-      return await $fetch<HttpSuccessResponse<T>>(
-        buildUrl(route, HttpMethod.POST, dto),
-        {
-          method: HttpMethod.POST,
-          credentials: 'include',
-          body: formData,
-        }
-      );
-    } catch (error: unknown) {
-      return toErrorResponse(error);
-    }
   }
 
   async function request<T>(
@@ -154,5 +126,5 @@ export function useApiService(): ApiService {
     };
   }
 
-  return { post, put, delete: del, get, upload };
+  return { post, put, delete: del, get };
 }

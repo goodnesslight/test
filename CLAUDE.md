@@ -13,6 +13,14 @@ Within every file, declarations must always follow this order:
 7. Exported classes
 8. Internal classes
 
+## Alphabetical order in lists
+
+Keep registration/re-export lists sorted alphabetically:
+
+- Barrel files (`index.ts`): `export * from '...'` lines sorted by path (`./auth` → `./event` → `./invite` → …).
+- NestJS module `imports` arrays: feature modules sorted alphabetically (`AuthModule`, `EventModule`, `InviteModule`, `OrganizationModule`, `TeamModule`, `UserModule`). Infrastructure/config modules (`ConfigModule`, `ScheduleModule`, `CacheModule`, `DatabaseModule`) stay first as their own group.
+- The same applies to any similar list (providers, exports, plugin registrations): new entries go in alphabetical position, not at the end.
+
 ## Shared DTOs (`libs/shared/dtos`)
 
 - **One file per domain.** All DTOs for a domain live in a single file named after the domain: `libs/shared/dtos/src/<domain>.ts` (e.g. `event.ts`, `auth.ts`, `team.ts`). Do not create per-DTO files or domain subfolders.

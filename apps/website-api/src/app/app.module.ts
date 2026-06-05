@@ -20,12 +20,13 @@ import { ScheduleModule } from '@nestjs/schedule';
     ScheduleModule.forRoot(),
     CacheModule,
     DatabaseModule,
-    UserModule,
+
     AuthModule,
+    EventModule,
+    InviteModule,
     OrganizationModule,
     TeamModule,
-    InviteModule,
-    EventModule,
+    UserModule,
   ],
 })
 export class AppModule {}

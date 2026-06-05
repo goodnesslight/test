@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { FileUploadUploaderEvent } from 'primevue/fileupload';
 import { useToast } from 'primevue/usetoast';
 import { computed, type ComputedRef, type Ref, ref, watch } from 'vue';
 
@@ -33,7 +32,6 @@ const firstName: Ref<string> = ref('');
 const lastName: Ref<string> = ref('');
 const locale: Ref<Locale> = ref(Locale.RU);
 const isSaving: Ref<boolean> = ref(false);
-const isUploading: Ref<boolean> = ref(false);
 
 const localeOptions: ComputedRef<LocaleOption[]> = computed(
   (): LocaleOption[] => [
@@ -77,35 +75,6 @@ async function save(): Promise<void> {
   }
 }
 
-async function onUpload(event: FileUploadUploaderEvent): Promise<void> {
-  const files: File[] = Array.isArray(event.files)
-    ? event.files
-    : [event.files];
-  const file: File | undefined = files[0];
-
-  if (!file) {
-    return;
-  }
-
-  isUploading.value = true;
-
-  const response: HttpResponse<UserDto> = await userService.uploadAvatar(
-    file
-  );
-
-  isUploading.value = false;
-
-  if (response.isSuccess) {
-    toast.add({
-      severity: 'success',
-      summary: t('settings.avatarUpdated'),
-      life: 3000,
-    });
-  } else {
-    showError(response.error);
-  }
-}
-
 function showError(message: string): void {
   toast.add({
     severity: 'error',
@@ -124,35 +93,6 @@ function showError(message: string): void {
       <template #title>{{ t('settings.profile') }}</template>
       <template #content>
         <div class="settings-form">
-          <div class="settings-form__avatar">
-            <Avatar
-              :image="user.avatarUrl ?? undefined"
-              :label="
-                user.avatarUrl ? undefined : user.username[0]?.toUpperCase()
-              "
-              size="xlarge"
-              shape="circle"
-              class="settings-form__avatar-preview"
-            />
-            <div class="settings-form__avatar-actions">
-              <FileUpload
-                mode="basic"
-                accept="image/png,image/jpeg,image/webp"
-                :max-file-size="2097152"
-                custom-upload
-                auto
-                :choose-label="t('settings.changeAvatar')"
-                :disabled="isUploading"
-                @uploader="onUpload"
-              />
-              <span class="settings-form__hint">
-                {{ t('settings.avatarHint') }}
-              </span>
-            </div>
-          </div>
-
-          <Divider />
-
           <div class="settings-form__row">
             <div class="settings-form__field">
               <label for="settings-first-name">
@@ -231,31 +171,6 @@ function showError(message: string): void {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-
-  &__avatar {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-  }
-
-  &__avatar-preview {
-    width: 84px;
-    height: 84px;
-    font-size: 2rem;
-    flex-shrink: 0;
-  }
-
-  &__avatar-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: flex-start;
-  }
-
-  &__hint {
-    font-size: 0.82rem;
-    color: $text-muted;
-  }
 
   &__row {
     display: grid;

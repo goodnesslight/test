@@ -1,5 +1,3 @@
-import { join } from 'node:path';
-
 import { AppModule } from '@app/app.module';
 import { ExceptionFilter } from '@common/filters/exception.filter';
 import { ValidationPipe } from '@common/pipes/validation.pipe';
@@ -31,11 +29,6 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new ExceptionFilter());
 
   const configService: ConfigService = app.get(ConfigService);
-
-  app.useStaticAssets(
-    join(process.cwd(), configService.getOrThrow(ConfigKey.UPLOADS_DIR)),
-    { prefix: '/uploads' }
-  );
 
   const host: string = configService.getOrThrow(ConfigKey.HOST);
   const port: number | undefined = configService.getOrThrow(ConfigKey.PORT);

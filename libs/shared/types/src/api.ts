@@ -7,7 +7,6 @@ export enum ApiRoute {
   AUTH_GOOGLE = 'auth/google',
 
   USERS_ME = 'users/me',
-  USERS_ME_AVATAR = 'users/me/avatar',
 
   ORGANIZATIONS = 'organizations',
   ORGANIZATIONS_MY = 'organizations/my',

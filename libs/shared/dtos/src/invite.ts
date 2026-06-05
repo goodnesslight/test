@@ -33,7 +33,6 @@ export class InviteDto {
 }
 
 export class InviteCreateDto {
-  /** Username or email of the invited player. */
   @IsString()
   @Length(3, 320)
   identifier: string;

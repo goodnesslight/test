@@ -100,9 +100,6 @@
       "ru": "Русский",
       "en": "English"
     },
-    "changeAvatar": "Сменить аватар",
-    "avatarHint": "PNG, JPEG или WEBP, до 2 МБ",
-    "avatarUpdated": "Аватар обновлён",
     "saved": "Настройки сохранены"
   },
   "events": {
