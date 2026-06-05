@@ -39,7 +39,7 @@ const totalPlayers: ComputedRef<number> = computed((): number =>
 
 async function loadOrganizations(): Promise<void> {
   const response: HttpResponse<OrganizationDto[]> =
-    await organizationService.getMyOrganizations();
+    await organizationService.getMy();
 
   if (response.isSuccess) {
     organizations.value = response.data;

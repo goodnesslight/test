@@ -62,25 +62,18 @@ export class AuthController {
     return await this.authService.logout(user, response);
   }
 
-  @Get(ApiRoute.AUTH_ME)
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(new ResponseInterceptor(UserDto))
-  me(@CurrentUser() user: UserEntity): UserEntity {
-    return user;
-  }
-
   @Get(ApiRoute.AUTH_GOOGLE)
   @UseGuards(GoogleAuthGuard)
   google(): void {
     // Guard redirects to the Google OAuth consent page
   }
 
-  @Get(ApiRoute.AUTH_GOOGLE_RETURN)
+  @Get(ApiRoute.AUTH_GOOGLE_CALLBACK)
   @UseGuards(GoogleAuthGuard)
-  async googleReturn(
+  async googleCallback(
     @CurrentUser() user: UserEntity,
     @Res() response: Response
   ): Promise<void> {
-    return await this.authService.googleReturn(user, response);
+    return await this.authService.googleCallback(user, response);
   }
 }

@@ -1,6 +1,6 @@
 import { ResponseInterceptor } from '@common/interceptors/response.interceptor';
-import { CurrentUser } from '@modules/user/user.decorator';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
+import { CurrentUser } from '@modules/user/user.decorator';
 import { UserEntity } from '@modules/user/user.entity';
 
 import {
@@ -39,11 +39,7 @@ export class TeamController {
     @CurrentUser() user: UserEntity,
     @Body() dto: TeamCreateDto
   ): Promise<TeamEntity> {
-    return await this.teamService.createInOrganization(
-      organizationId,
-      user,
-      dto
-    );
+    return await this.teamService.create(organizationId, user, dto);
   }
 
   @Put(ApiRoute.TEAMS_BY_ID)

@@ -53,7 +53,7 @@ Keep registration/re-export lists sorted alphabetically:
 
 - **Auth strategies and guards share the `<scheme>-auth` name.** A strategy file is named like its guard: `jwt-auth.strategy.ts` (`JwtAuthStrategy`) pairs with `jwt-auth.guard.ts` (`JwtAuthGuard`), `google-auth.strategy.ts` (`GoogleAuthStrategy`) with `google-auth.guard.ts` (`GoogleAuthGuard`) — not `jwt.strategy.ts`/`JwtStrategy`.
 - **Thin controllers — no logic in controllers, everything lives in services.** A handler body is a single delegation: `return await this.someService.method(...)`. No branching, no cookie/token work, no `return null` after a void call (the service returns `null` itself), no building responses. When HTTP primitives are needed (cookies, redirects), pass `request`/`response` through to the service and let it do the work there.
-- **Route paths come from the shared `ApiRoute` enum** (`@shared/types`). Never hand-write route strings in controller decorators: `@Delete(ApiRoute.TEAM_MEMBERS_BY_ID)`, not `@Delete('teams/:id/members/:memberId')`.
+- **Route paths come from the shared `ApiRoute` enum** (`@shared/types`). Never hand-write route strings in controller decorators: `@Delete(ApiRoute.TEAM_MEMBERS_BY_ID)`, not `@Delete('teams/:id/members/:memberId')`. This applies everywhere a path is built, including auth strategies (`callbackURL: \`${origin}/api/${ApiRoute.AUTH_GOOGLE_CALLBACK}\``).
 - **Parameter order in controller handlers and service methods:** entity ids first (in path order: `id` → `memberId`), then `user`, then `dto`:
 
   ```ts
@@ -77,6 +77,15 @@ Keep registration/re-export lists sorted alphabetically:
   ```
 
   Constant-like `private readonly` class members are named in `UPPER_CASE`, same as regular constants (`private readonly MANAGER_ROLES`, not `managerRoles`).
+
+## API routes (`ApiRoute` enum in `libs/shared/types/src/api.ts`)
+
+- **Key naming — plural vs singular prefix.** Plural when the route hangs on the collection root (`ORGANIZATIONS`, `ORGANIZATIONS_MY`, `ORGANIZATIONS_BY_ID`, `EVENTS_BY_ID`); singular when the route hangs under one entity, i.e. after `:id/...` (`ORGANIZATION_TEAMS`, `TEAM_EVENTS`, `INVITE_ACCEPT`, `EVENT_ATTENDANCE`).
+- **Group order:** `AUTH` first (infrastructure group, like `ConfigModule` in module imports), then resource groups alphabetically (`EVENTS` → `INVITES` → `ORGANIZATIONS` → `TEAMS` → `USERS`). Groups are separated by a blank line; no header comments — the key prefix is the header.
+- **Order inside a group:** collection root (`organizations`) → static segments (`organizations/my`) → `:id` route (`organizations/:id`) → nested sub-resources/actions under `:id`, alphabetically (`TEAM_EVENTS` → `TEAM_INVITES` → `TEAM_MEMBERS_BY_ID`). Auth keeps natural flow order (`register` → `login` → `refresh` → `logout` → `google` → `google/callback`).
+- **Path parameter naming:** the first path parameter is always `:id` — also in nested routes (`teams/:id/events`, `organizations/:id/teams`); deeper parameters are named after their entity (`teams/:id/members/:memberId`). Handlers alias `:id` to a descriptive variable when needed: `@Param('id', ParseIntPipe) teamId: number`.
+- Routes are grouped by URL prefix, not by serving controller (`TEAM_EVENTS` is served by `EventController` — that's fine; the enum is a map of the URL space, not of modules).
+- OAuth callback routes are named `callback` (`auth/google/callback`), not `return`.
 
 ## Migrations (`apps/website-api/migrations`)
 

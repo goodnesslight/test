@@ -26,7 +26,7 @@ export class TeamService {
     private readonly teamMemberRepository: TeamMemberRepository
   ) {}
 
-  async createInOrganization(
+  async create(
     organizationId: number,
     user: UserEntity,
     dto: TeamCreateDto
@@ -107,7 +107,6 @@ export class TeamService {
     const isSelf: boolean = member.userId === user.id;
     const isOwner: boolean = team.organization.ownerId === user.id;
 
-    // Members can leave on their own; everyone else is removed by the owner.
     if (!isSelf && !isOwner) {
       throw new ForbiddenException('Only the organization owner can do this');
     }

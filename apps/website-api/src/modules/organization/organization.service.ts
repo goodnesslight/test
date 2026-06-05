@@ -74,7 +74,7 @@ export class OrganizationService {
     return organization;
   }
 
-  async getMyOrganizations(user: UserEntity): Promise<OrganizationEntity[]> {
+  async getMy(user: UserEntity): Promise<OrganizationEntity[]> {
     return await this.organizationRepository.findAllByUser(user.id);
   }
 

@@ -63,7 +63,7 @@ export function useAuthService(): AuthService {
 
   async function fetchMe(): Promise<UserDto | null> {
     const meResponse: HttpResponse<UserDto> = await apiService.get<UserDto>(
-      ApiRoute.AUTH_ME
+      ApiRoute.USERS_ME
     );
 
     if (meResponse.isSuccess) {

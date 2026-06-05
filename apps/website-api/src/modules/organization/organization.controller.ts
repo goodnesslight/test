@@ -1,6 +1,6 @@
 import { ResponseInterceptor } from '@common/interceptors/response.interceptor';
-import { CurrentUser } from '@modules/user/user.decorator';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
+import { CurrentUser } from '@modules/user/user.decorator';
 import { UserEntity } from '@modules/user/user.entity';
 
 import {
@@ -52,10 +52,10 @@ export class OrganizationController {
 
   @Get(ApiRoute.ORGANIZATIONS_MY)
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
-  async getMyOrganizations(
+  async getMy(
     @CurrentUser() user: UserEntity
   ): Promise<OrganizationEntity[]> {
-    return await this.organizationService.getMyOrganizations(user);
+    return await this.organizationService.getMy(user);
   }
 
   @Get(ApiRoute.ORGANIZATIONS_BY_ID)

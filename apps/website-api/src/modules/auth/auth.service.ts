@@ -139,7 +139,7 @@ export class AuthService {
     return null;
   }
 
-  async googleReturn(user: UserEntity, response: Response): Promise<void> {
+  async googleCallback(user: UserEntity, response: Response): Promise<void> {
     this.setAuthCookies(response, await this.issueTokens(user));
     response.redirect(this.configService.getOrThrow(ConfigKey.CLIENT_URL));
   }
@@ -157,7 +157,7 @@ export class AuthService {
         profile.email
       );
 
-      // The same email is already registered — link the Google account to it.
+      // The same email is already registered — link the Google account to it
       if (byEmail) {
         byEmail.googleId = profile.googleId;
         byEmail.avatarUrl = byEmail.avatarUrl ?? profile.avatarUrl;

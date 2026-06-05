@@ -23,7 +23,7 @@ async function loadOrganizations(): Promise<void> {
   isLoading.value = true;
 
   const response: HttpResponse<OrganizationDto[]> =
-    await organizationService.getMyOrganizations();
+    await organizationService.getMy();
 
   if (response.isSuccess) {
     organizations.value = response.data;

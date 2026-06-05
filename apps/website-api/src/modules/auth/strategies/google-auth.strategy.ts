@@ -2,7 +2,7 @@ import { ConfigKey } from '@common/types/config.type';
 import { UserEntity } from '@modules/user/user.entity';
 import { Profile, Strategy } from 'passport-google-oauth20';
 
-import { EnvironmentType } from '@shared/types';
+import { ApiRoute, EnvironmentType } from '@shared/types';
 
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -28,7 +28,7 @@ export class GoogleAuthStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: configService.getOrThrow(ConfigKey.GOOGLE_CLIENT_ID),
       clientSecret: configService.getOrThrow(ConfigKey.GOOGLE_CLIENT_SECRET),
-      callbackURL: `${origin}/api/auth/google/return`,
+      callbackURL: `${origin}/api/${ApiRoute.AUTH_GOOGLE_CALLBACK}`,
       scope: ['email', 'profile'],
     });
   }

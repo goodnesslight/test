@@ -7,6 +7,7 @@ import { ApiRoute } from '@shared/types';
 import {
   Body,
   Controller,
+  Get,
   Put,
   UseGuards,
   UseInterceptors,
@@ -28,5 +29,11 @@ export class UserController {
     @Body() dto: UserUpdateProfileDto
   ): Promise<UserEntity> {
     return await this.userService.updateProfile(user, dto);
+  }
+
+  @Get(ApiRoute.USERS_ME)
+  @UseInterceptors(new ResponseInterceptor(UserDto))
+  getMe(@CurrentUser() user: UserEntity): UserEntity {
+    return user;
   }
 }
