@@ -1,6 +1,6 @@
 import { ResponseInterceptor } from '@common/interceptors/response.interceptor';
-import { CurrentUser } from '@modules/auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
+import { CurrentUser } from '@modules/user/user.decorator';
 import { UserEntity } from '@modules/user/user.entity';
 
 import {

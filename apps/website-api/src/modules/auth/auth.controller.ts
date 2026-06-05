@@ -1,4 +1,5 @@
 import { ResponseInterceptor } from '@common/interceptors/response.interceptor';
+import { CurrentUser } from '@modules/user/user.decorator';
 import { UserEntity } from '@modules/user/user.entity';
 import type { Request, Response } from 'express';
 
@@ -17,7 +18,6 @@ import {
 } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
-import { CurrentUser } from './decorators/current-user.decorator';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 

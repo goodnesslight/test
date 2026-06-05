@@ -1,5 +1,4 @@
 import { ResponseInterceptor } from '@common/interceptors/response.interceptor';
-import { CurrentUser } from '@modules/auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
 import { UserDto, UserUpdateProfileDto } from '@shared/dtos';
@@ -13,6 +12,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 
+import { CurrentUser } from './user.decorator';
 import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
 
