@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { UserEntity } from '@modules/user/user.entity';
 
 import { InviteCreateDto, InviteDto } from '@shared/dtos';
+import { ApiRoute } from '@shared/types';
 
 import {
   Body,
@@ -25,61 +26,55 @@ import { InviteService } from './invite.service';
 export class InviteController {
   constructor(private readonly inviteService: InviteService) {}
 
-  @Post('teams/:id/invites')
+  @Post(ApiRoute.TEAM_INVITES)
   @UseInterceptors(new ResponseInterceptor(InviteDto))
   async create(
-    @CurrentUser() user: UserEntity,
     @Param('id', ParseIntPipe) teamId: number,
+    @CurrentUser() user: UserEntity,
     @Body() dto: InviteCreateDto
   ): Promise<InviteEntity> {
-    return await this.inviteService.create(teamId, user.id, dto);
+    return await this.inviteService.create(teamId, user, dto);
   }
 
-  @Get('teams/:id/invites')
-  @UseInterceptors(new ResponseInterceptor(InviteDto))
-  async getPendingForTeam(
-    @CurrentUser() user: UserEntity,
-    @Param('id', ParseIntPipe) teamId: number
-  ): Promise<InviteEntity[]> {
-    return await this.inviteService.getPendingForTeam(teamId, user.id);
-  }
-
-  @Get('invites/my')
-  @UseInterceptors(new ResponseInterceptor(InviteDto))
-  async getMyPending(@CurrentUser() user: UserEntity): Promise<InviteEntity[]> {
-    return await this.inviteService.getMyPending(user.id);
-  }
-
-  @Post('invites/:id/accept')
+  @Post(ApiRoute.INVITE_ACCEPT)
   @UseInterceptors(new ResponseInterceptor())
   async accept(
-    @CurrentUser() user: UserEntity,
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: UserEntity
   ): Promise<null> {
-    await this.inviteService.accept(id, user.id);
-
-    return null;
+    return await this.inviteService.accept(id, user);
   }
 
-  @Post('invites/:id/decline')
+  @Post(ApiRoute.INVITE_DECLINE)
   @UseInterceptors(new ResponseInterceptor())
   async decline(
-    @CurrentUser() user: UserEntity,
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: UserEntity
   ): Promise<null> {
-    await this.inviteService.decline(id, user.id);
-
-    return null;
+    return await this.inviteService.decline(id, user);
   }
 
-  @Delete('invites/:id')
+  @Get(ApiRoute.TEAM_INVITES)
+  @UseInterceptors(new ResponseInterceptor(InviteDto))
+  async getPendingForTeam(
+    @Param('id', ParseIntPipe) teamId: number,
+    @CurrentUser() user: UserEntity
+  ): Promise<InviteEntity[]> {
+    return await this.inviteService.getPendingForTeam(teamId, user);
+  }
+
+  @Get(ApiRoute.INVITES_MY)
+  @UseInterceptors(new ResponseInterceptor(InviteDto))
+  async getMyPending(@CurrentUser() user: UserEntity): Promise<InviteEntity[]> {
+    return await this.inviteService.getMyPending(user);
+  }
+
+  @Delete(ApiRoute.INVITES_BY_ID)
   @UseInterceptors(new ResponseInterceptor())
   async revoke(
-    @CurrentUser() user: UserEntity,
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: UserEntity
   ): Promise<null> {
-    await this.inviteService.revoke(id, user.id);
-
-    return null;
+    return await this.inviteService.revoke(id, user);
   }
 }

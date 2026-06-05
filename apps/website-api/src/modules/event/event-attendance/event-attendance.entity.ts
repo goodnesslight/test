@@ -2,34 +2,33 @@ import { BasicEntity } from '@modules/database/basic/entity.basic';
 import { UserEntity } from '@modules/user/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 
-import { TeamMemberRole } from '@shared/types';
+import { EventAttendanceStatus } from '@shared/types';
 
-import { TeamEntity } from './team.entity';
+import { EventEntity } from '../event.entity';
 
-@Entity('team_members')
-@Unique(['teamId', 'userId'])
-export class TeamMemberEntity extends BasicEntity {
+@Entity('event_attendances')
+@Unique(['eventId', 'userId'])
+export class EventAttendanceEntity extends BasicEntity {
   @Column({ type: 'int' })
-  teamId: number;
+  eventId: number;
 
   @Column({ type: 'int' })
   userId: number;
 
   @Column({
     type: 'enum',
-    enum: TeamMemberRole,
-    enumName: 'team_member_role',
-    default: TeamMemberRole.PLAYER,
+    enum: EventAttendanceStatus,
+    enumName: 'attendance_status',
   })
-  role: TeamMemberRole;
+  status: EventAttendanceStatus;
 
   @ManyToOne(
-    () => TeamEntity,
-    (team: TeamEntity) => team.members,
+    () => EventEntity,
+    (event: EventEntity) => event.attendances,
     { onDelete: 'CASCADE' }
   )
-  @JoinColumn({ name: 'teamId' })
-  team: TeamEntity;
+  @JoinColumn({ name: 'eventId' })
+  event: EventEntity;
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })

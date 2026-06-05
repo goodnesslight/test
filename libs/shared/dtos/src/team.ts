@@ -21,15 +21,15 @@ export class TeamDto {
   game: GameType;
 
   @Expose()
-  @Type(() => OrganizationLiteDto)
-  organization?: OrganizationLiteDto;
-
-  @Expose()
   @Type(() => TeamMemberDto)
   members: TeamMemberDto[];
 
   @Expose()
   createdAt: Date;
+
+  @Expose()
+  @Type(() => OrganizationLiteDto)
+  organization?: OrganizationLiteDto;
 }
 
 @Exclude()

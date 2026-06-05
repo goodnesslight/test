@@ -7,7 +7,6 @@ export const CurrentUser: ReturnType<typeof createParamDecorator> =
   createParamDecorator(
     (_data: unknown, context: ExecutionContext): UserEntity => {
       const request: Request = context.switchToHttp().getRequest<Request>();
-
       return request.user as UserEntity;
     }
   );

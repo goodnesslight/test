@@ -18,7 +18,7 @@ export class OrganizationService {
   ) {}
 
   async create(
-    owner: UserEntity,
+    user: UserEntity,
     dto: OrganizationCreateDto
   ): Promise<OrganizationEntity> {
     const organization: OrganizationEntity =
@@ -27,11 +27,27 @@ export class OrganizationService {
           name: dto.name,
           tag: dto.tag,
           logoUrl: dto.logoUrl ?? null,
-          ownerId: owner.id,
+          ownerId: user.id,
         })
       );
 
     return await this.getById(organization.id);
+  }
+
+  async update(
+    id: number,
+    user: UserEntity,
+    dto: OrganizationUpdateDto
+  ): Promise<OrganizationEntity> {
+    const organization: OrganizationEntity = await this.getOwnedById(id, user);
+
+    await this.organizationRepository.update(id, {
+      name: dto.name ?? organization.name,
+      tag: dto.tag ?? organization.tag,
+      logoUrl: dto.logoUrl === undefined ? organization.logoUrl : dto.logoUrl,
+    });
+
+    return await this.getById(id);
   }
 
   async getById(id: number): Promise<OrganizationEntity> {
@@ -45,41 +61,27 @@ export class OrganizationService {
     return organization;
   }
 
-  async getOwnedById(id: number, userId: number): Promise<OrganizationEntity> {
+  async getOwnedById(
+    id: number,
+    user: UserEntity
+  ): Promise<OrganizationEntity> {
     const organization: OrganizationEntity = await this.getById(id);
 
-    if (organization.ownerId !== userId) {
+    if (organization.ownerId !== user.id) {
       throw new ForbiddenException('Only the organization owner can do this');
     }
 
     return organization;
   }
 
-  async getMyOrganizations(userId: number): Promise<OrganizationEntity[]> {
-    return await this.organizationRepository.findAllByUser(userId);
+  async getMyOrganizations(user: UserEntity): Promise<OrganizationEntity[]> {
+    return await this.organizationRepository.findAllByUser(user.id);
   }
 
-  async update(
-    id: number,
-    userId: number,
-    dto: OrganizationUpdateDto
-  ): Promise<OrganizationEntity> {
-    const organization: OrganizationEntity = await this.getOwnedById(
-      id,
-      userId
-    );
-
-    await this.organizationRepository.update(id, {
-      name: dto.name ?? organization.name,
-      tag: dto.tag ?? organization.tag,
-      logoUrl: dto.logoUrl === undefined ? organization.logoUrl : dto.logoUrl,
-    });
-
-    return await this.getById(id);
-  }
-
-  async delete(id: number, userId: number): Promise<void> {
-    await this.getOwnedById(id, userId);
+  async delete(id: number, user: UserEntity): Promise<null> {
+    await this.getOwnedById(id, user);
     await this.organizationRepository.delete(id);
+
+    return null;
   }
 }

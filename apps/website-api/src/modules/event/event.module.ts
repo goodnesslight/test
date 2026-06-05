@@ -7,8 +7,8 @@ import { EventController } from './event.controller';
 import { EventEntity } from './event.entity';
 import { EventRepository } from './event.repository';
 import { EventService } from './event.service';
-import { EventAttendanceEntity } from './event-attendance.entity';
-import { EventAttendanceRepository } from './event-attendance.repository';
+import { EventAttendanceEntity } from './event-attendance/event-attendance.entity';
+import { EventAttendanceRepository } from './event-attendance/event-attendance.repository';
 
 @Module({
   imports: [

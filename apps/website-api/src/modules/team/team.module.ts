@@ -7,8 +7,8 @@ import { TeamController } from './team.controller';
 import { TeamEntity } from './team.entity';
 import { TeamRepository } from './team.repository';
 import { TeamService } from './team.service';
-import { TeamMemberEntity } from './team-member.entity';
-import { TeamMemberRepository } from './team-member.repository';
+import { TeamMemberEntity } from './team-member/team-member.entity';
+import { TeamMemberRepository } from './team-member/team-member.repository';
 
 @Module({
   imports: [

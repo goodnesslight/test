@@ -8,6 +8,7 @@ import {
   OrganizationDto,
   OrganizationUpdateDto,
 } from '@shared/dtos';
+import { ApiRoute } from '@shared/types';
 
 import {
   Body,
@@ -25,12 +26,12 @@ import {
 import { OrganizationEntity } from './organization.entity';
 import { OrganizationService } from './organization.service';
 
-@Controller('organizations')
+@Controller()
 @UseGuards(JwtAuthGuard)
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 
-  @Post()
+  @Post(ApiRoute.ORGANIZATIONS)
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
   async create(
     @CurrentUser() user: UserEntity,
@@ -39,15 +40,25 @@ export class OrganizationController {
     return await this.organizationService.create(user, dto);
   }
 
-  @Get('my')
+  @Put(ApiRoute.ORGANIZATIONS_BY_ID)
+  @UseInterceptors(new ResponseInterceptor(OrganizationDto))
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: UserEntity,
+    @Body() dto: OrganizationUpdateDto
+  ): Promise<OrganizationEntity> {
+    return await this.organizationService.update(id, user, dto);
+  }
+
+  @Get(ApiRoute.ORGANIZATIONS_MY)
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
   async getMyOrganizations(
     @CurrentUser() user: UserEntity
   ): Promise<OrganizationEntity[]> {
-    return await this.organizationService.getMyOrganizations(user.id);
+    return await this.organizationService.getMyOrganizations(user);
   }
 
-  @Get(':id')
+  @Get(ApiRoute.ORGANIZATIONS_BY_ID)
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
   async getById(
     @Param('id', ParseIntPipe) id: number
@@ -55,24 +66,12 @@ export class OrganizationController {
     return await this.organizationService.getById(id);
   }
 
-  @Put(':id')
-  @UseInterceptors(new ResponseInterceptor(OrganizationDto))
-  async update(
-    @CurrentUser() user: UserEntity,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: OrganizationUpdateDto
-  ): Promise<OrganizationEntity> {
-    return await this.organizationService.update(id, user.id, dto);
-  }
-
-  @Delete(':id')
+  @Delete(ApiRoute.ORGANIZATIONS_BY_ID)
   @UseInterceptors(new ResponseInterceptor())
   async delete(
-    @CurrentUser() user: UserEntity,
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: UserEntity
   ): Promise<null> {
-    await this.organizationService.delete(id, user.id);
-
-    return null;
+    return await this.organizationService.delete(id, user);
   }
 }

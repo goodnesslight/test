@@ -26,16 +26,7 @@ export class EventDto {
   title: string;
 
   @Expose()
-  opponent: string | null;
-
-  @Expose()
   startsAt: Date;
-
-  @Expose()
-  endsAt: Date | null;
-
-  @Expose()
-  description: string | null;
 
   @Expose()
   @Type(() => EventAttendanceDto)
@@ -43,6 +34,15 @@ export class EventDto {
 
   @Expose()
   createdAt: Date;
+
+  @Expose()
+  opponent: string | null;
+
+  @Expose()
+  endsAt: Date | null;
+
+  @Expose()
+  description: string | null;
 }
 
 @Exclude()
@@ -57,11 +57,11 @@ export class EventAttendanceDto {
   status: EventAttendanceStatus;
 
   @Expose()
-  @Type(() => UserDto)
-  user?: UserDto;
+  createdAt: Date;
 
   @Expose()
-  createdAt: Date;
+  @Type(() => UserDto)
+  user?: UserDto;
 }
 
 export class EventCreateDto {
@@ -72,13 +72,13 @@ export class EventCreateDto {
   @Length(2, 64)
   title: string;
 
+  @IsDateString()
+  startsAt: string;
+
   @IsOptional()
   @IsString()
   @Length(2, 64)
   opponent?: string;
-
-  @IsDateString()
-  startsAt: string;
 
   @IsOptional()
   @IsDateString()

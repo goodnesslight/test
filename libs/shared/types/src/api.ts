@@ -5,6 +5,7 @@ export enum ApiRoute {
   AUTH_LOGOUT = 'auth/logout',
   AUTH_ME = 'auth/me',
   AUTH_GOOGLE = 'auth/google',
+  AUTH_GOOGLE_RETURN = 'auth/google/return',
 
   USERS_ME = 'users/me',
 

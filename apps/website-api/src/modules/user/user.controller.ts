@@ -3,18 +3,25 @@ import { CurrentUser } from '@modules/auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
 import { UserDto, UserUpdateProfileDto } from '@shared/dtos';
+import { ApiRoute } from '@shared/types';
 
-import { Body, Controller, Put, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Put,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 
 import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
 
-@Controller('users')
+@Controller()
 @UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Put('me')
+  @Put(ApiRoute.USERS_ME)
   @UseInterceptors(new ResponseInterceptor(UserDto))
   async updateProfile(
     @CurrentUser() user: UserEntity,

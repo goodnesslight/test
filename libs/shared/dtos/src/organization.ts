@@ -15,9 +15,6 @@ export class OrganizationDto {
   tag: string;
 
   @Expose()
-  logoUrl: string | null;
-
-  @Expose()
   ownerId: number;
 
   @Expose()
@@ -26,6 +23,9 @@ export class OrganizationDto {
 
   @Expose()
   createdAt: Date;
+
+  @Expose()
+  logoUrl: string | null;
 }
 
 @Exclude()
@@ -40,10 +40,10 @@ export class OrganizationLiteDto {
   tag: string;
 
   @Expose()
-  logoUrl: string | null;
+  ownerId: number;
 
   @Expose()
-  ownerId: number;
+  logoUrl: string | null;
 }
 
 export class OrganizationCreateDto {

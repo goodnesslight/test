@@ -1,6 +1,6 @@
 import { TeamEntity } from '@modules/team/team.entity';
 import { TeamService } from '@modules/team/team.service';
-import { TeamMemberEntity } from '@modules/team/team-member.entity';
+import { TeamMemberEntity } from '@modules/team/team-member/team-member.entity';
 import { UserEntity } from '@modules/user/user.entity';
 import { UserRepository } from '@modules/user/user.repository';
 import { DataSource, EntityManager } from 'typeorm';
@@ -21,20 +21,20 @@ import { InviteRepository } from './invite.repository';
 @Injectable()
 export class InviteService {
   constructor(
+    private readonly teamService: TeamService,
     private readonly inviteRepository: InviteRepository,
     private readonly userRepository: UserRepository,
-    private readonly teamService: TeamService,
     private readonly dataSource: DataSource
   ) {}
 
   async create(
     teamId: number,
-    userId: number,
+    user: UserEntity,
     dto: InviteCreateDto
   ): Promise<InviteEntity> {
     const team: TeamEntity = await this.teamService.getById(teamId);
 
-    this.assertIsOrganizationOwner(team, userId);
+    this.assertIsOrganizationOwner(team, user);
 
     const invitedUser: UserEntity | null =
       (await this.userRepository.findByUsername(dto.identifier)) ??
@@ -76,30 +76,15 @@ export class InviteService {
     return invite;
   }
 
-  async getPendingForTeam(
-    teamId: number,
-    userId: number
-  ): Promise<InviteEntity[]> {
-    const team: TeamEntity = await this.teamService.getById(teamId);
-
-    this.assertIsOrganizationOwner(team, userId);
-
-    return await this.inviteRepository.findPendingByTeam(teamId);
-  }
-
-  async getMyPending(userId: number): Promise<InviteEntity[]> {
-    return await this.inviteRepository.findPendingByUser(userId);
-  }
-
-  async accept(id: number, userId: number): Promise<void> {
-    const invite: InviteEntity = await this.getOwnPending(id, userId);
+  async accept(id: number, user: UserEntity): Promise<null> {
+    const invite: InviteEntity = await this.getOwnPending(id, user);
 
     await this.dataSource.transaction(
       async (manager: EntityManager): Promise<void> => {
         await manager.save(
           manager.create(TeamMemberEntity, {
             teamId: invite.teamId,
-            userId,
+            userId: user.id,
             role: invite.role,
           })
         );
@@ -108,17 +93,36 @@ export class InviteService {
         });
       }
     );
+
+    return null;
   }
 
-  async decline(id: number, userId: number): Promise<void> {
-    const invite: InviteEntity = await this.getOwnPending(id, userId);
+  async decline(id: number, user: UserEntity): Promise<null> {
+    const invite: InviteEntity = await this.getOwnPending(id, user);
 
     await this.inviteRepository.update(invite.id, {
       status: InviteStatus.DECLINED,
     });
+
+    return null;
   }
 
-  async revoke(id: number, userId: number): Promise<void> {
+  async getPendingForTeam(
+    teamId: number,
+    user: UserEntity
+  ): Promise<InviteEntity[]> {
+    const team: TeamEntity = await this.teamService.getById(teamId);
+
+    this.assertIsOrganizationOwner(team, user);
+
+    return await this.inviteRepository.findPendingByTeam(teamId);
+  }
+
+  async getMyPending(user: UserEntity): Promise<InviteEntity[]> {
+    return await this.inviteRepository.findPendingByUser(user.id);
+  }
+
+  async revoke(id: number, user: UserEntity): Promise<null> {
     const invite: InviteEntity | null =
       await this.inviteRepository.findPendingById(id);
 
@@ -126,29 +130,31 @@ export class InviteService {
       throw new NotFoundException('Invite not found');
     }
 
-    if (invite.team.organization.ownerId !== userId) {
+    if (invite.team.organization.ownerId !== user.id) {
       throw new ForbiddenException('Only the organization owner can do this');
     }
 
     await this.inviteRepository.delete(id);
+
+    return null;
   }
 
   private async getOwnPending(
     id: number,
-    userId: number
+    user: UserEntity
   ): Promise<InviteEntity> {
     const invite: InviteEntity | null =
       await this.inviteRepository.findPendingById(id);
 
-    if (!invite || invite.invitedUserId !== userId) {
+    if (!invite || invite.invitedUserId !== user.id) {
       throw new NotFoundException('Invite not found');
     }
 
     return invite;
   }
 
-  private assertIsOrganizationOwner(team: TeamEntity, userId: number): void {
-    if (team.organization.ownerId !== userId) {
+  private assertIsOrganizationOwner(team: TeamEntity, user: UserEntity): void {
+    if (team.organization.ownerId !== user.id) {
       throw new ForbiddenException('Only the organization owner can do this');
     }
   }

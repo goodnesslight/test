@@ -13,18 +13,18 @@ export class CacheService {
     return await this.redis.set(key, JSON.stringify(value));
   }
 
-  async del(key: CacheKey): Promise<number> {
-    return await this.redis.del(key);
+  async get<T extends object>(key: CacheKey): Promise<T | null> {
+    const value: string | null = await this.redis.get(key);
+
+    return value ? JSON.parse(value) : null;
   }
 
   async exists(key: CacheKey): Promise<boolean> {
     return Boolean(await this.redis.exists(key));
   }
 
-  async get<T extends object>(key: CacheKey): Promise<T | null> {
-    const value: string | null = await this.redis.get(key);
-
-    return value ? JSON.parse(value) : null;
+  async del(key: CacheKey): Promise<number> {
+    return await this.redis.del(key);
   }
 
   async hSet<T extends object>(
@@ -35,17 +35,6 @@ export class CacheService {
     return await this.redis.hset(key, String(field), JSON.stringify(value));
   }
 
-  async hDel(key: CacheKey, ...fields: (string | number)[]): Promise<number> {
-    return await this.redis.hdel(
-      key,
-      ...fields.map((field: string | number): string => String(field))
-    );
-  }
-
-  async hExists(key: CacheKey, field: string | number): Promise<boolean> {
-    return Boolean(await this.redis.hexists(key, String(field)));
-  }
-
   async hGet<T extends object>(
     key: CacheKey,
     field: string | number
@@ -53,5 +42,16 @@ export class CacheService {
     const value: string | null = await this.redis.hget(key, String(field));
 
     return value ? JSON.parse(value) : null;
+  }
+
+  async hExists(key: CacheKey, field: string | number): Promise<boolean> {
+    return Boolean(await this.redis.hexists(key, String(field)));
+  }
+
+  async hDel(key: CacheKey, ...fields: (string | number)[]): Promise<number> {
+    return await this.redis.hdel(
+      key,
+      ...fields.map((field: string | number): string => String(field))
+    );
   }
 }

@@ -9,10 +9,16 @@ export class UserDto {
   id: number;
 
   @Expose()
-  email: string | null;
+  username: string;
 
   @Expose()
-  username: string;
+  locale: Locale;
+
+  @Expose()
+  createdAt: Date;
+
+  @Expose()
+  email: string | null;
 
   @Expose()
   firstName: string | null;
@@ -21,16 +27,10 @@ export class UserDto {
   lastName: string | null;
 
   @Expose()
-  locale: Locale;
-
-  @Expose()
   avatarUrl: string | null;
 
   @Expose()
   googleId: string | null;
-
-  @Expose()
-  createdAt: Date;
 }
 
 export class UserUpdateProfileDto {

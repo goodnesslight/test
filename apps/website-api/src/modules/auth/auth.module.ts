@@ -18,8 +18,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     AuthService,
     JwtStrategy,
     {
-      // The strategy is only registered when Google OAuth is configured so
-      // the application can boot without credentials.
       provide: GoogleAuthStrategy,
       inject: [ConfigService, AuthService],
       useFactory: (

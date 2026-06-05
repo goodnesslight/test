@@ -11,9 +11,6 @@ export class OrganizationEntity extends BasicEntity {
   @Column({ type: 'varchar', length: 8 })
   tag: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  logoUrl: string | null;
-
   @Column({ type: 'int' })
   ownerId: number;
 
@@ -26,4 +23,7 @@ export class OrganizationEntity extends BasicEntity {
     (team: TeamEntity) => team.organization
   )
   teams: TeamEntity[];
+
+  @Column({ type: 'varchar', nullable: true })
+  logoUrl: string | null;
 }

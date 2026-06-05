@@ -9,6 +9,7 @@ import {
   TeamUpdateDto,
   TeamUpdateMemberDto,
 } from '@shared/dtos';
+import { ApiRoute } from '@shared/types';
 
 import {
   Body,
@@ -31,70 +32,63 @@ import { TeamService } from './team.service';
 export class TeamController {
   constructor(private readonly teamService: TeamService) {}
 
-  @Post('organizations/:organizationId/teams')
+  @Post(ApiRoute.ORGANIZATION_TEAMS)
   @UseInterceptors(new ResponseInterceptor(TeamDto))
   async create(
+    @Param('id', ParseIntPipe) organizationId: number,
     @CurrentUser() user: UserEntity,
-    @Param('organizationId', ParseIntPipe) organizationId: number,
     @Body() dto: TeamCreateDto
   ): Promise<TeamEntity> {
     return await this.teamService.createInOrganization(
       organizationId,
-      user.id,
+      user,
       dto
     );
   }
 
-  @Get('teams/:id')
+  @Put(ApiRoute.TEAMS_BY_ID)
+  @UseInterceptors(new ResponseInterceptor(TeamDto))
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: UserEntity,
+    @Body() dto: TeamUpdateDto
+  ): Promise<TeamEntity> {
+    return await this.teamService.update(id, user, dto);
+  }
+
+  @Put(ApiRoute.TEAM_MEMBERS_BY_ID)
+  @UseInterceptors(new ResponseInterceptor(TeamDto))
+  async updateMemberRole(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('memberId', ParseIntPipe) memberId: number,
+    @CurrentUser() user: UserEntity,
+    @Body() dto: TeamUpdateMemberDto
+  ): Promise<TeamEntity> {
+    return await this.teamService.updateMemberRole(id, memberId, user, dto);
+  }
+
+  @Get(ApiRoute.TEAMS_BY_ID)
   @UseInterceptors(new ResponseInterceptor(TeamDto))
   async getById(@Param('id', ParseIntPipe) id: number): Promise<TeamEntity> {
     return await this.teamService.getById(id);
   }
 
-  @Put('teams/:id')
-  @UseInterceptors(new ResponseInterceptor(TeamDto))
-  async update(
-    @CurrentUser() user: UserEntity,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: TeamUpdateDto
-  ): Promise<TeamEntity> {
-    return await this.teamService.update(id, user.id, dto);
-  }
-
-  @Delete('teams/:id')
+  @Delete(ApiRoute.TEAMS_BY_ID)
   @UseInterceptors(new ResponseInterceptor())
   async delete(
-    @CurrentUser() user: UserEntity,
-    @Param('id', ParseIntPipe) id: number
-  ): Promise<null> {
-    await this.teamService.delete(id, user.id);
-
-    return null;
-  }
-
-  @Put('teams/:id/members/:memberId')
-  @UseInterceptors(new ResponseInterceptor(TeamDto))
-  async updateMemberRole(
-    @CurrentUser() user: UserEntity,
     @Param('id', ParseIntPipe) id: number,
-    @Param('memberId', ParseIntPipe) memberId: number,
-    @Body() dto: TeamUpdateMemberDto
-  ): Promise<TeamEntity> {
-    return await this.teamService.updateMemberRole(
-      id,
-      memberId,
-      user.id,
-      dto
-    );
+    @CurrentUser() user: UserEntity
+  ): Promise<null> {
+    return await this.teamService.delete(id, user);
   }
 
-  @Delete('teams/:id/members/:memberId')
+  @Delete(ApiRoute.TEAM_MEMBERS_BY_ID)
   @UseInterceptors(new ResponseInterceptor(TeamDto))
   async removeMember(
-    @CurrentUser() user: UserEntity,
     @Param('id', ParseIntPipe) id: number,
-    @Param('memberId', ParseIntPipe) memberId: number
+    @Param('memberId', ParseIntPipe) memberId: number,
+    @CurrentUser() user: UserEntity
   ): Promise<TeamEntity> {
-    return await this.teamService.removeMember(id, memberId, user.id);
+    return await this.teamService.removeMember(id, memberId, user);
   }
 }

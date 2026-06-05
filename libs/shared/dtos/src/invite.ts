@@ -21,15 +21,15 @@ export class InviteDto {
   role: TeamMemberRole;
 
   @Expose()
+  createdAt: Date;
+
+  @Expose()
   @Type(() => TeamDto)
   team?: TeamDto;
 
   @Expose()
   @Type(() => UserDto)
   invitedUser?: UserDto;
-
-  @Expose()
-  createdAt: Date;
 }
 
 export class InviteCreateDto {

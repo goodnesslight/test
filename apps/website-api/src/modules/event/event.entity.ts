@@ -4,7 +4,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 import { EventType } from '@shared/types';
 
-import { EventAttendanceEntity } from './event-attendance.entity';
+import { EventAttendanceEntity } from './event-attendance/event-attendance.entity';
 
 @Entity('events')
 export class EventEntity extends BasicEntity {
@@ -17,17 +17,8 @@ export class EventEntity extends BasicEntity {
   @Column({ type: 'varchar', length: 64 })
   title: string;
 
-  @Column({ type: 'varchar', length: 64, nullable: true })
-  opponent: string | null;
-
   @Column({ type: 'timestamp' })
   startsAt: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  endsAt: Date | null;
-
-  @Column({ type: 'varchar', length: 500, nullable: true })
-  description: string | null;
 
   @ManyToOne(() => TeamEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'teamId' })
@@ -38,4 +29,13 @@ export class EventEntity extends BasicEntity {
     (attendance: EventAttendanceEntity) => attendance.event
   )
   attendances: EventAttendanceEntity[];
+
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  opponent: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  endsAt: Date | null;
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  description: string | null;
 }

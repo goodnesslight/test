@@ -4,7 +4,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 import { GameType } from '@shared/types';
 
-import { TeamMemberEntity } from './team-member.entity';
+import { TeamMemberEntity } from './team-member/team-member.entity';
 
 @Entity('teams')
 export class TeamEntity extends BasicEntity {

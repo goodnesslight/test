@@ -1,5 +1,3 @@
-import { UserEntity } from '@modules/user/user.entity';
-
 export interface JwtPayload {
   sub: number;
   username: string;
@@ -8,11 +6,6 @@ export interface JwtPayload {
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
-}
-
-export interface AuthResult {
-  user: UserEntity;
-  tokens: AuthTokens;
 }
 
 export interface RefreshTokenRecord {
