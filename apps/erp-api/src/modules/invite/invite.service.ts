@@ -130,7 +130,7 @@ export class InviteService {
       throw new NotFoundException('Invite not found');
     }
 
-    if (invite.team.organization.ownerId !== user.id) {
+    if (invite.team.game.organization.ownerId !== user.id) {
       throw new ForbiddenException('Only the organization owner can do this');
     }
 
@@ -154,7 +154,7 @@ export class InviteService {
   }
 
   private assertIsOrganizationOwner(team: TeamEntity, user: UserEntity): void {
-    if (team.organization.ownerId !== user.id) {
+    if (team.game.organization.ownerId !== user.id) {
       throw new ForbiddenException('Only the organization owner can do this');
     }
   }

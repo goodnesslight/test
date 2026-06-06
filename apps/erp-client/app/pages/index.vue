@@ -2,7 +2,7 @@
 import { navigateTo } from 'nuxt/app';
 import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue';
 
-import type { OrganizationDto, TeamDto } from '@shared/dtos';
+import type { GameDto, OrganizationDto, TeamDto } from '@shared/dtos';
 import type { HttpResponse } from '@shared/types';
 
 import type { OrganizationService } from '#layers/organization';
@@ -21,7 +21,7 @@ const isLoading: Ref<boolean> = ref(true);
 const totalTeams: ComputedRef<number> = computed((): number =>
   organizations.value.reduce(
     (sum: number, organization: OrganizationDto): number =>
-      sum + (organization.teams?.length ?? 0),
+      sum + getTeamsCount(organization),
     0
   )
 );
@@ -29,9 +29,14 @@ const totalPlayers: ComputedRef<number> = computed((): number =>
   organizations.value.reduce(
     (sum: number, organization: OrganizationDto): number =>
       sum +
-      (organization.teams ?? []).reduce(
-        (teamSum: number, team: TeamDto): number =>
-          teamSum + (team.members?.length ?? 0),
+      (organization.games ?? []).reduce(
+        (gameSum: number, game: GameDto): number =>
+          gameSum +
+          (game.teams ?? []).reduce(
+            (teamSum: number, team: TeamDto): number =>
+              teamSum + (team.members?.length ?? 0),
+            0
+          ),
         0
       ),
     0
@@ -51,6 +56,13 @@ async function loadOrganizations(): Promise<void> {
 
 async function openOrganization(id: number): Promise<void> {
   await navigateTo(buildAppRoute(AppRoute.ORGANIZATIONS_BY_ID, { id }));
+}
+
+function getTeamsCount(organization: OrganizationDto): number {
+  return (organization.games ?? []).reduce(
+    (sum: number, game: GameDto): number => sum + (game.teams?.length ?? 0),
+    0
+  );
 }
 
 onMounted(loadOrganizations);
@@ -112,10 +124,7 @@ onMounted(loadOrganizations);
           <Skeleton height="3.2rem" />
         </div>
 
-        <div
-          v-else-if="organizations.length === 0"
-          class="dashboard__empty"
-        >
+        <div v-else-if="organizations.length === 0" class="dashboard__empty">
           <i class="pi pi-building" />
           <p>{{ t('organizations.empty') }}</p>
         </div>
@@ -141,7 +150,7 @@ onMounted(loadOrganizations);
             <Tag :value="organization.tag" severity="secondary" />
             <span class="org-row__teams">
               <i class="pi pi-users" />
-              {{ organization.teams?.length ?? 0 }}
+              {{ getTeamsCount(organization) }}
             </span>
             <i class="pi pi-angle-right org-row__arrow" />
           </button>

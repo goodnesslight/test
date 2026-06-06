@@ -1,6 +1,8 @@
 import { BasicRepository } from '@modules/database/basic/repository.basic';
 import { DataSource } from 'typeorm';
 
+import { TeamType } from '@shared/types';
+
 import { Injectable } from '@nestjs/common';
 
 import { TeamEntity } from './team.entity';
@@ -14,8 +16,15 @@ export class TeamRepository extends BasicRepository<TeamEntity> {
   async findByIdWithRelations(id: number): Promise<TeamEntity | null> {
     return await this.findOne({
       where: { id },
-      relations: { organization: true, members: { user: true } },
+      relations: { game: { organization: true }, members: { user: true } },
       order: { members: { createdAt: 'ASC' } },
     });
+  }
+
+  async findByGameAndType(
+    gameId: number,
+    type: TeamType
+  ): Promise<TeamEntity | null> {
+    return await this.findOne({ where: { gameId, type } });
   }
 }

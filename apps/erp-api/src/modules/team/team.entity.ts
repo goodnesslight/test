@@ -1,33 +1,33 @@
 import { BasicEntity } from '@modules/database/basic/entity.basic';
-import { OrganizationEntity } from '@modules/organization/organization.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { GameEntity } from '@modules/game/game.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  Unique,
+} from 'typeorm';
 
-import { GameType } from '@shared/types';
+import { TeamType } from '@shared/types';
 
 import { TeamMemberEntity } from './team-member/team-member.entity';
 
 @Entity('teams')
+@Unique(['gameId', 'type'])
 export class TeamEntity extends BasicEntity {
   @Column({ type: 'int' })
-  organizationId: number;
+  gameId: number;
 
-  @Column({ type: 'varchar', length: 48 })
-  name: string;
+  @Column({ type: 'enum', enum: TeamType, enumName: 'team_type' })
+  type: TeamType;
 
-  @Column({ type: 'enum', enum: GameType, enumName: 'game_type' })
-  game: GameType;
+  @ManyToOne(() => GameEntity, (game: GameEntity) => game.teams, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'gameId' })
+  game: GameEntity;
 
-  @ManyToOne(
-    () => OrganizationEntity,
-    (organization: OrganizationEntity) => organization.teams,
-    { onDelete: 'CASCADE' }
-  )
-  @JoinColumn({ name: 'organizationId' })
-  organization: OrganizationEntity;
-
-  @OneToMany(
-    () => TeamMemberEntity,
-    (member: TeamMemberEntity) => member.team
-  )
+  @OneToMany(() => TeamMemberEntity, (member: TeamMemberEntity) => member.team)
   members: TeamMemberEntity[];
 }

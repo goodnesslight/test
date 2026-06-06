@@ -9,6 +9,9 @@ export enum ApiRoute {
   EVENTS_BY_ID = 'events/:id',
   EVENT_ATTENDANCE = 'events/:id/attendance',
 
+  GAMES_BY_ID = 'games/:id',
+  GAME_TEAMS = 'games/:id/teams',
+
   INVITES_MY = 'invites/my',
   INVITES_BY_ID = 'invites/:id',
   INVITE_ACCEPT = 'invites/:id/accept',
@@ -17,7 +20,7 @@ export enum ApiRoute {
   ORGANIZATIONS = 'organizations',
   ORGANIZATIONS_MY = 'organizations/my',
   ORGANIZATIONS_BY_ID = 'organizations/:id',
-  ORGANIZATION_TEAMS = 'organizations/:id/teams',
+  ORGANIZATION_GAMES = 'organizations/:id/games',
 
   TEAMS_BY_ID = 'teams/:id',
   TEAM_EVENTS = 'teams/:id/events',

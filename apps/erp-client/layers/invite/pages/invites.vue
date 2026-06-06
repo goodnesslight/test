@@ -37,7 +37,7 @@ async function accept(invite: InviteDto): Promise<void> {
 
   if (response.isSuccess) {
     notificationService.showSuccess(
-      t('invites.acceptedToast', { team: invite.team?.name ?? '' })
+      t('invites.acceptedToast', { team: getTeamName(invite) })
     );
     await loadInvites();
   } else {
@@ -53,6 +53,18 @@ async function decline(invite: InviteDto): Promise<void> {
   } else {
     notificationService.showError(response.error);
   }
+}
+
+function getTeamName(invite: InviteDto): string {
+  if (!invite.team) {
+    return '';
+  }
+
+  const typeLabel: string = t(`teams.types.${invite.team.type}`);
+
+  return invite.team.game
+    ? `${getGameLabel(invite.team.game.type)} — ${typeLabel}`
+    : typeLabel;
 }
 
 onMounted(loadInvites);
@@ -81,26 +93,26 @@ onMounted(loadInvites);
         <template #content>
           <div class="invite-row">
             <Avatar
-              :image="invite.team?.organization?.logoUrl ?? undefined"
+              :image="invite.team?.game?.organization?.logoUrl ?? undefined"
               :label="
-                invite.team?.organization?.logoUrl
+                invite.team?.game?.organization?.logoUrl
                   ? undefined
-                  : invite.team?.organization?.name[0]?.toUpperCase()
+                  : invite.team?.game?.organization?.name[0]?.toUpperCase()
               "
               size="large"
               shape="circle"
             />
             <div class="invite-row__info">
               <span class="invite-row__title">
-                {{ invite.team?.organization?.name }}
+                {{ invite.team?.game?.organization?.name }}
                 <Tag
-                  v-if="invite.team?.organization"
-                  :value="invite.team.organization.tag"
+                  v-if="invite.team?.game?.organization"
+                  :value="invite.team.game.organization.tag"
                   severity="secondary"
                 />
               </span>
               <span class="invite-row__subtitle">
-                {{ t('invites.invitedYou', { team: invite.team?.name ?? '' }) }}
+                {{ t('invites.invitedYou', { team: getTeamName(invite) }) }}
                 · {{ t(`teams.roles.${invite.role}`) }}
               </span>
             </div>

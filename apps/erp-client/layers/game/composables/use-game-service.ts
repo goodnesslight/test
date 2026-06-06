@@ -1,26 +1,32 @@
-import { GameType } from '@shared/types';
+import type { GameCreateDto, GameDto } from '@shared/dtos';
+import { ApiRoute, type HttpResponse } from '@shared/types';
 
-import { GAME_LABELS } from '../constants';
-import type { GameOption } from '../types';
+import type { ApiService } from '#layers/api';
 
 export interface GameService {
-  getOptions(): GameOption[];
-  getLabel(game: GameType): string;
+  create(
+    organizationId: number,
+    dto: GameCreateDto
+  ): Promise<HttpResponse<GameDto>>;
+  remove(id: number): Promise<HttpResponse<null>>;
 }
 
 export function useGameService(): GameService {
-  function getOptions(): GameOption[] {
-    return Object.values(GameType).map(
-      (game: GameType): GameOption => ({
-        label: GAME_LABELS[game],
-        value: game,
-      })
-    );
+  const apiService: ApiService = useApiService();
+
+  async function create(
+    organizationId: number,
+    dto: GameCreateDto
+  ): Promise<HttpResponse<GameDto>> {
+    return await apiService.post<GameDto>(ApiRoute.ORGANIZATION_GAMES, {
+      id: organizationId,
+      ...dto,
+    });
   }
 
-  function getLabel(game: GameType): string {
-    return GAME_LABELS[game] ?? game;
+  async function remove(id: number): Promise<HttpResponse<null>> {
+    return await apiService.delete<null>(ApiRoute.GAMES_BY_ID, { id });
   }
 
-  return { getOptions, getLabel };
+  return { create, remove };
 }

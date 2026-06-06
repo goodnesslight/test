@@ -3,12 +3,7 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { CurrentUser } from '@modules/user/user.decorator';
 import { UserEntity } from '@modules/user/user.entity';
 
-import {
-  TeamCreateDto,
-  TeamDto,
-  TeamUpdateDto,
-  TeamUpdateMemberDto,
-} from '@shared/dtos';
+import { TeamCreateDto, TeamDto, TeamUpdateMemberDto } from '@shared/dtos';
 import { ApiRoute } from '@shared/types';
 
 import {
@@ -32,24 +27,14 @@ import { TeamService } from './team.service';
 export class TeamController {
   constructor(private readonly teamService: TeamService) {}
 
-  @Post(ApiRoute.ORGANIZATION_TEAMS)
+  @Post(ApiRoute.GAME_TEAMS)
   @UseInterceptors(new ResponseInterceptor(TeamDto))
   async create(
-    @Param('id', ParseIntPipe) organizationId: number,
+    @Param('id', ParseIntPipe) gameId: number,
     @CurrentUser() user: UserEntity,
     @Body() dto: TeamCreateDto
   ): Promise<TeamEntity> {
-    return await this.teamService.create(organizationId, user, dto);
-  }
-
-  @Put(ApiRoute.TEAMS_BY_ID)
-  @UseInterceptors(new ResponseInterceptor(TeamDto))
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: UserEntity,
-    @Body() dto: TeamUpdateDto
-  ): Promise<TeamEntity> {
-    return await this.teamService.update(id, user, dto);
+    return await this.teamService.create(gameId, user, dto);
   }
 
   @Put(ApiRoute.TEAM_MEMBERS_BY_ID)

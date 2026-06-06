@@ -20,7 +20,7 @@ export class EventRepository extends BasicRepository<EventEntity> {
   async findByIdWithRelations(id: number): Promise<EventEntity | null> {
     return await this.findOne({
       where: { id },
-      relations: { team: { organization: true, members: true } },
+      relations: { team: { game: { organization: true }, members: true } },
     });
   }
 

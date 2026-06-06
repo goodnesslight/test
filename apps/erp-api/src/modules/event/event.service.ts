@@ -177,7 +177,7 @@ export class EventService {
       (member: TeamMemberEntity): boolean => member.userId === user.id
     );
 
-    if (!isMember && team.organization.ownerId !== user.id) {
+    if (!isMember && team.game.organization.ownerId !== user.id) {
       throw new ForbiddenException(
         'Only the roster and the organization owner can view the schedule'
       );
@@ -185,7 +185,7 @@ export class EventService {
   }
 
   private assertCanManage(team: TeamEntity, user: UserEntity): void {
-    if (team.organization.ownerId === user.id) {
+    if (team.game.organization.ownerId === user.id) {
       return;
     }
 

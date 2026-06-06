@@ -1,7 +1,7 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { IsOptional, IsString, IsUrl, Length } from 'class-validator';
 
-import { TeamDto } from './team';
+import { GameDto } from './game';
 
 @Exclude()
 export class OrganizationDto {
@@ -18,8 +18,8 @@ export class OrganizationDto {
   ownerId: number;
 
   @Expose()
-  @Type(() => TeamDto)
-  teams: TeamDto[];
+  @Type(() => GameDto)
+  games: GameDto[];
 
   @Expose()
   createdAt: Date;

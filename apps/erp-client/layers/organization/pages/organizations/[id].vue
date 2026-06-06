@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { navigateTo, useRoute } from 'nuxt/app';
 import { useConfirm } from 'primevue/useconfirm';
-import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue';
+import {
+  computed,
+  type ComputedRef,
+  onMounted,
+  type Ref,
+  ref,
+  type WritableComputedRef,
+} from 'vue';
 
-import type { OrganizationDto } from '@shared/dtos';
-import type { HttpResponse } from '@shared/types';
+import type { GameDto, OrganizationDto, TeamDto } from '@shared/dtos';
+import { GameType, type HttpResponse, TeamType } from '@shared/types';
 
 import type { OrganizationService } from '../../composables/use-organization-service';
 
@@ -31,13 +38,43 @@ const organizationId: number = Number(route.params.id);
 const organization: Ref<OrganizationDto | null> = ref(null);
 const isLoading: Ref<boolean> = ref(true);
 const isEditDialogVisible: Ref<boolean> = ref(false);
-const isTeamDialogVisible: Ref<boolean> = ref(false);
+const isGameDialogVisible: Ref<boolean> = ref(false);
+const teamDialogGame: Ref<GameDto | null> = ref(null);
 
 const isOwner: ComputedRef<boolean> = computed(
   (): boolean =>
     organization.value !== null &&
     authService.user.value !== null &&
     organization.value.ownerId === authService.user.value.id
+);
+const existingGameTypes: ComputedRef<GameType[]> = computed(
+  (): GameType[] =>
+    organization.value?.games.map((game: GameDto): GameType => game.type) ?? []
+);
+const canAddGame: ComputedRef<boolean> = computed(
+  (): boolean =>
+    isOwner.value &&
+    existingGameTypes.value.length < Object.values(GameType).length
+);
+const teamsCount: ComputedRef<number> = computed(
+  (): number =>
+    organization.value?.games.reduce(
+      (sum: number, game: GameDto): number => sum + (game.teams?.length ?? 0),
+      0
+    ) ?? 0
+);
+const isTeamDialogVisible: WritableComputedRef<boolean> = computed({
+  get: (): boolean => teamDialogGame.value !== null,
+  set: (value: boolean): void => {
+    if (!value) {
+      teamDialogGame.value = null;
+    }
+  },
+});
+const teamDialogExistingTypes: ComputedRef<TeamType[]> = computed(
+  (): TeamType[] =>
+    teamDialogGame.value?.teams.map((team: TeamDto): TeamType => team.type) ??
+    []
 );
 
 async function loadOrganization(): Promise<void> {
@@ -56,15 +93,50 @@ async function loadOrganization(): Promise<void> {
 }
 
 function onSaved(saved: OrganizationDto): void {
-  organization.value = { ...saved, teams: organization.value?.teams ?? [] };
+  organization.value = { ...saved, games: organization.value?.games ?? [] };
+}
+
+async function onGameSaved(): Promise<void> {
+  await loadOrganization();
 }
 
 async function onTeamSaved(): Promise<void> {
   await loadOrganization();
 }
 
+function openTeamDialog(game: GameDto): void {
+  teamDialogGame.value = game;
+}
+
 async function openTeam(teamId: number): Promise<void> {
   await navigateTo(buildAppRoute(AppRoute.TEAMS_BY_ID, { id: teamId }));
+}
+
+function canCreateTeam(game: GameDto): boolean {
+  return (game.teams?.length ?? 0) < Object.values(TeamType).length;
+}
+
+function confirmDeleteGame(game: GameDto): void {
+  confirm.require({
+    header: t('games.deleteHeader'),
+    message: t('games.deleteConfirm', { game: getGameLabel(game.type) }),
+    icon: 'pi pi-exclamation-triangle',
+    acceptProps: { label: t('common.delete'), severity: 'danger' },
+    rejectProps: {
+      label: t('common.cancel'),
+      severity: 'secondary',
+      text: true,
+    },
+    accept: async (): Promise<void> => {
+      const response: HttpResponse<null> = await gameService.remove(game.id);
+
+      if (response.isSuccess) {
+        await loadOrganization();
+      } else {
+        notificationService.showError(response.error);
+      }
+    },
+  });
 }
 
 function confirmDelete(): void {
@@ -128,7 +200,7 @@ onMounted(loadOrganization);
                 <span>
                   <i class="pi pi-users" />
                   {{ t('organizations.teamsCount') }}:
-                  {{ organization.teams.length }}
+                  {{ teamsCount }}
                 </span>
                 <span>
                   <i class="pi pi-calendar" />
@@ -159,43 +231,80 @@ onMounted(loadOrganization);
 
       <Card>
         <template #title>
-          <div class="org-page__teams-header">
-            <span>{{ t('teams.title') }}</span>
+          <div class="org-page__games-header">
+            <span>{{ t('games.title') }}</span>
             <Button
-              v-if="isOwner"
-              :label="t('teams.create')"
+              v-if="canAddGame"
+              :label="t('games.add')"
               icon="pi pi-plus"
               size="small"
-              @click="isTeamDialogVisible = true"
+              @click="isGameDialogVisible = true"
             />
           </div>
         </template>
         <template #content>
-          <div v-if="organization.teams.length === 0" class="org-page__empty">
-            <i class="pi pi-users" />
-            <p>{{ t('teams.empty') }}</p>
+          <div v-if="organization.games.length === 0" class="org-page__empty">
+            <i class="pi pi-desktop" />
+            <p>{{ t('games.empty') }}</p>
           </div>
 
-          <div v-else class="org-page__teams">
-            <button
-              v-for="team in organization.teams"
-              :key="team.id"
-              type="button"
-              class="team-card"
-              @click="openTeam(team.id)"
+          <div v-else class="org-page__games">
+            <section
+              v-for="game in organization.games"
+              :key="game.id"
+              class="game-section"
             >
-              <span class="team-card__icon">
-                <i class="pi pi-desktop" />
-              </span>
-              <span class="team-card__name">{{ team.name }}</span>
-              <span class="team-card__game">
-                {{ gameService.getLabel(team.game) }}
-              </span>
-              <span class="team-card__members">
-                <i class="pi pi-user" />
-                {{ team.members?.length ?? 0 }}
-              </span>
-            </button>
+              <div class="game-section__header">
+                <span class="game-section__name">
+                  <i :class="getGameIcon(game.type)" />
+                  {{ getGameLabel(game.type) }}
+                </span>
+                <div v-if="isOwner" class="game-section__actions">
+                  <Button
+                    v-if="canCreateTeam(game)"
+                    :label="t('teams.create')"
+                    icon="pi pi-plus"
+                    size="small"
+                    text
+                    @click="openTeamDialog(game)"
+                  />
+                  <Button
+                    icon="pi pi-trash"
+                    :aria-label="t('common.delete')"
+                    severity="danger"
+                    text
+                    rounded
+                    size="small"
+                    @click="confirmDeleteGame(game)"
+                  />
+                </div>
+              </div>
+
+              <p v-if="game.teams.length === 0" class="game-section__empty">
+                {{ t('teams.empty') }}
+              </p>
+
+              <div v-else class="game-section__teams">
+                <button
+                  v-for="team in game.teams"
+                  :key="team.id"
+                  type="button"
+                  class="team-card"
+                  @click="openTeam(team.id)"
+                >
+                  <span class="team-card__icon">
+                    <i class="pi pi-users" />
+                  </span>
+                  <span class="team-card__name">
+                    {{ t(`teams.types.${team.type}`) }}
+                  </span>
+                  <span class="team-card__members">
+                    <i class="pi pi-user" />
+                    {{ team.members?.length ?? 0 }}
+                  </span>
+                </button>
+              </div>
+            </section>
           </div>
         </template>
       </Card>
@@ -205,9 +314,17 @@ onMounted(loadOrganization);
         :organization="organization"
         @saved="onSaved"
       />
-      <TeamFormDialog
-        v-model:visible="isTeamDialogVisible"
+      <GameCreateDialog
+        v-model:visible="isGameDialogVisible"
         :organization-id="organizationId"
+        :existing-types="existingGameTypes"
+        @saved="onGameSaved"
+      />
+      <TeamCreateDialog
+        v-if="teamDialogGame"
+        v-model:visible="isTeamDialogVisible"
+        :game-id="teamDialogGame.id"
+        :existing-types="teamDialogExistingTypes"
         @saved="onTeamSaved"
       />
     </template>
@@ -265,16 +382,16 @@ onMounted(loadOrganization);
     gap: 0.5rem;
   }
 
-  &__teams-header {
+  &__games-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
 
-  &__teams {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1rem;
+  &__games {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
 
   &__empty {
@@ -296,6 +413,48 @@ onMounted(loadOrganization);
       flex-direction: column;
       align-items: flex-start;
     }
+  }
+}
+
+.game-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+
+    .pi {
+      color: $accent;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__empty {
+    padding: 0.5rem 0;
+    color: $text-dim;
+    font-size: 0.9rem;
+  }
+
+  &__teams {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
   }
 }
 
@@ -333,11 +492,6 @@ onMounted(loadOrganization);
   &__name {
     font-size: 1rem;
     font-weight: 600;
-  }
-
-  &__game {
-    font-size: 0.85rem;
-    color: $text-dim;
   }
 
   &__members {

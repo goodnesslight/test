@@ -1,13 +1,10 @@
-import { OrganizationService } from '@modules/organization/organization.service';
+import { GameService } from '@modules/game/game.service';
 import { UserEntity } from '@modules/user/user.entity';
 
-import {
-  TeamCreateDto,
-  TeamUpdateDto,
-  TeamUpdateMemberDto,
-} from '@shared/dtos';
+import { TeamCreateDto, TeamUpdateMemberDto } from '@shared/dtos';
 
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -21,43 +18,35 @@ import { TeamMemberRepository } from './team-member/team-member.repository';
 @Injectable()
 export class TeamService {
   constructor(
-    private readonly organizationService: OrganizationService,
+    private readonly gameService: GameService,
     private readonly teamRepository: TeamRepository,
     private readonly teamMemberRepository: TeamMemberRepository
   ) {}
 
   async create(
-    organizationId: number,
+    gameId: number,
     user: UserEntity,
     dto: TeamCreateDto
   ): Promise<TeamEntity> {
-    await this.organizationService.getOwnedById(organizationId, user);
+    await this.gameService.getOwnedById(gameId, user);
+
+    const existing: TeamEntity | null =
+      await this.teamRepository.findByGameAndType(gameId, dto.type);
+
+    if (existing) {
+      throw new ConflictException(
+        'Team of this type already exists in this game'
+      );
+    }
 
     const team: TeamEntity = await this.teamRepository.save(
       this.teamRepository.create({
-        organizationId,
-        name: dto.name,
-        game: dto.game,
+        gameId,
+        type: dto.type,
       })
     );
 
     return await this.getById(team.id);
-  }
-
-  async update(
-    id: number,
-    user: UserEntity,
-    dto: TeamUpdateDto
-  ): Promise<TeamEntity> {
-    const team: TeamEntity = await this.getById(id);
-
-    await this.organizationService.getOwnedById(team.organizationId, user);
-    await this.teamRepository.update(id, {
-      name: dto.name ?? team.name,
-      game: dto.game ?? team.game,
-    });
-
-    return await this.getById(id);
   }
 
   async updateMemberRole(
@@ -68,7 +57,7 @@ export class TeamService {
   ): Promise<TeamEntity> {
     const team: TeamEntity = await this.getById(teamId);
 
-    await this.organizationService.getOwnedById(team.organizationId, user);
+    this.assertIsOrganizationOwner(team, user);
 
     const member: TeamMemberEntity = this.getMemberOrThrow(team, memberId);
 
@@ -91,7 +80,7 @@ export class TeamService {
   async delete(id: number, user: UserEntity): Promise<null> {
     const team: TeamEntity = await this.getById(id);
 
-    await this.organizationService.getOwnedById(team.organizationId, user);
+    this.assertIsOrganizationOwner(team, user);
     await this.teamRepository.delete(id);
 
     return null;
@@ -105,7 +94,7 @@ export class TeamService {
     const team: TeamEntity = await this.getById(teamId);
     const member: TeamMemberEntity = this.getMemberOrThrow(team, memberId);
     const isSelf: boolean = member.userId === user.id;
-    const isOwner: boolean = team.organization.ownerId === user.id;
+    const isOwner: boolean = team.game.organization.ownerId === user.id;
 
     if (!isSelf && !isOwner) {
       throw new ForbiddenException('Only the organization owner can do this');
@@ -129,5 +118,11 @@ export class TeamService {
     }
 
     return member;
+  }
+
+  private assertIsOrganizationOwner(team: TeamEntity, user: UserEntity): void {
+    if (team.game.organization.ownerId !== user.id) {
+      throw new ForbiddenException('Only the organization owner can do this');
+    }
   }
 }

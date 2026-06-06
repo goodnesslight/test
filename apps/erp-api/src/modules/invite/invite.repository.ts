@@ -16,7 +16,7 @@ export class InviteRepository extends BasicRepository<InviteEntity> {
   async findPendingById(id: number): Promise<InviteEntity | null> {
     return await this.findOne({
       where: { id, status: InviteStatus.PENDING },
-      relations: { team: { organization: true } },
+      relations: { team: { game: { organization: true } } },
     });
   }
 
@@ -40,7 +40,7 @@ export class InviteRepository extends BasicRepository<InviteEntity> {
   async findPendingByUser(invitedUserId: number): Promise<InviteEntity[]> {
     return await this.find({
       where: { invitedUserId, status: InviteStatus.PENDING },
-      relations: { team: { organization: true } },
+      relations: { team: { game: { organization: true } } },
       order: { createdAt: 'DESC' },
     });
   }

@@ -11,18 +11,19 @@ export class OrganizationRepository extends BasicRepository<OrganizationEntity> 
     super(OrganizationEntity, dataSource);
   }
 
-  async findByIdWithTeams(id: number): Promise<OrganizationEntity | null> {
+  async findByIdWithGames(id: number): Promise<OrganizationEntity | null> {
     return await this.findOne({
       where: { id },
-      relations: { teams: { members: true } },
-      order: { teams: { createdAt: 'ASC' } },
+      relations: { games: { teams: { members: true } } },
+      order: { games: { createdAt: 'ASC', teams: { createdAt: 'ASC' } } },
     });
   }
 
   async findAllByUser(userId: number): Promise<OrganizationEntity[]> {
     const rows: { id: number }[] = await this.createQueryBuilder('org')
       .select('DISTINCT org.id', 'id')
-      .leftJoin('org.teams', 'team')
+      .leftJoin('org.games', 'game')
+      .leftJoin('game.teams', 'team')
       .leftJoin('team.members', 'member')
       .where('org.ownerId = :userId OR member.userId = :userId', { userId })
       .getRawMany<{ id: number }>();
@@ -33,7 +34,7 @@ export class OrganizationRepository extends BasicRepository<OrganizationEntity> 
 
     return await this.find({
       where: rows.map(({ id }: { id: number }): { id: number } => ({ id })),
-      relations: { teams: { members: true } },
+      relations: { games: { teams: { members: true } } },
       order: { createdAt: 'DESC' },
     });
   }

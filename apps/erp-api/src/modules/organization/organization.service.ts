@@ -52,7 +52,7 @@ export class OrganizationService {
 
   async getById(id: number): Promise<OrganizationEntity> {
     const organization: OrganizationEntity | null =
-      await this.organizationRepository.findByIdWithTeams(id);
+      await this.organizationRepository.findByIdWithGames(id);
 
     if (!organization) {
       throw new NotFoundException('Organization not found');

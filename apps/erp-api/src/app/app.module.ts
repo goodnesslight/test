@@ -2,6 +2,7 @@ import { AuthModule } from '@modules/auth/auth.module';
 import { CacheModule } from '@modules/cache/cache.module';
 import { DatabaseModule } from '@modules/database/database.module';
 import { EventModule } from '@modules/event/event.module';
+import { GameModule } from '@modules/game/game.module';
 import { InviteModule } from '@modules/invite/invite.module';
 import { OrganizationModule } from '@modules/organization/organization.module';
 import { TeamModule } from '@modules/team/team.module';
@@ -23,6 +24,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 
     AuthModule,
     EventModule,
+    GameModule,
     InviteModule,
     OrganizationModule,
     TeamModule,

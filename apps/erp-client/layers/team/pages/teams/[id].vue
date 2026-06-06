@@ -10,7 +10,6 @@ import type { TeamService } from '../../composables/use-team-service';
 
 import type { AuthService } from '#layers/auth';
 import type { DateService } from '#layers/date';
-import type { GameService } from '#layers/game';
 import type { NotificationService } from '#layers/notification';
 import { AppRoute } from '#layers/router';
 
@@ -23,20 +22,21 @@ const route: ReturnType<typeof useRoute> = useRoute();
 const confirm: ReturnType<typeof useConfirm> = useConfirm();
 const authService: AuthService = useAuthService();
 const dateService: DateService = useDateService();
-const gameService: GameService = useGameService();
 const notificationService: NotificationService = useNotificationService();
 const teamService: TeamService = useTeamService();
 
 const teamId: number = Number(route.params.id);
 const team: Ref<TeamDto | null> = ref(null);
 const isLoading: Ref<boolean> = ref(true);
-const isEditDialogVisible: Ref<boolean> = ref(false);
 
 const isOwner: ComputedRef<boolean> = computed(
   (): boolean =>
-    team.value?.organization !== undefined &&
+    team.value?.game?.organization !== undefined &&
     authService.user.value !== null &&
-    team.value.organization.ownerId === authService.user.value.id
+    team.value.game.organization.ownerId === authService.user.value.id
+);
+const teamName: ComputedRef<string> = computed((): string =>
+  team.value ? t(`teams.types.${team.value.type}`) : ''
 );
 
 async function loadTeam(): Promise<void> {
@@ -53,10 +53,6 @@ async function loadTeam(): Promise<void> {
   isLoading.value = false;
 }
 
-function onSaved(saved: TeamDto): void {
-  team.value = saved;
-}
-
 function onRosterUpdated(updated: TeamDto): void {
   team.value = updated;
 }
@@ -66,11 +62,11 @@ function confirmDelete(): void {
     return;
   }
 
-  const organizationId: number = team.value.organizationId;
+  const organizationId: number | undefined = team.value.game?.organizationId;
 
   confirm.require({
     header: t('teams.deleteHeader'),
-    message: t('teams.deleteConfirm', { name: team.value.name }),
+    message: t('teams.deleteConfirm', { name: teamName.value }),
     icon: 'pi pi-exclamation-triangle',
     acceptProps: { label: t('common.delete'), severity: 'danger' },
     rejectProps: {
@@ -83,7 +79,11 @@ function confirmDelete(): void {
 
       if (response.isSuccess) {
         await navigateTo(
-          buildAppRoute(AppRoute.ORGANIZATIONS_BY_ID, { id: organizationId })
+          organizationId
+            ? buildAppRoute(AppRoute.ORGANIZATIONS_BY_ID, {
+                id: organizationId,
+              })
+            : AppRoute.HOME
         );
       } else {
         notificationService.showError(response.error);
@@ -101,12 +101,16 @@ onMounted(loadTeam);
 
     <template v-else-if="team">
       <NuxtLink
-        v-if="team.organization"
-        :to="buildAppRoute(AppRoute.ORGANIZATIONS_BY_ID, { id: team.organizationId })"
+        v-if="team.game?.organization"
+        :to="
+          buildAppRoute(AppRoute.ORGANIZATIONS_BY_ID, {
+            id: team.game.organizationId,
+          })
+        "
         class="team-page__breadcrumb"
       >
         <i class="pi pi-arrow-left" />
-        <span>{{ team.organization.name }}</span>
+        <span>{{ team.game.organization.name }}</span>
       </NuxtLink>
 
       <Card>
@@ -117,17 +121,17 @@ onMounted(loadTeam);
             </span>
             <div class="team-page__info">
               <div class="team-page__name">
-                <h1>{{ team.name }}</h1>
+                <h1>{{ teamName }}</h1>
                 <Tag
-                  v-if="team.organization"
-                  :value="team.organization.tag"
+                  v-if="team.game?.organization"
+                  :value="team.game.organization.tag"
                   severity="secondary"
                 />
               </div>
               <div class="team-page__meta">
-                <span>
-                  <i class="pi pi-desktop" />
-                  {{ gameService.getLabel(team.game) }}
+                <span v-if="team.game">
+                  <i :class="getGameIcon(team.game.type)" />
+                  {{ getGameLabel(team.game.type) }}
                 </span>
                 <span>
                   <i class="pi pi-calendar" />
@@ -137,13 +141,6 @@ onMounted(loadTeam);
               </div>
             </div>
             <div v-if="isOwner" class="team-page__actions">
-              <Button
-                :label="t('common.edit')"
-                icon="pi pi-pencil"
-                severity="secondary"
-                outlined
-                @click="isEditDialogVisible = true"
-              />
               <Button
                 :label="t('common.delete')"
                 icon="pi pi-trash"
@@ -163,13 +160,6 @@ onMounted(loadTeam);
       />
 
       <EventScheduleCard :team="team" :is-owner="isOwner" />
-
-      <TeamFormDialog
-        v-model:visible="isEditDialogVisible"
-        :organization-id="team.organizationId"
-        :team="team"
-        @saved="onSaved"
-      />
     </template>
   </div>
 </template>

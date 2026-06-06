@@ -5,7 +5,7 @@ export class TeamCreate1780617600000 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TYPE "game_type" AS ENUM ('cs2', 'dota2', 'valorant', 'lol')`
+      `CREATE TYPE "team_type" AS ENUM ('main', 'academy')`
     );
     await queryRunner.query(
       `CREATE TYPE "team_member_role" AS ENUM ('coach', 'captain', 'player', 'substitute')`
@@ -15,12 +15,12 @@ export class TeamCreate1780617600000 implements MigrationInterface {
         "id" SERIAL NOT NULL,
         "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
         "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-        "organizationId" integer NOT NULL,
-        "name" character varying(48) NOT NULL,
-        "game" "game_type" NOT NULL,
+        "gameId" integer NOT NULL,
+        "type" "team_type" NOT NULL,
         CONSTRAINT "PK_teams" PRIMARY KEY ("id"),
-        CONSTRAINT "FK_teams_organization" FOREIGN KEY ("organizationId")
-          REFERENCES "organizations"("id") ON DELETE CASCADE
+        CONSTRAINT "UQ_teams_game_type" UNIQUE ("gameId", "type"),
+        CONSTRAINT "FK_teams_game" FOREIGN KEY ("gameId")
+          REFERENCES "games"("id") ON DELETE CASCADE
       )`
     );
     await queryRunner.query(
@@ -45,6 +45,6 @@ export class TeamCreate1780617600000 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "team_members"`);
     await queryRunner.query(`DROP TABLE "teams"`);
     await queryRunner.query(`DROP TYPE "team_member_role"`);
-    await queryRunner.query(`DROP TYPE "game_type"`);
+    await queryRunner.query(`DROP TYPE "team_type"`);
   }
 }

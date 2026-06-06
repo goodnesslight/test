@@ -55,6 +55,13 @@
       "declined": "Not going"
     }
   },
+  "games": {
+    "title": "Game directions",
+    "add": "Add game",
+    "empty": "No game directions yet — add the first one!",
+    "deleteHeader": "Delete game direction",
+    "deleteConfirm": "Delete the {game} direction with all of its teams? This cannot be undone."
+  },
   "invites": {
     "title": "Invites",
     "invite": "Invite player",
@@ -111,10 +118,7 @@
   "teams": {
     "title": "Teams",
     "create": "Create team",
-    "edit": "Edit team",
-    "empty": "No teams in this organization yet — create the first one!",
-    "name": "Name",
-    "game": "Game",
+    "empty": "No teams in this direction yet — create the first one!",
     "members": "Roster",
     "noMembers": "No players yet — invites are coming in the next feature",
     "role": "Role",
@@ -127,6 +131,14 @@
       "captain": "Captain",
       "player": "Player",
       "substitute": "Substitute"
+    },
+    "types": {
+      "main": "Main roster",
+      "academy": "Academy roster"
+    },
+    "typeDescriptions": {
+      "main": "The organization's primary competitive roster",
+      "academy": "A development roster for upcoming players"
     }
   }
 }

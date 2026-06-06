@@ -1,9 +1,9 @@
 import { Exclude, Expose, Type } from 'class-transformer';
-import { IsEnum, IsOptional, IsString, Length } from 'class-validator';
+import { IsEnum } from 'class-validator';
 
-import { GameType, TeamMemberRole } from '@shared/types';
+import { TeamMemberRole, TeamType } from '@shared/types';
 
-import { OrganizationLiteDto } from './organization';
+import { GameLiteDto } from './game';
 import { UserDto } from './user';
 
 @Exclude()
@@ -12,13 +12,10 @@ export class TeamDto {
   id: number;
 
   @Expose()
-  organizationId: number;
+  gameId: number;
 
   @Expose()
-  name: string;
-
-  @Expose()
-  game: GameType;
+  type: TeamType;
 
   @Expose()
   @Type(() => TeamMemberDto)
@@ -28,8 +25,8 @@ export class TeamDto {
   createdAt: Date;
 
   @Expose()
-  @Type(() => OrganizationLiteDto)
-  organization?: OrganizationLiteDto;
+  @Type(() => GameLiteDto)
+  game?: GameLiteDto;
 }
 
 @Exclude()
@@ -49,23 +46,8 @@ export class TeamMemberDto {
 }
 
 export class TeamCreateDto {
-  @IsString()
-  @Length(2, 48)
-  name: string;
-
-  @IsEnum(GameType)
-  game: GameType;
-}
-
-export class TeamUpdateDto {
-  @IsOptional()
-  @IsString()
-  @Length(2, 48)
-  name?: string;
-
-  @IsOptional()
-  @IsEnum(GameType)
-  game?: GameType;
+  @IsEnum(TeamType)
+  type: TeamType;
 }
 
 export class TeamUpdateMemberDto {

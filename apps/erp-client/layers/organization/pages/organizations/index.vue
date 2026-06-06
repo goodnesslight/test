@@ -3,7 +3,7 @@ import { navigateTo } from 'nuxt/app';
 import type { DataTableRowClickEvent } from 'primevue/datatable';
 import { onMounted, type Ref, ref } from 'vue';
 
-import type { OrganizationDto } from '@shared/dtos';
+import type { GameDto, OrganizationDto } from '@shared/dtos';
 import type { HttpResponse } from '@shared/types';
 
 import type { OrganizationService } from '../../composables/use-organization-service';
@@ -41,6 +41,13 @@ async function openOrganization(event: DataTableRowClickEvent): Promise<void> {
 
   await navigateTo(
     buildAppRoute(AppRoute.ORGANIZATIONS_BY_ID, { id: organization.id })
+  );
+}
+
+function getTeamsCount(organization: OrganizationDto): number {
+  return (organization.games ?? []).reduce(
+    (sum: number, game: GameDto): number => sum + (game.teams?.length ?? 0),
+    0
   );
 }
 
@@ -90,7 +97,7 @@ onMounted(loadOrganizations);
       <Column :header="t('organizations.teamsCount')">
         <template #body="{ data }">
           <Tag
-            :value="String(data.teams?.length ?? 0)"
+            :value="String(getTeamsCount(data))"
             icon="pi pi-users"
             severity="info"
           />

@@ -1,19 +1,10 @@
-import type {
-  TeamCreateDto,
-  TeamDto,
-  TeamUpdateDto,
-  TeamUpdateMemberDto,
-} from '@shared/dtos';
+import type { TeamCreateDto, TeamDto, TeamUpdateMemberDto } from '@shared/dtos';
 import { ApiRoute, type HttpResponse } from '@shared/types';
 
 import type { ApiService } from '#layers/api';
 
 export interface TeamService {
-  create(
-    organizationId: number,
-    dto: TeamCreateDto
-  ): Promise<HttpResponse<TeamDto>>;
-  update(id: number, dto: TeamUpdateDto): Promise<HttpResponse<TeamDto>>;
+  create(gameId: number, dto: TeamCreateDto): Promise<HttpResponse<TeamDto>>;
   updateMemberRole(
     teamId: number,
     memberId: number,
@@ -31,21 +22,11 @@ export function useTeamService(): TeamService {
   const apiService: ApiService = useApiService();
 
   async function create(
-    organizationId: number,
+    gameId: number,
     dto: TeamCreateDto
   ): Promise<HttpResponse<TeamDto>> {
-    return await apiService.post<TeamDto>(ApiRoute.ORGANIZATION_TEAMS, {
-      id: organizationId,
-      ...dto,
-    });
-  }
-
-  async function update(
-    id: number,
-    dto: TeamUpdateDto
-  ): Promise<HttpResponse<TeamDto>> {
-    return await apiService.put<TeamDto>(ApiRoute.TEAMS_BY_ID, {
-      id,
+    return await apiService.post<TeamDto>(ApiRoute.GAME_TEAMS, {
+      id: gameId,
       ...dto,
     });
   }
@@ -80,5 +61,5 @@ export function useTeamService(): TeamService {
     });
   }
 
-  return { create, update, updateMemberRole, getById, remove, removeMember };
+  return { create, updateMemberRole, getById, remove, removeMember };
 }
