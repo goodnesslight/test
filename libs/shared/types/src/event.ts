@@ -10,3 +10,8 @@ export enum EventAttendanceStatus {
   MAYBE = 'maybe',
   DECLINED = 'declined',
 }
+
+export enum EventScope {
+  SINGLE = 'single',
+  SERIES = 'series',
+}

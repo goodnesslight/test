@@ -85,4 +85,15 @@ export class EventRepository extends BasicRepository<EventEntity> {
 
     return await query.getMany();
   }
+
+  async findSeriesFrom(seriesId: string, from: Date): Promise<EventEntity[]> {
+    return await this.find({
+      where: { seriesId, startsAt: MoreThanOrEqual(from) },
+      order: { startsAt: 'ASC' },
+    });
+  }
+
+  async deleteSeriesFrom(seriesId: string, from: Date): Promise<void> {
+    await this.delete({ seriesId, startsAt: MoreThanOrEqual(from) });
+  }
 }

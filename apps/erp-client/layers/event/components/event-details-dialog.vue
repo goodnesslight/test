@@ -112,6 +112,12 @@ function countAttendance(status: EventAttendanceStatus): number {
           :value="organizationTag"
           severity="secondary"
         />
+        <Tag
+          v-if="event.seriesId"
+          :value="t('events.series')"
+          icon="pi pi-sync"
+          severity="secondary"
+        />
         <span v-if="event.opponent" class="event-details__opponent">
           vs {{ event.opponent }}
         </span>

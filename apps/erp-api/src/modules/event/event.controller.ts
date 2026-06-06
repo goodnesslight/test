@@ -5,6 +5,7 @@ import { UserEntity } from '@modules/user/user.entity';
 
 import {
   EventCreateDto,
+  EventDeleteDto,
   EventDto,
   EventGetFeedDto,
   EventGetListDto,
@@ -100,8 +101,9 @@ export class EventController {
   @UseInterceptors(new ResponseInterceptor())
   async delete(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: UserEntity
+    @CurrentUser() user: UserEntity,
+    @Query() dto: EventDeleteDto
   ): Promise<null> {
-    return await this.eventService.delete(id, user);
+    return await this.eventService.delete(id, user, dto);
   }
 }

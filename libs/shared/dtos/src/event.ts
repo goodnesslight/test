@@ -1,14 +1,20 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsDateString,
   IsEnum,
+  IsInt,
   IsOptional,
   IsString,
   IsUUID,
   Length,
+  Max,
+  Min,
+  ValidateNested,
 } from 'class-validator';
 
-import { EventAttendanceStatus, EventType } from '@shared/types';
+import { EventAttendanceStatus, EventScope, EventType } from '@shared/types';
 
 import { TeamDto } from './team';
 import { UserDto } from './user';
@@ -47,6 +53,9 @@ export class EventDto {
   description: string | null;
 
   @Expose()
+  seriesId: string | null;
+
+  @Expose()
   @Type(() => TeamDto)
   team?: TeamDto;
 }
@@ -68,6 +77,18 @@ export class EventAttendanceDto {
   @Expose()
   @Type(() => UserDto)
   user?: UserDto;
+}
+
+export class EventCreateRepeatDto {
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  @Min(0, { each: true })
+  @Max(6, { each: true })
+  daysOfWeek: number[];
+
+  @IsDateString()
+  until: string;
 }
 
 export class EventCreateDto {
@@ -94,6 +115,11 @@ export class EventCreateDto {
   @IsString()
   @Length(0, 500)
   description?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => EventCreateRepeatDto)
+  repeat?: EventCreateRepeatDto;
 }
 
 export class EventUpdateDto {
@@ -123,6 +149,16 @@ export class EventUpdateDto {
   @IsString()
   @Length(0, 500)
   description?: string;
+
+  @IsOptional()
+  @IsEnum(EventScope)
+  scope?: EventScope;
+}
+
+export class EventDeleteDto {
+  @IsOptional()
+  @IsEnum(EventScope)
+  scope?: EventScope;
 }
 
 export class EventGetFeedDto {

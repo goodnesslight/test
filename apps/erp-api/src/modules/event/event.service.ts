@@ -3,15 +3,18 @@ import { TeamService } from '@modules/team/team.service';
 import { TeamMemberEntity } from '@modules/team/team-member/team-member.entity';
 import { UserEntity } from '@modules/user/user.entity';
 import { UserRepository } from '@modules/user/user.repository';
+import { randomUUID } from 'crypto';
 
 import {
   EventCreateDto,
+  EventCreateRepeatDto,
+  EventDeleteDto,
   EventGetFeedDto,
   EventGetListDto,
   EventSetAttendanceDto,
   EventUpdateDto,
 } from '@shared/dtos';
-import { TeamMemberRole } from '@shared/types';
+import { EventScope, TeamMemberRole } from '@shared/types';
 
 import {
   BadRequestException,
@@ -33,7 +36,9 @@ export class EventService {
   ];
   private readonly CALENDAR_NAME: string = 'Platform';
   private readonly CALENDAR_UID_DOMAIN: string = 'platform';
+  private readonly DAY_MS: number = 24 * 60 * 60 * 1000;
   private readonly DEFAULT_EVENT_DURATION_MS: number = 60 * 60 * 1000;
+  private readonly MAX_SERIES_OCCURRENCES: number = 60;
 
   constructor(
     private readonly teamService: TeamService,
@@ -51,6 +56,10 @@ export class EventService {
 
     this.assertCanManage(team, user);
     this.assertValidRange(dto.startsAt, dto.endsAt);
+
+    if (dto.repeat) {
+      return await this.createSeries(teamId, dto, dto.repeat);
+    }
 
     const event: EventEntity = await this.eventRepository.save(
       this.eventRepository.create({
@@ -82,15 +91,19 @@ export class EventService {
 
     this.assertValidRange(startsAt, endsAt ?? undefined);
 
-    await this.eventRepository.update(id, {
-      type: dto.type ?? event.type,
-      title: dto.title ?? event.title,
-      opponent: dto.opponent === undefined ? event.opponent : dto.opponent,
-      startsAt: new Date(startsAt),
-      endsAt: endsAt ? new Date(endsAt) : null,
-      description:
-        dto.description === undefined ? event.description : dto.description,
-    });
+    if (dto.scope === EventScope.SERIES && event.seriesId) {
+      await this.updateSeries(event, dto);
+    } else {
+      await this.eventRepository.update(id, {
+        type: dto.type ?? event.type,
+        title: dto.title ?? event.title,
+        opponent: dto.opponent === undefined ? event.opponent : dto.opponent,
+        startsAt: new Date(startsAt),
+        endsAt: endsAt ? new Date(endsAt) : null,
+        description:
+          dto.description === undefined ? event.description : dto.description,
+      });
+    }
 
     return await this.getByIdWithAttendances(id);
   }
@@ -168,13 +181,107 @@ export class EventService {
     return this.buildCalendar(events);
   }
 
-  async delete(id: number, user: UserEntity): Promise<null> {
+  async delete(
+    id: number,
+    user: UserEntity,
+    dto: EventDeleteDto
+  ): Promise<null> {
     const event: EventEntity = await this.getById(id);
 
     this.assertCanManage(event.team, user);
-    await this.eventRepository.delete(id);
+
+    if (dto.scope === EventScope.SERIES && event.seriesId) {
+      await this.eventRepository.deleteSeriesFrom(
+        event.seriesId,
+        event.startsAt
+      );
+    } else {
+      await this.eventRepository.delete(id);
+    }
 
     return null;
+  }
+
+  private async createSeries(
+    teamId: number,
+    dto: EventCreateDto,
+    repeat: EventCreateRepeatDto
+  ): Promise<EventEntity> {
+    const occurrences: Date[] = this.buildOccurrences(
+      new Date(dto.startsAt),
+      repeat
+    );
+
+    if (occurrences.length === 0) {
+      throw new BadRequestException('The series has no occurrences');
+    }
+
+    const durationMs: number | null = dto.endsAt
+      ? new Date(dto.endsAt).getTime() - new Date(dto.startsAt).getTime()
+      : null;
+    const seriesId: string = randomUUID();
+    const events: EventEntity[] = await this.eventRepository.save(
+      occurrences.map(
+        (startsAt: Date): EventEntity =>
+          this.eventRepository.create({
+            teamId,
+            type: dto.type,
+            title: dto.title,
+            opponent: dto.opponent ?? null,
+            startsAt,
+            endsAt: durationMs
+              ? new Date(startsAt.getTime() + durationMs)
+              : null,
+            description: dto.description ?? null,
+            seriesId,
+          })
+      )
+    );
+
+    return await this.getByIdWithAttendances(events[0].id);
+  }
+
+  private async updateSeries(
+    event: EventEntity,
+    dto: EventUpdateDto
+  ): Promise<void> {
+    const events: EventEntity[] = await this.eventRepository.findSeriesFrom(
+      event.seriesId as string,
+      event.startsAt
+    );
+    const startsAtDelta: number = dto.startsAt
+      ? new Date(dto.startsAt).getTime() - new Date(event.startsAt).getTime()
+      : 0;
+    const durationMs: number | null = dto.endsAt
+      ? new Date(dto.endsAt).getTime() -
+        new Date(dto.startsAt ?? event.startsAt).getTime()
+      : null;
+
+    await this.eventRepository.save(
+      events.map((occurrence: EventEntity): EventEntity => {
+        const startsAt: Date = new Date(
+          new Date(occurrence.startsAt).getTime() + startsAtDelta
+        );
+
+        occurrence.type = dto.type ?? occurrence.type;
+        occurrence.title = dto.title ?? occurrence.title;
+        occurrence.opponent =
+          dto.opponent === undefined ? occurrence.opponent : dto.opponent;
+        occurrence.startsAt = startsAt;
+        occurrence.endsAt = this.buildSeriesEndsAt(
+          occurrence,
+          startsAt,
+          startsAtDelta,
+          durationMs
+        );
+        occurrence.description =
+          dto.description === undefined
+            ? occurrence.description
+            : dto.description;
+
+        return occurrence;
+      })
+    );
   }
 
   private async getById(id: number): Promise<EventEntity> {
@@ -237,6 +344,55 @@ export class EventService {
     if (endsAt && new Date(endsAt) <= new Date(startsAt)) {
       throw new BadRequestException('endsAt must be later than startsAt');
     }
+  }
+
+  private buildOccurrences(
+    startsAt: Date,
+    repeat: EventCreateRepeatDto
+  ): Date[] {
+    const until: Date = new Date(
+      new Date(repeat.until).getTime() + this.DAY_MS
+    );
+
+    if (until <= startsAt) {
+      throw new BadRequestException('until must be later than startsAt');
+    }
+
+    const occurrences: Date[] = [];
+    const cursor: Date = new Date(startsAt);
+
+    while (cursor < until) {
+      if (repeat.daysOfWeek.includes(cursor.getDay())) {
+        occurrences.push(new Date(cursor));
+
+        if (occurrences.length > this.MAX_SERIES_OCCURRENCES) {
+          throw new BadRequestException(
+            `A series cannot have more than ${this.MAX_SERIES_OCCURRENCES} occurrences`
+          );
+        }
+      }
+
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return occurrences;
+  }
+
+  private buildSeriesEndsAt(
+    occurrence: EventEntity,
+    startsAt: Date,
+    startsAtDelta: number,
+    durationMs: number | null
+  ): Date | null {
+    if (durationMs) {
+      return new Date(startsAt.getTime() + durationMs);
+    }
+
+    if (occurrence.endsAt) {
+      return new Date(new Date(occurrence.endsAt).getTime() + startsAtDelta);
+    }
+
+    return null;
   }
 
   private buildCalendar(events: EventEntity[]): string {

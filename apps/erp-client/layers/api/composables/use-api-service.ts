@@ -72,7 +72,7 @@ export function useApiService(): ApiService {
         {
           method,
           credentials: 'include',
-          body: method !== HttpMethod.GET ? dto : undefined,
+          body: hasQueryParams(method) ? undefined : dto,
         }
       );
     } catch (error: unknown) {
@@ -97,7 +97,7 @@ export function useApiService(): ApiService {
 
     let url: string = `${apiUrl}/${path}`;
 
-    if (method === HttpMethod.GET && Object.keys(params).length > 0) {
+    if (hasQueryParams(method) && Object.keys(params).length > 0) {
       const query: string = new URLSearchParams(
         Object.entries(params).map(([key, value]) => [key, String(value)])
       ).toString();
@@ -105,6 +105,10 @@ export function useApiService(): ApiService {
     }
 
     return url;
+  }
+
+  function hasQueryParams(method: HttpMethod): boolean {
+    return method === HttpMethod.GET || method === HttpMethod.DELETE;
   }
 
   function toErrorResponse(error: unknown): HttpErrorResponse {

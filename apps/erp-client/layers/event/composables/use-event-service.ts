@@ -1,5 +1,6 @@
 import type {
   EventCreateDto,
+  EventDeleteDto,
   EventDto,
   EventGetListDto,
   EventSetAttendanceDto,
@@ -23,7 +24,7 @@ export interface EventService {
     dto?: EventGetListDto
   ): Promise<HttpResponse<EventDto[]>>;
   getFeedUrl(token: string): string;
-  remove(id: number): Promise<HttpResponse<null>>;
+  remove(id: number, dto?: EventDeleteDto): Promise<HttpResponse<null>>;
 }
 
 export function useEventService(): EventService {
@@ -82,8 +83,14 @@ export function useEventService(): EventService {
     return `${apiUrl}/${ApiRoute.EVENTS_FEED}?token=${token}`;
   }
 
-  async function remove(id: number): Promise<HttpResponse<null>> {
-    return await apiService.delete<null>(ApiRoute.EVENTS_BY_ID, { id });
+  async function remove(
+    id: number,
+    dto?: EventDeleteDto
+  ): Promise<HttpResponse<null>> {
+    return await apiService.delete<null>(ApiRoute.EVENTS_BY_ID, {
+      id,
+      ...dto,
+    });
   }
 
   return {

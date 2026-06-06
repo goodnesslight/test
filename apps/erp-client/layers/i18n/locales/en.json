@@ -46,8 +46,23 @@
     "empty": "No events yet — schedule your first practice!",
     "noUpcoming": "No upcoming events",
     "past": "Past",
+    "repeat": "Repeat",
+    "repeatUntil": "Repeat until",
+    "series": "Repeats",
+    "applyTo": "Apply to",
+    "scopeSingle": "This event only",
+    "scopeSeries": "This and following",
     "deleteHeader": "Delete event",
     "deleteConfirm": "Delete event \"{title}\"?",
+    "weekdays": {
+      "mon": "Mo",
+      "tue": "Tu",
+      "wed": "We",
+      "thu": "Th",
+      "fri": "Fr",
+      "sat": "Sa",
+      "sun": "Su"
+    },
     "types": {
       "practice": "Practice",
       "scrim": "Scrim",

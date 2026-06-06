@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { useConfirm } from 'primevue/useconfirm';
 import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue';
 
 import type {
   EventAttendanceDto,
+  EventDeleteDto,
   EventDto,
   EventSetAttendanceDto,
   TeamDto,
 } from '@shared/dtos';
 import {
   EventAttendanceStatus,
+  EventScope,
   EventType,
   type HttpResponse,
   TeamMemberRole,
@@ -37,7 +38,6 @@ interface EventScheduleViewOption {
 const props: EventScheduleCardProps = defineProps<EventScheduleCardProps>();
 
 const { t } = useI18n();
-const confirm: ReturnType<typeof useConfirm> = useConfirm();
 const authService: AuthService = useAuthService();
 const dateService: DateService = useDateService();
 const eventService: EventService = useEventService();
@@ -52,8 +52,10 @@ const events: Ref<EventDto[]> = ref([]);
 const isLoading: Ref<boolean> = ref(true);
 const isDialogVisible: Ref<boolean> = ref(false);
 const isDetailsVisible: Ref<boolean> = ref(false);
+const isDeleteVisible: Ref<boolean> = ref(false);
 const editedEvent: Ref<EventDto | null> = ref(null);
 const selectedEvent: Ref<EventDto | null> = ref(null);
+const deletedEvent: Ref<EventDto | null> = ref(null);
 const createStartsAt: Ref<Date | null> = ref(null);
 const isPastVisible: Ref<boolean> = ref(false);
 const view: Ref<EventScheduleView> = ref('list');
@@ -118,6 +120,11 @@ function openEdit(event: EventDto): void {
   isDialogVisible.value = true;
 }
 
+function openDelete(event: EventDto): void {
+  deletedEvent.value = event;
+  isDeleteVisible.value = true;
+}
+
 function onCalendarEventClick(event: EventDto): void {
   selectedEvent.value = event;
   isDetailsVisible.value = true;
@@ -140,7 +147,7 @@ function onDetailsEdit(event: EventDto): void {
 
 function onDetailsRemove(event: EventDto): void {
   isDetailsVisible.value = false;
-  confirmDelete(event);
+  openDelete(event);
 }
 
 function onDetailsUpdated(updated: EventDto): void {
@@ -159,27 +166,23 @@ async function onSaved(): Promise<void> {
   await loadEvents();
 }
 
-function confirmDelete(event: EventDto): void {
-  confirm.require({
-    header: t('events.deleteHeader'),
-    message: t('events.deleteConfirm', { title: event.title }),
-    icon: 'pi pi-exclamation-triangle',
-    acceptProps: { label: t('common.delete'), severity: 'danger' },
-    rejectProps: {
-      label: t('common.cancel'),
-      severity: 'secondary',
-      text: true,
-    },
-    accept: async (): Promise<void> => {
-      const response: HttpResponse<null> = await eventService.remove(event.id);
+async function onDeleteConfirmed(scope: EventScope): Promise<void> {
+  if (!deletedEvent.value) {
+    return;
+  }
 
-      if (response.isSuccess) {
-        await loadEvents();
-      } else {
-        notificationService.showError(response.error);
-      }
-    },
-  });
+  const dto: EventDeleteDto | undefined =
+    scope === EventScope.SERIES ? { scope } : undefined;
+  const response: HttpResponse<null> = await eventService.remove(
+    deletedEvent.value.id,
+    dto
+  );
+
+  if (response.isSuccess) {
+    await loadEvents();
+  } else {
+    notificationService.showError(response.error);
+  }
 }
 
 async function setAttendance(
@@ -350,7 +353,7 @@ onMounted(loadEvents);
                   rounded
                   size="small"
                   :aria-label="t('common.delete')"
-                  @click="confirmDelete(event)"
+                  @click="openDelete(event)"
                 />
               </div>
             </div>
@@ -399,7 +402,7 @@ onMounted(loadEvents);
                   rounded
                   size="small"
                   :aria-label="t('common.delete')"
-                  @click="confirmDelete(event)"
+                  @click="openDelete(event)"
                 />
               </div>
             </div>
@@ -425,6 +428,12 @@ onMounted(loadEvents);
     @edit="onDetailsEdit"
     @remove="onDetailsRemove"
     @updated="onDetailsUpdated"
+  />
+
+  <EventDeleteDialog
+    v-model:visible="isDeleteVisible"
+    :event="deletedEvent"
+    @remove="onDeleteConfirmed"
   />
 </template>
 

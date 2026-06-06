@@ -22,6 +22,7 @@ export class EventCreate1780790400000 implements MigrationInterface {
         "startsAt" TIMESTAMP NOT NULL,
         "endsAt" TIMESTAMP,
         "description" character varying(500),
+        "seriesId" uuid,
         CONSTRAINT "PK_events" PRIMARY KEY ("id"),
         CONSTRAINT "FK_events_team" FOREIGN KEY ("teamId")
           REFERENCES "teams"("id") ON DELETE CASCADE
@@ -29,6 +30,9 @@ export class EventCreate1780790400000 implements MigrationInterface {
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_events_team_startsAt" ON "events" ("teamId", "startsAt")`
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_events_seriesId" ON "events" ("seriesId")`
     );
     await queryRunner.query(
       `CREATE TABLE "event_attendances" (

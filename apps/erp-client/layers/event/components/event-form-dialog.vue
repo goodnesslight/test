@@ -8,8 +8,8 @@ import {
   type WritableComputedRef,
 } from 'vue';
 
-import type { EventCreateDto, EventDto } from '@shared/dtos';
-import { EventType, type HttpResponse } from '@shared/types';
+import type { EventCreateDto, EventDto, EventUpdateDto } from '@shared/dtos';
+import { EventScope, EventType, type HttpResponse } from '@shared/types';
 
 import type { EventService } from '../composables/use-event-service';
 
@@ -32,6 +32,16 @@ interface EventTypeOption {
   value: EventType;
 }
 
+interface EventScopeOption {
+  label: string;
+  value: EventScope;
+}
+
+interface EventWeekdayOption {
+  label: string;
+  value: number;
+}
+
 const props: EventFormDialogProps = defineProps<EventFormDialogProps>();
 const emit: EventFormDialogEmits = defineEmits<EventFormDialogEmits>();
 
@@ -39,12 +49,27 @@ const { t } = useI18n();
 const eventService: EventService = useEventService();
 const notificationService: NotificationService = useNotificationService();
 
+const WEEKDAY_VALUES: number[] = [1, 2, 3, 4, 5, 6, 0];
+const WEEKDAY_KEYS: string[] = [
+  'mon',
+  'tue',
+  'wed',
+  'thu',
+  'fri',
+  'sat',
+  'sun',
+];
+
 const type: Ref<EventType> = ref(EventType.PRACTICE);
 const title: Ref<string> = ref('');
 const opponent: Ref<string> = ref('');
 const startsAt: Ref<Date | null> = ref(null);
 const endsAt: Ref<Date | null> = ref(null);
 const description: Ref<string> = ref('');
+const isRepeating: Ref<boolean> = ref(false);
+const repeatDays: Ref<number[]> = ref([]);
+const repeatUntil: Ref<Date | null> = ref(null);
+const scope: Ref<EventScope> = ref(EventScope.SINGLE);
 const isLoading: Ref<boolean> = ref(false);
 
 const typeOptions: ComputedRef<EventTypeOption[]> = computed(
@@ -56,11 +81,34 @@ const typeOptions: ComputedRef<EventTypeOption[]> = computed(
       })
     )
 );
+const weekdayOptions: ComputedRef<EventWeekdayOption[]> = computed(
+  (): EventWeekdayOption[] =>
+    WEEKDAY_KEYS.map(
+      (key: string, index: number): EventWeekdayOption => ({
+        label: t(`events.weekdays.${key}`),
+        value: WEEKDAY_VALUES[index] as number,
+      })
+    )
+);
+const scopeOptions: ComputedRef<EventScopeOption[]> = computed(
+  (): EventScopeOption[] => [
+    { label: t('events.scopeSingle'), value: EventScope.SINGLE },
+    { label: t('events.scopeSeries'), value: EventScope.SERIES },
+  ]
+);
 const isEdit: ComputedRef<boolean> = computed((): boolean =>
   Boolean(props.event)
 );
+const isSeries: ComputedRef<boolean> = computed((): boolean =>
+  Boolean(props.event?.seriesId)
+);
 const hasOpponent: ComputedRef<boolean> = computed(
   (): boolean => type.value !== EventType.PRACTICE
+);
+const isSubmitDisabled: ComputedRef<boolean> = computed(
+  (): boolean =>
+    !startsAt.value ||
+    (isRepeating.value && (repeatDays.value.length === 0 || !repeatUntil.value))
 );
 const isVisible: WritableComputedRef<boolean> = computed({
   get: (): boolean => props.visible,
@@ -79,6 +127,10 @@ watch(
         : props.initialStartsAt ?? null;
       endsAt.value = props.event?.endsAt ? new Date(props.event.endsAt) : null;
       description.value = props.event?.description ?? '';
+      isRepeating.value = false;
+      repeatDays.value = [];
+      repeatUntil.value = null;
+      scope.value = EventScope.SINGLE;
     }
   }
 );
@@ -99,10 +151,22 @@ async function submit(): Promise<void> {
       : {}),
     ...(endsAt.value ? { endsAt: endsAt.value.toISOString() } : {}),
     ...(description.value ? { description: description.value } : {}),
+    ...(!props.event && isRepeating.value && repeatUntil.value
+      ? {
+          repeat: {
+            daysOfWeek: repeatDays.value,
+            until: repeatUntil.value.toISOString(),
+          },
+        }
+      : {}),
+  };
+  const updateDto: EventUpdateDto = {
+    ...dto,
+    ...(isSeries.value ? { scope: scope.value } : {}),
   };
 
   const response: HttpResponse<EventDto> = props.event
-    ? await eventService.update(props.event.id, dto)
+    ? await eventService.update(props.event.id, updateDto)
     : await eventService.create(props.teamId, dto);
 
   isLoading.value = false;
@@ -171,6 +235,52 @@ async function submit(): Promise<void> {
         </div>
       </div>
 
+      <template v-if="!isEdit">
+        <div class="event-form__repeat-toggle">
+          <Checkbox v-model="isRepeating" input-id="event-repeat" binary />
+          <label for="event-repeat">{{ t('events.repeat') }}</label>
+        </div>
+
+        <template v-if="isRepeating">
+          <div class="event-form__field">
+            <SelectButton
+              v-model="repeatDays"
+              :options="weekdayOptions"
+              option-label="label"
+              option-value="value"
+              multiple
+              size="small"
+              :aria-label="t('events.repeat')"
+            />
+          </div>
+          <div class="event-form__field">
+            <label for="event-repeat-until">
+              {{ t('events.repeatUntil') }}
+            </label>
+            <DatePicker
+              id="event-repeat-until"
+              v-model="repeatUntil"
+              :min-date="startsAt ?? undefined"
+              show-icon
+              fluid
+            />
+          </div>
+        </template>
+      </template>
+
+      <div v-if="isEdit && isSeries" class="event-form__field">
+        <label for="event-scope">{{ t('events.applyTo') }}</label>
+        <SelectButton
+          id="event-scope"
+          v-model="scope"
+          :options="scopeOptions"
+          option-label="label"
+          option-value="value"
+          :allow-empty="false"
+          size="small"
+        />
+      </div>
+
       <div class="event-form__field">
         <label for="event-description">{{ t('events.description') }}</label>
         <Textarea
@@ -194,7 +304,7 @@ async function submit(): Promise<void> {
           type="submit"
           :label="t('common.save')"
           :loading="isLoading"
-          :disabled="!startsAt"
+          :disabled="isSubmitDisabled"
         />
       </div>
     </form>
@@ -221,6 +331,18 @@ async function submit(): Promise<void> {
     label {
       font-size: 0.9rem;
       color: $text-dim;
+    }
+  }
+
+  &__repeat-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+
+    label {
+      font-size: 0.9rem;
+      color: $text-secondary;
+      cursor: pointer;
     }
   }
 

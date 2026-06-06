@@ -38,4 +38,7 @@ export class EventEntity extends BasicEntity {
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   description: string | null;
+
+  @Column({ type: 'uuid', nullable: true })
+  seriesId: string | null;
 }
