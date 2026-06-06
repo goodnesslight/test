@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 import { UserUpdateProfileDto } from '@shared/dtos';
 
 import { Injectable } from '@nestjs/common';
@@ -23,6 +25,14 @@ export class UserService {
           ? user.lastName
           : dto.lastName.trim() || null,
       locale: dto.locale ?? user.locale,
+    });
+
+    return (await this.userRepository.findById(user.id)) as UserEntity;
+  }
+
+  async regenerateCalendarToken(user: UserEntity): Promise<UserEntity> {
+    await this.userRepository.update(user.id, {
+      calendarToken: randomUUID(),
     });
 
     return (await this.userRepository.findById(user.id)) as UserEntity;

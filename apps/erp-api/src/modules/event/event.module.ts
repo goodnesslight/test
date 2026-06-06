@@ -1,4 +1,5 @@
 import { TeamModule } from '@modules/team/team.module';
+import { UserModule } from '@modules/user/user.module';
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -14,6 +15,7 @@ import { EventAttendanceRepository } from './event-attendance/event-attendance.r
   imports: [
     TypeOrmModule.forFeature([EventEntity, EventAttendanceEntity]),
     TeamModule,
+    UserModule,
   ],
   controllers: [EventController],
   providers: [EventService, EventRepository, EventAttendanceRepository],

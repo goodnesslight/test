@@ -6,6 +6,7 @@ import { UserEntity } from '@modules/user/user.entity';
 import {
   EventCreateDto,
   EventDto,
+  EventGetFeedDto,
   EventGetListDto,
   EventSetAttendanceDto,
   EventUpdateDto,
@@ -17,6 +18,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
   ParseIntPipe,
   Post,
@@ -30,11 +32,11 @@ import { EventEntity } from './event.entity';
 import { EventService } from './event.service';
 
 @Controller()
-@UseGuards(JwtAuthGuard)
 export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @Post(ApiRoute.TEAM_EVENTS)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor(EventDto))
   async create(
     @Param('id', ParseIntPipe) teamId: number,
@@ -45,6 +47,7 @@ export class EventController {
   }
 
   @Put(ApiRoute.EVENTS_BY_ID)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor(EventDto))
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -55,6 +58,7 @@ export class EventController {
   }
 
   @Post(ApiRoute.EVENT_ATTENDANCE)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor(EventDto))
   async setAttendance(
     @Param('id', ParseIntPipe) id: number,
@@ -64,7 +68,18 @@ export class EventController {
     return await this.eventService.setAttendance(id, user, dto);
   }
 
+  @Get(ApiRoute.EVENTS_MY)
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(new ResponseInterceptor(EventDto))
+  async getMy(
+    @CurrentUser() user: UserEntity,
+    @Query() dto: EventGetListDto
+  ): Promise<EventEntity[]> {
+    return await this.eventService.getMy(user, dto);
+  }
+
   @Get(ApiRoute.TEAM_EVENTS)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor(EventDto))
   async getForTeam(
     @Param('id', ParseIntPipe) teamId: number,
@@ -74,7 +89,14 @@ export class EventController {
     return await this.eventService.getForTeam(teamId, user, dto);
   }
 
+  @Get(ApiRoute.EVENTS_FEED)
+  @Header('Content-Type', 'text/calendar; charset=utf-8')
+  async getFeed(@Query() dto: EventGetFeedDto): Promise<string> {
+    return await this.eventService.getFeed(dto);
+  }
+
   @Delete(ApiRoute.EVENTS_BY_ID)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor())
   async delete(
     @Param('id', ParseIntPipe) id: number,

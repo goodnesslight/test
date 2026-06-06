@@ -31,25 +31,23 @@ const user: ComputedRef<UserDto | null> = computed(
 const greetingName: ComputedRef<string> = computed(
   (): string => user.value?.firstName || user.value?.username || ''
 );
-const profileMenuItems: ComputedRef<MenuItem[]> = computed(
-  (): MenuItem[] => [
-    {
-      label: t('nav.profile'),
-      icon: 'pi pi-user',
-      command: (): void => {
-        void navigateTo(AppRoute.SETTINGS);
-      },
+const profileMenuItems: ComputedRef<MenuItem[]> = computed((): MenuItem[] => [
+  {
+    label: t('nav.profile'),
+    icon: 'pi pi-user',
+    command: (): void => {
+      void navigateTo(AppRoute.SETTINGS);
     },
-    { separator: true },
-    {
-      label: t('nav.logout'),
-      icon: 'pi pi-sign-out',
-      command: (): void => {
-        void logout();
-      },
+  },
+  { separator: true },
+  {
+    label: t('nav.logout'),
+    icon: 'pi pi-sign-out',
+    command: (): void => {
+      void logout();
     },
-  ]
-);
+  },
+]);
 
 watch(
   user,
@@ -100,6 +98,14 @@ onMounted((): void => {
           <span>{{ t('nav.dashboard') }}</span>
         </NuxtLink>
         <NuxtLink
+          :to="AppRoute.CALENDAR"
+          class="nav__item"
+          active-class="nav__item--active"
+        >
+          <i class="pi pi-calendar" />
+          <span>{{ t('nav.calendar') }}</span>
+        </NuxtLink>
+        <NuxtLink
           :to="AppRoute.ORGANIZATIONS"
           class="nav__item"
           active-class="nav__item--active"
@@ -107,7 +113,6 @@ onMounted((): void => {
           <i class="pi pi-building" />
           <span>{{ t('nav.organizations') }}</span>
         </NuxtLink>
-
       </nav>
     </aside>
 

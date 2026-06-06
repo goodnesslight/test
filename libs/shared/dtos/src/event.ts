@@ -4,11 +4,13 @@ import {
   IsEnum,
   IsOptional,
   IsString,
+  IsUUID,
   Length,
 } from 'class-validator';
 
 import { EventAttendanceStatus, EventType } from '@shared/types';
 
+import { TeamDto } from './team';
 import { UserDto } from './user';
 
 @Exclude()
@@ -43,6 +45,10 @@ export class EventDto {
 
   @Expose()
   description: string | null;
+
+  @Expose()
+  @Type(() => TeamDto)
+  team?: TeamDto;
 }
 
 @Exclude()
@@ -117,6 +123,11 @@ export class EventUpdateDto {
   @IsString()
   @Length(0, 500)
   description?: string;
+}
+
+export class EventGetFeedDto {
+  @IsUUID()
+  token: string;
 }
 
 export class EventGetListDto {

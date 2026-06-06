@@ -30,6 +30,11 @@
   },
   "events": {
     "title": "Schedule",
+    "calendarTitle": "Calendar",
+    "view": "View",
+    "attendanceLabel": "Your attendance",
+    "openTeam": "Open team",
+    "filterTypes": "Event types",
     "create": "Add event",
     "edit": "Edit event",
     "type": "Type",
@@ -86,6 +91,7 @@
     "section": "Account",
     "greeting": "Welcome, {username}",
     "dashboard": "Dashboard",
+    "calendar": "Calendar",
     "organizations": "Organizations",
     "profile": "Account settings",
     "logout": "Log out"
@@ -113,7 +119,17 @@
       "ru": "Русский",
       "en": "English"
     },
-    "saved": "Settings saved"
+    "saved": "Settings saved",
+    "calendar": {
+      "title": "Calendar sync",
+      "description": "Subscribe to this link in Google Calendar or Apple Calendar to see the events of all your teams in your personal calendar.",
+      "copy": "Copy link",
+      "copied": "Link copied",
+      "regenerate": "Reissue",
+      "regenerateHeader": "Reissue calendar link",
+      "regenerateConfirm": "Reissue the calendar link? The old link will stop working.",
+      "regenerated": "New link issued"
+    }
   },
   "teams": {
     "title": "Teams",

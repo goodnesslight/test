@@ -22,11 +22,9 @@ export class EventAttendanceEntity extends BasicEntity {
   })
   status: EventAttendanceStatus;
 
-  @ManyToOne(
-    () => EventEntity,
-    (event: EventEntity) => event.attendances,
-    { onDelete: 'CASCADE' }
-  )
+  @ManyToOne(() => EventEntity, (event: EventEntity) => event.attendances, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'eventId' })
   event: EventEntity;
 

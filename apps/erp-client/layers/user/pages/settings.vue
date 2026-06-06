@@ -1,12 +1,25 @@
 <script setup lang="ts">
-import { computed, type ComputedRef, type Ref, ref, watch } from 'vue';
+import { useConfirm } from 'primevue/useconfirm';
+import {
+  computed,
+  type ComputedRef,
+  onMounted,
+  type Ref,
+  ref,
+  watch,
+} from 'vue';
 
-import type { UserDto, UserUpdateProfileDto } from '@shared/dtos';
+import type {
+  UserCalendarTokenDto,
+  UserDto,
+  UserUpdateProfileDto,
+} from '@shared/dtos';
 import { type HttpResponse, Locale } from '@shared/types';
 
 import type { UserService } from '../composables/use-user-service';
 
 import type { AuthService } from '#layers/auth';
+import type { EventService } from '#layers/event';
 import type { LocaleService } from '#layers/i18n';
 import type { NotificationService } from '#layers/notification';
 
@@ -20,7 +33,9 @@ interface UserLocaleOption {
 }
 
 const { t } = useI18n();
+const confirm: ReturnType<typeof useConfirm> = useConfirm();
 const authService: AuthService = useAuthService();
+const eventService: EventService = useEventService();
 const localeService: LocaleService = useLocaleService();
 const notificationService: NotificationService = useNotificationService();
 const userService: UserService = useUserService();
@@ -29,6 +44,7 @@ const firstName: Ref<string> = ref('');
 const lastName: Ref<string> = ref('');
 const locale: Ref<Locale> = ref(Locale.RU);
 const isSaving: Ref<boolean> = ref(false);
+const calendarFeedUrl: Ref<string> = ref('');
 
 const user: ComputedRef<UserDto | null> = computed(
   (): UserDto | null => authService.user.value
@@ -52,6 +68,19 @@ watch(
   { immediate: true }
 );
 
+async function loadCalendarFeedUrl(): Promise<void> {
+  const response: HttpResponse<UserCalendarTokenDto> =
+    await userService.getCalendarToken();
+
+  if (response.isSuccess) {
+    calendarFeedUrl.value = eventService.getFeedUrl(
+      response.data.calendarToken
+    );
+  } else {
+    notificationService.showError(response.error);
+  }
+}
+
 async function save(): Promise<void> {
   isSaving.value = true;
 
@@ -72,6 +101,40 @@ async function save(): Promise<void> {
     notificationService.showError(response.error);
   }
 }
+
+async function copyCalendarFeedUrl(): Promise<void> {
+  await navigator.clipboard.writeText(calendarFeedUrl.value);
+  notificationService.showSuccess(t('settings.calendar.copied'));
+}
+
+function confirmRegenerateCalendarFeedUrl(): void {
+  confirm.require({
+    header: t('settings.calendar.regenerateHeader'),
+    message: t('settings.calendar.regenerateConfirm'),
+    icon: 'pi pi-exclamation-triangle',
+    acceptProps: { label: t('settings.calendar.regenerate') },
+    rejectProps: {
+      label: t('common.cancel'),
+      severity: 'secondary',
+      text: true,
+    },
+    accept: async (): Promise<void> => {
+      const response: HttpResponse<UserCalendarTokenDto> =
+        await userService.regenerateCalendarToken();
+
+      if (response.isSuccess) {
+        calendarFeedUrl.value = eventService.getFeedUrl(
+          response.data.calendarToken
+        );
+        notificationService.showSuccess(t('settings.calendar.regenerated'));
+      } else {
+        notificationService.showError(response.error);
+      }
+    },
+  });
+}
+
+onMounted(loadCalendarFeedUrl);
 </script>
 
 <template>
@@ -138,6 +201,34 @@ async function save(): Promise<void> {
         </div>
       </template>
     </Card>
+
+    <Card class="settings-page__card">
+      <template #title>{{ t('settings.calendar.title') }}</template>
+      <template #content>
+        <div class="settings-calendar">
+          <p class="settings-calendar__description">
+            {{ t('settings.calendar.description') }}
+          </p>
+          <div class="settings-calendar__link">
+            <InputText :model-value="calendarFeedUrl" readonly fluid />
+            <Button
+              :label="t('settings.calendar.copy')"
+              icon="pi pi-copy"
+              :disabled="!calendarFeedUrl"
+              @click="copyCalendarFeedUrl"
+            />
+            <Button
+              :label="t('settings.calendar.regenerate')"
+              icon="pi pi-refresh"
+              severity="secondary"
+              outlined
+              :disabled="!calendarFeedUrl"
+              @click="confirmRegenerateCalendarFeedUrl"
+            />
+          </div>
+        </div>
+      </template>
+    </Card>
   </div>
 </template>
 
@@ -185,6 +276,26 @@ async function save(): Promise<void> {
   &__actions {
     display: flex;
     justify-content: flex-end;
+  }
+}
+
+.settings-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &__description {
+    color: $text-dim;
+    font-size: 0.9rem;
+  }
+
+  &__link {
+    display: flex;
+    gap: 0.75rem;
+
+    @media (max-width: $mobile) {
+      flex-direction: column;
+    }
   }
 }
 </style>

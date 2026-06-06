@@ -1,13 +1,18 @@
 import { ResponseInterceptor } from '@common/interceptors/response.interceptor';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
-import { UserDto, UserUpdateProfileDto } from '@shared/dtos';
+import {
+  UserCalendarTokenDto,
+  UserDto,
+  UserUpdateProfileDto,
+} from '@shared/dtos';
 import { ApiRoute } from '@shared/types';
 
 import {
   Body,
   Controller,
   Get,
+  Post,
   Put,
   UseGuards,
   UseInterceptors,
@@ -31,9 +36,23 @@ export class UserController {
     return await this.userService.updateProfile(user, dto);
   }
 
+  @Post(ApiRoute.USER_CALENDAR_TOKEN)
+  @UseInterceptors(new ResponseInterceptor(UserCalendarTokenDto))
+  async regenerateCalendarToken(
+    @CurrentUser() user: UserEntity
+  ): Promise<UserEntity> {
+    return await this.userService.regenerateCalendarToken(user);
+  }
+
   @Get(ApiRoute.USERS_ME)
   @UseInterceptors(new ResponseInterceptor(UserDto))
   getMe(@CurrentUser() user: UserEntity): UserEntity {
+    return user;
+  }
+
+  @Get(ApiRoute.USER_CALENDAR_TOKEN)
+  @UseInterceptors(new ResponseInterceptor(UserCalendarTokenDto))
+  getCalendarToken(@CurrentUser() user: UserEntity): UserEntity {
     return user;
   }
 }

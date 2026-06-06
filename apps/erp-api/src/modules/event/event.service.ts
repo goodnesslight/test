@@ -2,9 +2,11 @@ import { TeamEntity } from '@modules/team/team.entity';
 import { TeamService } from '@modules/team/team.service';
 import { TeamMemberEntity } from '@modules/team/team-member/team-member.entity';
 import { UserEntity } from '@modules/user/user.entity';
+import { UserRepository } from '@modules/user/user.repository';
 
 import {
   EventCreateDto,
+  EventGetFeedDto,
   EventGetListDto,
   EventSetAttendanceDto,
   EventUpdateDto,
@@ -29,11 +31,15 @@ export class EventService {
     TeamMemberRole.COACH,
     TeamMemberRole.CAPTAIN,
   ];
+  private readonly CALENDAR_NAME: string = 'Platform';
+  private readonly CALENDAR_UID_DOMAIN: string = 'platform';
+  private readonly DEFAULT_EVENT_DURATION_MS: number = 60 * 60 * 1000;
 
   constructor(
     private readonly teamService: TeamService,
     private readonly eventRepository: EventRepository,
-    private readonly eventAttendanceRepository: EventAttendanceRepository
+    private readonly eventAttendanceRepository: EventAttendanceRepository,
+    private readonly userRepository: UserRepository
   ) {}
 
   async create(
@@ -123,6 +129,14 @@ export class EventService {
     return await this.getByIdWithAttendances(id);
   }
 
+  async getMy(user: UserEntity, dto: EventGetListDto): Promise<EventEntity[]> {
+    return await this.eventRepository.findByUser(
+      user.id,
+      dto.from ? new Date(dto.from) : undefined,
+      dto.to ? new Date(dto.to) : undefined
+    );
+  }
+
   async getForTeam(
     teamId: number,
     user: UserEntity,
@@ -137,6 +151,21 @@ export class EventService {
       dto.from ? new Date(dto.from) : undefined,
       dto.to ? new Date(dto.to) : undefined
     );
+  }
+
+  async getFeed(dto: EventGetFeedDto): Promise<string> {
+    const user: UserEntity | null =
+      await this.userRepository.findByCalendarToken(dto.token);
+
+    if (!user) {
+      throw new NotFoundException('Calendar feed not found');
+    }
+
+    const events: EventEntity[] = await this.eventRepository.findByUser(
+      user.id
+    );
+
+    return this.buildCalendar(events);
   }
 
   async delete(id: number, user: UserEntity): Promise<null> {
@@ -208,5 +237,69 @@ export class EventService {
     if (endsAt && new Date(endsAt) <= new Date(startsAt)) {
       throw new BadRequestException('endsAt must be later than startsAt');
     }
+  }
+
+  private buildCalendar(events: EventEntity[]): string {
+    const lines: string[] = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      `PRODID:-//${this.CALENDAR_NAME}//ERP//EN`,
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      `X-WR-CALNAME:${this.CALENDAR_NAME}`,
+      ...events.flatMap((event: EventEntity): string[] =>
+        this.buildCalendarEvent(event)
+      ),
+      'END:VCALENDAR',
+    ];
+
+    return lines.join('\r\n');
+  }
+
+  private buildCalendarEvent(event: EventEntity): string[] {
+    const endsAt: Date =
+      event.endsAt ??
+      new Date(
+        new Date(event.startsAt).getTime() + this.DEFAULT_EVENT_DURATION_MS
+      );
+    const summary: string = [
+      `[${event.team.game.organization.tag}]`,
+      event.title,
+      event.opponent ? `vs ${event.opponent}` : null,
+    ]
+      .filter(Boolean)
+      .join(' ');
+    const lines: string[] = [
+      'BEGIN:VEVENT',
+      `UID:event-${event.id}@${this.CALENDAR_UID_DOMAIN}`,
+      `DTSTAMP:${this.formatCalendarDate(event.updatedAt)}`,
+      `DTSTART:${this.formatCalendarDate(event.startsAt)}`,
+      `DTEND:${this.formatCalendarDate(endsAt)}`,
+      `SUMMARY:${this.escapeCalendarText(summary)}`,
+      `CATEGORIES:${event.type.toUpperCase()}`,
+    ];
+
+    if (event.description) {
+      lines.push(`DESCRIPTION:${this.escapeCalendarText(event.description)}`);
+    }
+
+    lines.push('END:VEVENT');
+
+    return lines;
+  }
+
+  private formatCalendarDate(value: Date): string {
+    return new Date(value)
+      .toISOString()
+      .replace(/[-:]/g, '')
+      .replace(/\.\d{3}/, '');
+  }
+
+  private escapeCalendarText(value: string): string {
+    return value
+      .replace(/\\/g, '\\\\')
+      .replace(/;/g, '\\;')
+      .replace(/,/g, '\\,')
+      .replace(/\r?\n/g, '\\n');
   }
 }

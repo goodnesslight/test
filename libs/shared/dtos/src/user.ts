@@ -33,6 +33,12 @@ export class UserDto {
   googleId: string | null;
 }
 
+@Exclude()
+export class UserCalendarTokenDto {
+  @Expose()
+  calendarToken: string;
+}
+
 export class UserUpdateProfileDto {
   @IsOptional()
   @IsString()

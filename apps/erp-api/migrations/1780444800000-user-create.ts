@@ -12,6 +12,7 @@ export class UserCreate1780444800000 implements MigrationInterface {
         "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
         "username" character varying(32) NOT NULL,
         "locale" "locale_type" NOT NULL DEFAULT 'ru',
+        "calendarToken" uuid NOT NULL DEFAULT gen_random_uuid(),
         "email" character varying(320),
         "passwordHash" character varying,
         "firstName" character varying(64),
@@ -21,6 +22,7 @@ export class UserCreate1780444800000 implements MigrationInterface {
         CONSTRAINT "PK_users" PRIMARY KEY ("id"),
         CONSTRAINT "UQ_users_email" UNIQUE ("email"),
         CONSTRAINT "UQ_users_username" UNIQUE ("username"),
+        CONSTRAINT "UQ_users_calendarToken" UNIQUE ("calendarToken"),
         CONSTRAINT "UQ_users_googleId" UNIQUE ("googleId")
       )`
     );

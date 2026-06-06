@@ -8,6 +8,7 @@ import type {
 import { ApiRoute, type HttpResponse } from '@shared/types';
 
 import type { ApiService } from '#layers/api';
+import { ConfigKey, type ConfigService } from '#layers/config';
 
 export interface EventService {
   create(teamId: number, dto: EventCreateDto): Promise<HttpResponse<EventDto>>;
@@ -16,15 +17,18 @@ export interface EventService {
     id: number,
     dto: EventSetAttendanceDto
   ): Promise<HttpResponse<EventDto>>;
+  getMy(dto?: EventGetListDto): Promise<HttpResponse<EventDto[]>>;
   getForTeam(
     teamId: number,
     dto?: EventGetListDto
   ): Promise<HttpResponse<EventDto[]>>;
+  getFeedUrl(token: string): string;
   remove(id: number): Promise<HttpResponse<null>>;
 }
 
 export function useEventService(): EventService {
   const apiService: ApiService = useApiService();
+  const configService: ConfigService = useConfigService();
 
   async function create(
     teamId: number,
@@ -56,6 +60,12 @@ export function useEventService(): EventService {
     });
   }
 
+  async function getMy(
+    dto?: EventGetListDto
+  ): Promise<HttpResponse<EventDto[]>> {
+    return await apiService.get<EventDto[]>(ApiRoute.EVENTS_MY, { ...dto });
+  }
+
   async function getForTeam(
     teamId: number,
     dto?: EventGetListDto
@@ -66,9 +76,23 @@ export function useEventService(): EventService {
     });
   }
 
+  function getFeedUrl(token: string): string {
+    const apiUrl: string = configService.getOrThrow(ConfigKey.API_URL);
+
+    return `${apiUrl}/${ApiRoute.EVENTS_FEED}?token=${token}`;
+  }
+
   async function remove(id: number): Promise<HttpResponse<null>> {
     return await apiService.delete<null>(ApiRoute.EVENTS_BY_ID, { id });
   }
 
-  return { create, update, setAttendance, getForTeam, remove };
+  return {
+    create,
+    update,
+    setAttendance,
+    getMy,
+    getForTeam,
+    getFeedUrl,
+    remove,
+  };
 }

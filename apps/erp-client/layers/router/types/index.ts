@@ -6,6 +6,8 @@ export enum AppRoute {
   LOGIN = '/login',
   REGISTER = '/register',
 
+  CALENDAR = '/calendar',
+
   INVITES = '/invites',
 
   ORGANIZATIONS = '/organizations',

@@ -1,5 +1,5 @@
 import { BasicEntity } from '@modules/database/basic/entity.basic';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Generated } from 'typeorm';
 
 import { Locale } from '@shared/types';
 
@@ -15,6 +15,10 @@ export class UserEntity extends BasicEntity {
     default: Locale.RU,
   })
   locale: Locale;
+
+  @Column({ type: 'uuid', unique: true })
+  @Generated('uuid')
+  calendarToken: string;
 
   @Column({ type: 'varchar', length: 320, unique: true, nullable: true })
   email: string | null;

@@ -19,6 +19,7 @@ interface EventFormDialogProps {
   visible: boolean;
   teamId: number;
   event?: EventDto | null;
+  initialStartsAt?: Date | null;
 }
 
 interface EventFormDialogEmits {
@@ -55,8 +56,8 @@ const typeOptions: ComputedRef<EventTypeOption[]> = computed(
       })
     )
 );
-const isEdit: ComputedRef<boolean> = computed(
-  (): boolean => Boolean(props.event)
+const isEdit: ComputedRef<boolean> = computed((): boolean =>
+  Boolean(props.event)
 );
 const hasOpponent: ComputedRef<boolean> = computed(
   (): boolean => type.value !== EventType.PRACTICE
@@ -73,10 +74,10 @@ watch(
       type.value = props.event?.type ?? EventType.PRACTICE;
       title.value = props.event?.title ?? '';
       opponent.value = props.event?.opponent ?? '';
-      startsAt.value = props.event ? new Date(props.event.startsAt) : null;
-      endsAt.value = props.event?.endsAt
-        ? new Date(props.event.endsAt)
-        : null;
+      startsAt.value = props.event
+        ? new Date(props.event.startsAt)
+        : props.initialStartsAt ?? null;
+      endsAt.value = props.event?.endsAt ? new Date(props.event.endsAt) : null;
       description.value = props.event?.description ?? '';
     }
   }

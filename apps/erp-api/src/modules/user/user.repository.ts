@@ -26,4 +26,8 @@ export class UserRepository extends BasicRepository<UserEntity> {
   async findByGoogleId(googleId: string): Promise<UserEntity | null> {
     return await this.findOne({ where: { googleId } });
   }
+
+  async findByCalendarToken(calendarToken: string): Promise<UserEntity | null> {
+    return await this.findOne({ where: { calendarToken } });
+  }
 }

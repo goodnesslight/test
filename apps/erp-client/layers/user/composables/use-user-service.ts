@@ -1,4 +1,8 @@
-import type { UserDto, UserUpdateProfileDto } from '@shared/dtos';
+import type {
+  UserCalendarTokenDto,
+  UserDto,
+  UserUpdateProfileDto,
+} from '@shared/dtos';
 import { ApiRoute, type HttpResponse } from '@shared/types';
 
 import type { ApiService } from '#layers/api';
@@ -6,6 +10,8 @@ import type { AuthService } from '#layers/auth';
 
 export interface UserService {
   updateProfile(dto: UserUpdateProfileDto): Promise<HttpResponse<UserDto>>;
+  regenerateCalendarToken(): Promise<HttpResponse<UserCalendarTokenDto>>;
+  getCalendarToken(): Promise<HttpResponse<UserCalendarTokenDto>>;
 }
 
 export function useUserService(): UserService {
@@ -27,5 +33,21 @@ export function useUserService(): UserService {
     return response;
   }
 
-  return { updateProfile };
+  async function regenerateCalendarToken(): Promise<
+    HttpResponse<UserCalendarTokenDto>
+  > {
+    return await apiService.post<UserCalendarTokenDto>(
+      ApiRoute.USER_CALENDAR_TOKEN
+    );
+  }
+
+  async function getCalendarToken(): Promise<
+    HttpResponse<UserCalendarTokenDto>
+  > {
+    return await apiService.get<UserCalendarTokenDto>(
+      ApiRoute.USER_CALENDAR_TOKEN
+    );
+  }
+
+  return { updateProfile, regenerateCalendarToken, getCalendarToken };
 }
