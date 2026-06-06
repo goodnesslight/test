@@ -81,14 +81,11 @@ const config: NuxtConfig = defineNuxtConfig({
     typeCheck: false,
     tsConfig: {
       extends: '../../../tsconfig.base.json',
+      include: ['../layers/**/*'],
     },
   },
   imports: {
-    dirs: [
-      '~~/layers/**/composables',
-      '~~/layers/**/stores',
-      '~~/layers/**/types',
-    ],
+    dirs: ['~~/layers/**/composables', '~~/layers/**/utils'],
     presets: [{ from: 'vue-i18n', imports: ['useI18n'] }],
   },
   runtimeConfig: {
@@ -107,7 +104,6 @@ const config: NuxtConfig = defineNuxtConfig({
     },
   },
   css: ['primeicons/primeicons.css'],
-  extends: ['./layers'],
 });
 
 export default config;

@@ -13,9 +13,10 @@ import {
 
 import type { UserDto } from '@shared/dtos';
 
-import type { AuthService } from '../../layers/auth/composables/use-auth-service';
-import type { LocaleService } from '../../layers/i18n/composables/use-locale-service';
-import type { InviteService } from '../../layers/team/composables/use-invite-service';
+import type { AuthService } from '#layers/auth';
+import type { LocaleService } from '#layers/i18n';
+import type { InviteService } from '#layers/invite';
+import { AppRoute } from '#layers/router';
 
 const { t } = useI18n();
 const authService: AuthService = useAuthService();
@@ -24,13 +25,19 @@ const localeService: LocaleService = useLocaleService();
 
 const profileMenu: Ref<InstanceType<typeof Menu> | null> = ref(null);
 
+const user: ComputedRef<UserDto | null> = computed(
+  (): UserDto | null => authService.user.value
+);
+const greetingName: ComputedRef<string> = computed(
+  (): string => user.value?.firstName || user.value?.username || ''
+);
 const profileMenuItems: ComputedRef<MenuItem[]> = computed(
   (): MenuItem[] => [
     {
       label: t('nav.profile'),
       icon: 'pi pi-user',
       command: (): void => {
-        void navigateTo('/settings');
+        void navigateTo(AppRoute.SETTINGS);
       },
     },
     { separator: true },
@@ -44,37 +51,29 @@ const profileMenuItems: ComputedRef<MenuItem[]> = computed(
   ]
 );
 
-function toggleProfileMenu(event: MouseEvent): void {
-  profileMenu.value?.toggle(event);
-}
-
-const user: ComputedRef<UserDto | null> = computed(
-  (): UserDto | null => authService.user.value
-);
-
-const greetingName: ComputedRef<string> = computed(
-  (): string => user.value?.firstName || user.value?.username || ''
-);
-
 watch(
   user,
   (value: UserDto | null): void => {
     if (value && import.meta.client) {
-      void inviteService.refreshPendingCount();
+      void inviteService.getMyPending();
       localeService.apply(value.locale);
     }
   },
   { immediate: true }
 );
 
-onMounted((): void => {
-  localeService.restore();
-});
+function toggleProfileMenu(event: MouseEvent): void {
+  profileMenu.value?.toggle(event);
+}
 
 async function logout(): Promise<void> {
   await authService.logout();
-  await navigateTo('/login');
+  await navigateTo(AppRoute.LOGIN);
 }
+
+onMounted((): void => {
+  localeService.restore();
+});
 </script>
 
 <template>
@@ -83,7 +82,7 @@ async function logout(): Promise<void> {
     <ConfirmDialog />
 
     <aside class="sidebar">
-      <NuxtLink to="/" class="brand">
+      <NuxtLink :to="AppRoute.HOME" class="brand">
         <span class="brand__icon">
           <i class="pi pi-th-large" />
         </span>
@@ -93,7 +92,7 @@ async function logout(): Promise<void> {
       <nav class="nav">
         <span class="nav__label">{{ t('nav.section') }}</span>
         <NuxtLink
-          to="/"
+          :to="AppRoute.HOME"
           class="nav__item"
           exact-active-class="nav__item--active"
         >
@@ -101,7 +100,7 @@ async function logout(): Promise<void> {
           <span>{{ t('nav.dashboard') }}</span>
         </NuxtLink>
         <NuxtLink
-          to="/organizations"
+          :to="AppRoute.ORGANIZATIONS"
           class="nav__item"
           active-class="nav__item--active"
         >
@@ -119,7 +118,7 @@ async function logout(): Promise<void> {
         </h2>
         <div v-if="user" class="topbar__user">
           <NuxtLink
-            to="/invites"
+            :to="AppRoute.INVITES"
             class="topbar__bell"
             :aria-label="t('invites.title')"
           >

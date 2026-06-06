@@ -9,7 +9,10 @@
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
     "noUnusedLocals": false,
     "resolveJsonModule": true,
-    "lib": ["es2022", "dom", "dom.iterable"]
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "paths": {
+      "#layers/*": ["./layers/*"]
+    }
   },
   "references": [
     {

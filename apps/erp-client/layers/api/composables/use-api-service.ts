@@ -7,7 +7,7 @@ import {
 } from '@shared/types';
 import { isRecord } from '@shared/utils';
 
-import { ConfigKey } from '../../config/types';
+import { ConfigKey, type ConfigService } from '#layers/config';
 
 export interface ApiService {
   post<T>(
@@ -18,11 +18,11 @@ export interface ApiService {
     route: ApiRoute,
     dto?: Record<string, unknown>
   ): Promise<HttpResponse<T>>;
-  delete<T>(
+  get<T>(
     route: ApiRoute,
     dto?: Record<string, unknown>
   ): Promise<HttpResponse<T>>;
-  get<T>(
+  delete<T>(
     route: ApiRoute,
     dto?: Record<string, unknown>
   ): Promise<HttpResponse<T>>;
@@ -47,18 +47,18 @@ export function useApiService(): ApiService {
     return request<T>(route, HttpMethod.PUT, dto);
   }
 
-  function del<T>(
-    route: ApiRoute,
-    dto?: Record<string, unknown>
-  ): Promise<HttpResponse<T>> {
-    return request<T>(route, HttpMethod.DELETE, dto);
-  }
-
   function get<T>(
     route: ApiRoute,
     dto?: Record<string, unknown>
   ): Promise<HttpResponse<T>> {
     return request<T>(route, HttpMethod.GET, dto);
+  }
+
+  function del<T>(
+    route: ApiRoute,
+    dto?: Record<string, unknown>
+  ): Promise<HttpResponse<T>> {
+    return request<T>(route, HttpMethod.DELETE, dto);
   }
 
   async function request<T>(
@@ -126,5 +126,5 @@ export function useApiService(): ApiService {
     };
   }
 
-  return { post, put, delete: del, get };
+  return { post, put, get, delete: del };
 }

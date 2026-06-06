@@ -1,21 +1,26 @@
 import type {
+  TeamCreateDto,
   TeamDto,
   TeamUpdateDto,
   TeamUpdateMemberDto,
 } from '@shared/dtos';
 import { ApiRoute, type HttpResponse } from '@shared/types';
 
-import type { ApiService } from '../../api/composables/use-api-service';
+import type { ApiService } from '#layers/api';
 
 export interface TeamService {
-  getById(id: number): Promise<HttpResponse<TeamDto>>;
+  create(
+    organizationId: number,
+    dto: TeamCreateDto
+  ): Promise<HttpResponse<TeamDto>>;
   update(id: number, dto: TeamUpdateDto): Promise<HttpResponse<TeamDto>>;
-  remove(id: number): Promise<HttpResponse<null>>;
   updateMemberRole(
     teamId: number,
     memberId: number,
     dto: TeamUpdateMemberDto
   ): Promise<HttpResponse<TeamDto>>;
+  getById(id: number): Promise<HttpResponse<TeamDto>>;
+  remove(id: number): Promise<HttpResponse<null>>;
   removeMember(
     teamId: number,
     memberId: number
@@ -25,8 +30,14 @@ export interface TeamService {
 export function useTeamService(): TeamService {
   const apiService: ApiService = useApiService();
 
-  async function getById(id: number): Promise<HttpResponse<TeamDto>> {
-    return await apiService.get<TeamDto>(ApiRoute.TEAMS_BY_ID, { id });
+  async function create(
+    organizationId: number,
+    dto: TeamCreateDto
+  ): Promise<HttpResponse<TeamDto>> {
+    return await apiService.post<TeamDto>(ApiRoute.ORGANIZATION_TEAMS, {
+      id: organizationId,
+      ...dto,
+    });
   }
 
   async function update(
@@ -37,10 +48,6 @@ export function useTeamService(): TeamService {
       id,
       ...dto,
     });
-  }
-
-  async function remove(id: number): Promise<HttpResponse<null>> {
-    return await apiService.delete<null>(ApiRoute.TEAMS_BY_ID, { id });
   }
 
   async function updateMemberRole(
@@ -55,6 +62,14 @@ export function useTeamService(): TeamService {
     });
   }
 
+  async function getById(id: number): Promise<HttpResponse<TeamDto>> {
+    return await apiService.get<TeamDto>(ApiRoute.TEAMS_BY_ID, { id });
+  }
+
+  async function remove(id: number): Promise<HttpResponse<null>> {
+    return await apiService.delete<null>(ApiRoute.TEAMS_BY_ID, { id });
+  }
+
   async function removeMember(
     teamId: number,
     memberId: number
@@ -65,5 +80,5 @@ export function useTeamService(): TeamService {
     });
   }
 
-  return { getById, update, remove, updateMemberRole, removeMember };
+  return { create, update, updateMemberRole, getById, remove, removeMember };
 }

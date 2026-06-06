@@ -1,15 +1,12 @@
-import { type ConsolaInstance, createConsola, LogLevels } from 'consola';
+import { type ConsolaInstance, createConsola } from 'consola';
 
-const instance: ConsolaInstance = createConsola({
-  level: LogLevels.info,
-  formatOptions: {
-    date: true,
-    colors: true,
-    compact: false,
-  },
-});
+import { LOGGER_OPTIONS } from '../constants';
 
-export function useLoggerService(tag?: string): ConsolaInstance {
+export type LoggerService = ConsolaInstance;
+
+const instance: ConsolaInstance = createConsola(LOGGER_OPTIONS);
+
+export function useLoggerService(tag?: string): LoggerService {
   if (!tag) {
     return instance;
   }

@@ -2,22 +2,16 @@ import { StorageKey } from '../types';
 
 export interface StorageService {
   set(key: StorageKey, value: string): void;
-  delete(key: StorageKey): void;
   has(key: StorageKey): boolean;
   get(key: StorageKey): string | null;
   getOrThrow(key: StorageKey): string;
+  delete(key: StorageKey): void;
 }
 
 export function useStorageService(): StorageService {
   function set(key: StorageKey, value: string): void {
     if (import.meta.client) {
       localStorage.setItem(key, value);
-    }
-  }
-
-  function del(key: StorageKey): void {
-    if (import.meta.client) {
-      localStorage.removeItem(key);
     }
   }
 
@@ -51,5 +45,11 @@ export function useStorageService(): StorageService {
     throw new Error('Cannot access storage on server');
   }
 
-  return { set, delete: del, has, get, getOrThrow };
+  function del(key: StorageKey): void {
+    if (import.meta.client) {
+      localStorage.removeItem(key);
+    }
+  }
+
+  return { set, has, get, getOrThrow, delete: del };
 }

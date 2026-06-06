@@ -87,6 +87,84 @@ Keep registration/re-export lists sorted alphabetically:
 - Routes are grouped by URL prefix, not by serving controller (`TEAM_EVENTS` is served by `EventController` — that's fine; the enum is a map of the URL space, not of modules).
 - OAuth callback routes are named `callback` (`auth/google/callback`), not `return`.
 
+## Client layer structure (`apps/erp-client/layers`)
+
+The client mirrors the API's modularity: **one Nuxt layer = one module**. Layers in `layers/` are auto-registered by Nuxt 4 — no manual `extends` lists (no `extends` in the root `nuxt.config.ts`, no `layers/nuxt.config.ts`).
+
+- **Two layer groups**, like infrastructure vs feature modules on the API:
+  - infrastructure: `api`, `config`, `date`, `i18n`, `logger`, `notification`, `router`, `storage`;
+  - domain: `auth`, `event`, `game`, `invite`, `organization`, `team`, `user` — these mirror API modules 1:1. A new API module gets a client layer of the same name.
+- **`app/` is the shell only**: `app.vue`, `layouts/default.vue` and cross-domain pages (the dashboard `pages/index.vue`). Everything that belongs to a domain lives in that domain's layer — components, pages, middleware and layouts included (the `auth` layer owns `login.vue`/`register.vue`, the `auth` layout and the `auth`/`guest` middleware).
+- **Layer anatomy** (flat — no `app/` subdirectory inside a layer):
+
+  ```
+  layers/<name>/
+  ├── nuxt.config.ts   # required, minimal (empty defineNuxtConfig)
+  ├── index.ts         # barrel: the layer's public types/enums
+  ├── components/      # <name>-*.vue
+  ├── composables/     # use-<name>-service.ts, use-*.ts
+  ├── constants/       # index.ts
+  ├── layouts/  middleware/  pages/  plugins/  types/  utils/   # as needed
+  ```
+
+- Component files are kebab-case and **prefixed with their layer name** (`team/components/team-roster-card.vue` → `<TeamRosterCard>`), which keeps Nuxt's auto-registered component names globally unique. Pages mirror the URL space: `organization/pages/organizations/[id].vue`.
+- **No file-level constants in composables, components or plugins** (same rule as API class files). Layer-level constants live in `constants/index.ts` (`GAME_LABELS`, `DEFAULT_LOCALE`); inside `<script setup>` UPPER_CASE constants are allowed (component scope ≈ class scope). A module-level singleton backing a composable (e.g. the consola instance) is allowed in the composable file.
+- The barrel `index.ts` exports the layer's public surface, lines sorted by path: `export type { XService } from './composables/use-x-service';`, then `export * from './types';` for value-bearing enums.
+
+## Client services (composables)
+
+- One service per layer: `composables/use-<name>-service.ts` exports `interface <Name>Service` plus `function use<Name>Service(): <Name>Service`. File order: exported interface first, then the composable; helpers are inner functions of the composable; the returned object lists members in interface order.
+- **A domain service mirrors its API controller 1:1** — same methods, same names, same CRUD order — with one mapping: controller `delete` → service `remove` (reserved word). Services map to domains, not URLs: team creation is `TeamService.create(organizationId, dto)` because `POST organizations/:id/teams` is served by `TeamController`.
+- Parameter order matches the API: entity ids first (in path order), then dto: `updateMemberRole(teamId, memberId, dto)`.
+- **Pass whole objects.** Callers build a DTO variable typed with the shared DTO class (`const dto: TeamCreateDto = { name: name.value, game: game.value };`) and pass it whole — never inline anonymous payload types, never pass individual fields. Query DTOs too: `getForTeam(teamId, dto?: EventGetListDto)`.
+- `ApiService` calls merge path params with the dto spread: `apiService.put<TeamDto>(ApiRoute.TEAM_MEMBERS_BY_ID, { id: teamId, memberId, ...dto })`. Its HTTP verb methods follow CRUD order: `post` → `put` → `get` → `delete`.
+- **Shared reactive state lives in the owning service** via `useState('<layer>:<property>')` (`auth:user`, `invite:pendingCount`) and is mutated only by that service; consumers read it through the service (`inviteService.pendingCount`). A get method may refresh its own state as a side effect (`getMyPending` updates `pendingCount`), like `login` sets `user`.
+- Cross-cutting UI duties go through infrastructure services and are never re-implemented locally: toasts → `useNotificationService` (`showSuccess`/`showError` — no raw `toast.add` in components), date formatting → `useDateService`, locale switching → `useLocaleService`, config → `useConfigService`, storage → `useStorageService`.
+
+## Client routes (`AppRoute` enum in `layers/router/types`)
+
+- `AppRoute` maps the client URL space exactly like `ApiRoute` maps the API's. **Never hand-write route strings** in `navigateTo`, `:to` or middleware. Static routes: `navigateTo(AppRoute.ORGANIZATIONS)`; dynamic routes: `buildAppRoute(AppRoute.TEAMS_BY_ID, { id })` (auto-imported util from `layers/router/utils`).
+- Key naming, grouping and order follow the `ApiRoute` rules: `HOME` first, then the auth flow (`LOGIN`, `REGISTER`), then resource groups alphabetically, groups separated by a blank line; path parameters are named `:id`.
+
+## Client imports
+
+Four kinds of imports, each done one way:
+
+1. **Framework APIs** — explicit imports from `vue`, `nuxt/app`, `primevue/*`, `consola` (`useI18n` comes from the auto-import preset and is not imported).
+2. **Shared libs** — explicit `@shared/*`.
+3. **Layer types/enums/constants** — explicit from the layer barrel via the built-in alias: `import type { AuthService } from '#layers/auth';`. Inside the owning layer use relative paths (`../types`, `../composables/use-team-service`) — never a layer's own barrel (cycle risk).
+4. **Composables and utils** — auto-imported (`imports.dirs`: `~~/layers/**/composables`, `~~/layers/**/utils`); never import `useXService` or `buildAppRoute` manually.
+
+Import group order is enforced by `simple-import-sort`: framework/external → `@shared/*` → relative → `#layers/*`, blank line between groups, alphabetical within a group.
+
+## Client components (`<script setup>`)
+
+Declaration order inside `<script setup lang="ts">`:
+
+1. `definePageMeta`
+2. local interfaces: `<Component>Props` → `<Component>Emits` → option types (`EventTypeOption`)
+3. `defineProps` / `defineEmits` (`const props: XProps = defineProps<XProps>();`)
+4. composable injections: framework first (`useI18n`, `useRoute`, `useConfirm`), then services alphabetically (`const teamService: TeamService = useTeamService();`)
+5. UPPER_CASE constants (`ROLE_SEVERITIES`)
+6. state: `ref`s and plain derived consts (`const teamId: number = Number(route.params.id);`)
+7. `computed`
+8. `watch`
+9. functions (flow order: loaders → actions → helpers)
+10. lifecycle hooks (`onMounted`)
+
+- Everything is explicitly typed, including refs (`const isLoading: Ref<boolean> = ref(false);`), callback parameters and return types.
+- Anything whose value depends on locale or other reactive state is a `computed` — option lists built with `t()` included (`useTeamRoleOptions()` returns `ComputedRef<TeamRoleOption[]>`).
+
+## Client i18n (`layers/i18n/locales`)
+
+- Central locale files `en.json`/`ru.json` in the i18n layer; **one top-level namespace per domain or shell area**: `common` first, then alphabetical (`auth`, `dashboard`, `events`, `invites`, `nav`, `organizations`, `settings`, `teams`). Sub-keys belong to their domain namespace (`teams.roles.*`, `events.types.*`) — no orphan top-level groups.
+- `en.json` and `ru.json` must stay structurally identical (same keys, same nesting).
+
+## Client styles
+
+- Design tokens come only from `assets/scss/_variables.scss` (auto-injected via `@use "variables" as *`); no hardcoded colors or breakpoints in components (`$accent`, `$text-dim`, `$mobile`).
+- BEM class naming (`block__element--modifier`); every component uses `<style lang="scss" scoped>`; global styles live only in `app.vue`.
+
 ## Migrations (`apps/erp-api/migrations`)
 
 - **One migration = one complete action.** A migration covers exactly one feature/action in full — and nothing else. Never bundle unrelated entities into one migration (no `auth-organizations-teams`-style migrations).

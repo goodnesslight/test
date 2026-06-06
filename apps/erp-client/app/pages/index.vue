@@ -5,7 +5,8 @@ import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue';
 import type { OrganizationDto, TeamDto } from '@shared/dtos';
 import type { HttpResponse } from '@shared/types';
 
-import type { OrganizationService } from '../../layers/organization/composables/use-organization-service';
+import type { OrganizationService } from '#layers/organization';
+import { AppRoute } from '#layers/router';
 
 definePageMeta({
   middleware: 'auth',
@@ -49,7 +50,7 @@ async function loadOrganizations(): Promise<void> {
 }
 
 async function openOrganization(id: number): Promise<void> {
-  await navigateTo(`/organizations/${id}`);
+  await navigateTo(buildAppRoute(AppRoute.ORGANIZATIONS_BY_ID, { id }));
 }
 
 onMounted(loadOrganizations);
@@ -58,7 +59,7 @@ onMounted(loadOrganizations);
 <template>
   <div class="dashboard">
     <section class="dashboard__tiles">
-      <NuxtLink to="/organizations" class="tile tile--highlight">
+      <NuxtLink :to="AppRoute.ORGANIZATIONS" class="tile tile--highlight">
         <span class="tile__icon"><i class="pi pi-building" /></span>
         <div class="tile__body">
           <Skeleton v-if="isLoading" width="2.5rem" height="1.4rem" />
@@ -85,7 +86,7 @@ onMounted(loadOrganizations);
         </div>
       </div>
 
-      <NuxtLink to="/organizations" class="tile tile--add">
+      <NuxtLink :to="AppRoute.ORGANIZATIONS" class="tile tile--add">
         <i class="pi pi-plus" />
       </NuxtLink>
     </section>
@@ -94,7 +95,7 @@ onMounted(loadOrganizations);
       <template #title>
         <div class="dashboard__orgs-header">
           <span>{{ t('dashboard.myOrganizations') }}</span>
-          <NuxtLink to="/organizations">
+          <NuxtLink :to="AppRoute.ORGANIZATIONS">
             <Button
               :label="t('dashboard.goToOrganizations')"
               icon="pi pi-arrow-right"

@@ -4,18 +4,17 @@ import { computed, type ComputedRef, type Ref } from 'vue';
 import type { AuthLoginDto, AuthRegisterDto, UserDto } from '@shared/dtos';
 import { ApiRoute, type HttpResponse } from '@shared/types';
 
-import type { ApiService } from '../../api/composables/use-api-service';
-import type { ConfigService } from '../../config/composables/use-config-service';
-import { ConfigKey } from '../../config/types';
+import type { ApiService } from '#layers/api';
+import { ConfigKey, type ConfigService } from '#layers/config';
 
 export interface AuthService {
   user: Ref<UserDto | null>;
   isAuthenticated: ComputedRef<boolean>;
   register(dto: AuthRegisterDto): Promise<HttpResponse<UserDto>>;
   login(dto: AuthLoginDto): Promise<HttpResponse<UserDto>>;
-  logout(): Promise<void>;
+  loginWithGoogle(): void;
   fetchMe(): Promise<UserDto | null>;
-  getGoogleLoginUrl(): string;
+  logout(): Promise<void>;
 }
 
 export function useAuthService(): AuthService {
@@ -56,9 +55,10 @@ export function useAuthService(): AuthService {
     return response;
   }
 
-  async function logout(): Promise<void> {
-    await apiService.post<null>(ApiRoute.AUTH_LOGOUT);
-    user.value = null;
+  function loginWithGoogle(): void {
+    const apiUrl: string = configService.getOrThrow(ConfigKey.API_URL);
+
+    window.location.href = `${apiUrl}/${ApiRoute.AUTH_GOOGLE}`;
   }
 
   async function fetchMe(): Promise<UserDto | null> {
@@ -86,10 +86,9 @@ export function useAuthService(): AuthService {
     return null;
   }
 
-  function getGoogleLoginUrl(): string {
-    const apiUrl: string = configService.getOrThrow(ConfigKey.API_URL);
-
-    return `${apiUrl}/${ApiRoute.AUTH_GOOGLE}`;
+  async function logout(): Promise<void> {
+    await apiService.post<null>(ApiRoute.AUTH_LOGOUT);
+    user.value = null;
   }
 
   return {
@@ -97,8 +96,8 @@ export function useAuthService(): AuthService {
     isAuthenticated,
     register,
     login,
-    logout,
+    loginWithGoogle,
     fetchMe,
-    getGoogleLoginUrl,
+    logout,
   };
 }
