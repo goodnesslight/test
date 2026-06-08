@@ -1,4 +1,5 @@
 import { GameModule } from '@modules/game/game.module';
+import { OrganizationModule } from '@modules/organization/organization.module';
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -14,6 +15,7 @@ import { TeamMemberRepository } from './team-member/team-member.repository';
   imports: [
     TypeOrmModule.forFeature([TeamEntity, TeamMemberEntity]),
     GameModule,
+    OrganizationModule,
   ],
   controllers: [TeamController],
   providers: [TeamService, TeamRepository, TeamMemberRepository],

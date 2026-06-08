@@ -1,6 +1,7 @@
 import type {
   UserCalendarTokenDto,
   UserDto,
+  UserProfileDto,
   UserUpdateProfileDto,
 } from '@shared/dtos';
 import { ApiRoute, type HttpResponse } from '@shared/types';
@@ -12,6 +13,7 @@ export interface UserService {
   updateProfile(dto: UserUpdateProfileDto): Promise<HttpResponse<UserDto>>;
   regenerateCalendarToken(): Promise<HttpResponse<UserCalendarTokenDto>>;
   getCalendarToken(): Promise<HttpResponse<UserCalendarTokenDto>>;
+  getProfile(id: number): Promise<HttpResponse<UserProfileDto>>;
 }
 
 export function useUserService(): UserService {
@@ -49,5 +51,14 @@ export function useUserService(): UserService {
     );
   }
 
-  return { updateProfile, regenerateCalendarToken, getCalendarToken };
+  async function getProfile(id: number): Promise<HttpResponse<UserProfileDto>> {
+    return await apiService.get<UserProfileDto>(ApiRoute.USERS_BY_ID, { id });
+  }
+
+  return {
+    updateProfile,
+    regenerateCalendarToken,
+    getCalendarToken,
+    getProfile,
+  };
 }

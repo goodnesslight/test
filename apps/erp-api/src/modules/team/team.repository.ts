@@ -16,7 +16,10 @@ export class TeamRepository extends BasicRepository<TeamEntity> {
   async findByIdWithRelations(id: number): Promise<TeamEntity | null> {
     return await this.findOne({
       where: { id },
-      relations: { game: { organization: true }, members: { user: true } },
+      relations: {
+        game: { organization: { members: { user: true } } },
+        members: { user: true },
+      },
       order: { members: { createdAt: 'ASC' } },
     });
   }

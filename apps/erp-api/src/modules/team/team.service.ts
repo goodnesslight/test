@@ -1,7 +1,9 @@
 import { GameService } from '@modules/game/game.service';
+import { OrganizationService } from '@modules/organization/organization.service';
 import { UserEntity } from '@modules/user/user.entity';
 
 import { TeamCreateDto, TeamUpdateMemberDto } from '@shared/dtos';
+import { TeamMemberRole } from '@shared/types';
 
 import {
   ConflictException,
@@ -19,6 +21,7 @@ import { TeamMemberRepository } from './team-member/team-member.repository';
 export class TeamService {
   constructor(
     private readonly gameService: GameService,
+    private readonly organizationService: OrganizationService,
     private readonly teamRepository: TeamRepository,
     private readonly teamMemberRepository: TeamMemberRepository
   ) {}
@@ -28,7 +31,7 @@ export class TeamService {
     user: UserEntity,
     dto: TeamCreateDto
   ): Promise<TeamEntity> {
-    await this.gameService.getOwnedById(gameId, user);
+    await this.gameService.getManagedById(gameId, user);
 
     const existing: TeamEntity | null =
       await this.teamRepository.findByGameAndType(gameId, dto.type);
@@ -57,7 +60,10 @@ export class TeamService {
   ): Promise<TeamEntity> {
     const team: TeamEntity = await this.getById(teamId);
 
-    this.assertIsOrganizationOwner(team, user);
+    await this.organizationService.assertCanManage(
+      team.game.organizationId,
+      user
+    );
 
     const member: TeamMemberEntity = this.getMemberOrThrow(team, memberId);
 
@@ -80,7 +86,10 @@ export class TeamService {
   async delete(id: number, user: UserEntity): Promise<null> {
     const team: TeamEntity = await this.getById(id);
 
-    this.assertIsOrganizationOwner(team, user);
+    await this.organizationService.assertCanManage(
+      team.game.organizationId,
+      user
+    );
     await this.teamRepository.delete(id);
 
     return null;
@@ -94,10 +103,22 @@ export class TeamService {
     const team: TeamEntity = await this.getById(teamId);
     const member: TeamMemberEntity = this.getMemberOrThrow(team, memberId);
     const isSelf: boolean = member.userId === user.id;
-    const isOwner: boolean = team.game.organization.ownerId === user.id;
+    const isManager: boolean = await this.organizationService.isManager(
+      team.game.organizationId,
+      user.id
+    );
+    const isCoach: boolean = team.members.some(
+      (candidate: TeamMemberEntity): boolean =>
+        candidate.userId === user.id &&
+        candidate.role === TeamMemberRole.COACH
+    );
+    const canCoachRemove: boolean =
+      isCoach && member.role === TeamMemberRole.PLAYER;
 
-    if (!isSelf && !isOwner) {
-      throw new ForbiddenException('Only the organization owner can do this');
+    if (!isSelf && !isManager && !canCoachRemove) {
+      throw new ForbiddenException(
+        'You are not allowed to remove this member'
+      );
     }
 
     await this.teamMemberRepository.delete(member.id);
@@ -118,11 +139,5 @@ export class TeamService {
     }
 
     return member;
-  }
-
-  private assertIsOrganizationOwner(team: TeamEntity, user: UserEntity): void {
-    if (team.game.organization.ownerId !== user.id) {
-      throw new ForbiddenException('Only the organization owner can do this');
-    }
   }
 }

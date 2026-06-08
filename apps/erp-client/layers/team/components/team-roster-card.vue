@@ -17,10 +17,12 @@ import type { AuthService } from '#layers/auth';
 import type { DateService } from '#layers/date';
 import type { InviteService } from '#layers/invite';
 import type { NotificationService } from '#layers/notification';
+import { AppRoute } from '#layers/router';
 
 interface TeamRosterCardProps {
   team: TeamDto;
-  isOwner: boolean;
+  canManageRoster: boolean;
+  canAssignRoles: boolean;
 }
 
 interface TeamRosterCardEmits {
@@ -41,9 +43,7 @@ const roleOptions: ComputedRef<TeamRoleOption[]> = useTeamRoleOptions();
 
 const ROLE_SEVERITIES: Record<TeamMemberRole, string> = {
   [TeamMemberRole.COACH]: 'warn',
-  [TeamMemberRole.CAPTAIN]: 'info',
   [TeamMemberRole.PLAYER]: 'success',
-  [TeamMemberRole.SUBSTITUTE]: 'secondary',
 };
 
 const pendingInvites: Ref<InviteDto[]> = ref([]);
@@ -54,7 +54,7 @@ const currentUserId: ComputedRef<number | null> = computed(
 );
 
 async function loadPendingInvites(): Promise<void> {
-  if (!props.isOwner) {
+  if (!props.canManageRoster) {
     return;
   }
 
@@ -133,7 +133,15 @@ async function onInviteSaved(): Promise<void> {
 }
 
 function canRemove(member: TeamMemberDto): boolean {
-  return props.isOwner || member.user?.id === currentUserId.value;
+  if (member.user?.id === currentUserId.value) {
+    return true;
+  }
+
+  if (!props.canManageRoster) {
+    return false;
+  }
+
+  return props.canAssignRoles || member.role === TeamMemberRole.PLAYER;
 }
 
 onMounted(loadPendingInvites);
@@ -145,7 +153,7 @@ onMounted(loadPendingInvites);
       <div class="roster__header">
         <span>{{ t('teams.members') }}</span>
         <Button
-          v-if="isOwner"
+          v-if="canManageRoster"
           :label="t('invites.invite')"
           icon="pi pi-user-plus"
           size="small"
@@ -162,7 +170,10 @@ onMounted(loadPendingInvites);
       <DataTable v-else :value="team.members" data-key="id">
         <Column :header="t('auth.username')">
           <template #body="{ data }">
-            <div class="roster__member">
+            <NuxtLink
+              :to="buildAppRoute(AppRoute.USERS_BY_ID, { id: data.user?.id ?? 0 })"
+              class="roster__member"
+            >
               <Avatar
                 :image="data.user?.avatarUrl ?? undefined"
                 :label="
@@ -173,14 +184,14 @@ onMounted(loadPendingInvites);
                 shape="circle"
               />
               <span>{{ data.user?.username }}</span>
-            </div>
+            </NuxtLink>
           </template>
         </Column>
 
         <Column field="role" :header="t('teams.role')">
           <template #body="{ data }">
             <Select
-              v-if="isOwner"
+              v-if="canAssignRoles"
               :model-value="data.role"
               :options="roleOptions"
               option-label="label"
@@ -228,7 +239,7 @@ onMounted(loadPendingInvites);
         </Column>
       </DataTable>
 
-      <template v-if="isOwner && pendingInvites.length > 0">
+      <template v-if="canManageRoster && pendingInvites.length > 0">
         <Divider />
         <div class="roster__pending">
           <span class="roster__pending-title">
@@ -271,6 +282,7 @@ onMounted(loadPendingInvites);
   <InviteFormDialog
     v-model:visible="isInviteDialogVisible"
     :team-id="team.id"
+    :can-invite-coach="canAssignRoles"
     @saved="onInviteSaved"
   />
 </template>
@@ -287,6 +299,13 @@ onMounted(loadPendingInvites);
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    color: $text-primary;
+    text-decoration: none;
+    transition: color 0.15s;
+
+    &:hover {
+      color: $accent;
+    }
   }
 
   &__empty {

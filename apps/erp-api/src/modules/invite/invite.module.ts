@@ -1,3 +1,4 @@
+import { OrganizationModule } from '@modules/organization/organization.module';
 import { TeamModule } from '@modules/team/team.module';
 import { UserModule } from '@modules/user/user.module';
 
@@ -10,7 +11,12 @@ import { InviteRepository } from './invite.repository';
 import { InviteService } from './invite.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([InviteEntity]), TeamModule, UserModule],
+  imports: [
+    TypeOrmModule.forFeature([InviteEntity]),
+    OrganizationModule,
+    TeamModule,
+    UserModule,
+  ],
   controllers: [InviteController],
   providers: [InviteService, InviteRepository],
   exports: [InviteService],

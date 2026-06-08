@@ -19,6 +19,7 @@ import type { TeamRoleOption } from '#layers/team';
 interface InviteFormDialogProps {
   visible: boolean;
   teamId: number;
+  canInviteCoach: boolean;
 }
 
 interface InviteFormDialogEmits {
@@ -42,6 +43,15 @@ const isVisible: WritableComputedRef<boolean> = computed({
   get: (): boolean => props.visible,
   set: (value: boolean): void => emit('update:visible', value),
 });
+const availableRoles: ComputedRef<TeamRoleOption[]> = computed(
+  (): TeamRoleOption[] =>
+    props.canInviteCoach
+      ? roleOptions.value
+      : roleOptions.value.filter(
+          (option: TeamRoleOption): boolean =>
+            option.value === TeamMemberRole.PLAYER
+        )
+);
 
 watch(
   (): boolean => props.visible,
@@ -100,7 +110,7 @@ async function submit(): Promise<void> {
         <Select
           id="invite-role"
           v-model="role"
-          :options="roleOptions"
+          :options="availableRoles"
           option-label="label"
           option-value="value"
           fluid

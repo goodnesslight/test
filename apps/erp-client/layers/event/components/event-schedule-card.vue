@@ -13,7 +13,6 @@ import {
   EventScope,
   EventType,
   type HttpResponse,
-  TeamMemberRole,
 } from '@shared/types';
 
 import type { EventService } from '../composables/use-event-service';
@@ -25,7 +24,7 @@ import type { NotificationService } from '#layers/notification';
 
 interface EventScheduleCardProps {
   team: TeamDto;
-  isOwner: boolean;
+  canManage: boolean;
 }
 
 type EventScheduleView = 'list' | 'calendar';
@@ -68,18 +67,6 @@ const isMember: ComputedRef<boolean> = computed((): boolean =>
     (member): boolean => member.user?.id === currentUserId.value
   )
 );
-const canManage: ComputedRef<boolean> = computed((): boolean => {
-  if (props.isOwner) {
-    return true;
-  }
-
-  return props.team.members.some(
-    (member): boolean =>
-      member.user?.id === currentUserId.value &&
-      (member.role === TeamMemberRole.COACH ||
-        member.role === TeamMemberRole.CAPTAIN)
-  );
-});
 const upcomingEvents: ComputedRef<EventDto[]> = computed((): EventDto[] =>
   events.value.filter(
     (event: EventDto): boolean =>
@@ -131,7 +118,7 @@ function onCalendarEventClick(event: EventDto): void {
 }
 
 function onCalendarSlotClick(date: Date): void {
-  if (!canManage.value) {
+  if (!props.canManage) {
     return;
   }
 

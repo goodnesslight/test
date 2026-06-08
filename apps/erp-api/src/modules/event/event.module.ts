@@ -1,3 +1,4 @@
+import { OrganizationModule } from '@modules/organization/organization.module';
 import { TeamModule } from '@modules/team/team.module';
 import { UserModule } from '@modules/user/user.module';
 
@@ -14,6 +15,7 @@ import { EventAttendanceRepository } from './event-attendance/event-attendance.r
 @Module({
   imports: [
     TypeOrmModule.forFeature([EventEntity, EventAttendanceEntity]),
+    OrganizationModule,
     TeamModule,
     UserModule,
   ],

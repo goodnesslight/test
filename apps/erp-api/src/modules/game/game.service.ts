@@ -5,7 +5,6 @@ import { GameCreateDto } from '@shared/dtos';
 
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -25,7 +24,7 @@ export class GameService {
     user: UserEntity,
     dto: GameCreateDto
   ): Promise<GameEntity> {
-    await this.organizationService.getOwnedById(organizationId, user);
+    await this.organizationService.assertCanManage(organizationId, user);
 
     const existing: GameEntity | null =
       await this.gameRepository.findByOrganizationAndType(
@@ -58,18 +57,16 @@ export class GameService {
     return game;
   }
 
-  async getOwnedById(id: number, user: UserEntity): Promise<GameEntity> {
+  async getManagedById(id: number, user: UserEntity): Promise<GameEntity> {
     const game: GameEntity = await this.getById(id);
 
-    if (game.organization.ownerId !== user.id) {
-      throw new ForbiddenException('Only the organization owner can do this');
-    }
+    await this.organizationService.assertCanManage(game.organizationId, user);
 
     return game;
   }
 
   async delete(id: number, user: UserEntity): Promise<null> {
-    await this.getOwnedById(id, user);
+    await this.getManagedById(id, user);
     await this.gameRepository.delete(id);
 
     return null;

@@ -16,4 +16,6 @@ export enum AppRoute {
   SETTINGS = '/settings',
 
   TEAMS_BY_ID = '/teams/:id',
+
+  USERS_BY_ID = '/users/:id',
 }

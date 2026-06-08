@@ -8,7 +8,7 @@ export class TeamCreate1780617600000 implements MigrationInterface {
       `CREATE TYPE "team_type" AS ENUM ('main', 'academy')`
     );
     await queryRunner.query(
-      `CREATE TYPE "team_member_role" AS ENUM ('coach', 'captain', 'player', 'substitute')`
+      `CREATE TYPE "team_member_role" AS ENUM ('coach', 'player')`
     );
     await queryRunner.query(
       `CREATE TABLE "teams" (

@@ -4,6 +4,7 @@ import { CurrentUser } from '@modules/user/user.decorator';
 import { UserEntity } from '@modules/user/user.entity';
 
 import {
+  OrganizationAddAdminDto,
   OrganizationCreateDto,
   OrganizationDto,
   OrganizationUpdateDto,
@@ -50,6 +51,16 @@ export class OrganizationController {
     return await this.organizationService.update(id, user, dto);
   }
 
+  @Post(ApiRoute.ORGANIZATION_ADMINS)
+  @UseInterceptors(new ResponseInterceptor(OrganizationDto))
+  async addAdmin(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: UserEntity,
+    @Body() dto: OrganizationAddAdminDto
+  ): Promise<OrganizationEntity> {
+    return await this.organizationService.addAdmin(id, user, dto);
+  }
+
   @Get(ApiRoute.ORGANIZATIONS_MY)
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
   async getMy(
@@ -73,5 +84,15 @@ export class OrganizationController {
     @CurrentUser() user: UserEntity
   ): Promise<null> {
     return await this.organizationService.delete(id, user);
+  }
+
+  @Delete(ApiRoute.ORGANIZATION_ADMINS_BY_ID)
+  @UseInterceptors(new ResponseInterceptor(OrganizationDto))
+  async removeAdmin(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('memberId', ParseIntPipe) memberId: number,
+    @CurrentUser() user: UserEntity
+  ): Promise<OrganizationEntity> {
+    return await this.organizationService.removeAdmin(id, memberId, user);
   }
 }

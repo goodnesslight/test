@@ -122,7 +122,32 @@
     "teamsCount": "Teams",
     "created": "Created",
     "deleteHeader": "Delete organization",
-    "deleteConfirm": "Delete organization \"{name}\" with all of its teams? This cannot be undone."
+    "deleteConfirm": "Delete organization \"{name}\" with all of its teams? This cannot be undone.",
+    "management": "Management",
+    "roles": {
+      "owner": "Owner",
+      "admin": "Administrator"
+    },
+    "admins": {
+      "add": "Add administrator",
+      "remove": "Remove",
+      "removeHeader": "Remove administrator",
+      "removeConfirm": "Remove {username} from administrators?"
+    }
+  },
+  "players": {
+    "registered": "On the platform since",
+    "teams": "Teams",
+    "noTeams": "Not on any roster yet",
+    "attendance": {
+      "title": "Attendance",
+      "rate": "Attendance rate",
+      "going": "Going",
+      "maybe": "Maybe",
+      "declined": "Declined",
+      "total": "Responses",
+      "empty": "No attendance data yet"
+    }
   },
   "settings": {
     "title": "Account settings",
@@ -159,9 +184,7 @@
     "deleteConfirm": "Delete team \"{name}\"? This cannot be undone.",
     "roles": {
       "coach": "Coach",
-      "captain": "Captain",
-      "player": "Player",
-      "substitute": "Substitute"
+      "player": "Player"
     },
     "types": {
       "main": "Main roster",

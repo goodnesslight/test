@@ -1,3 +1,4 @@
+import { OrganizationService } from '@modules/organization/organization.service';
 import { TeamEntity } from '@modules/team/team.entity';
 import { TeamService } from '@modules/team/team.service';
 import { TeamMemberEntity } from '@modules/team/team-member/team-member.entity';
@@ -6,7 +7,7 @@ import { UserRepository } from '@modules/user/user.repository';
 import { DataSource, EntityManager } from 'typeorm';
 
 import { InviteCreateDto } from '@shared/dtos';
-import { InviteStatus } from '@shared/types';
+import { InviteStatus, TeamMemberRole } from '@shared/types';
 
 import {
   ConflictException,
@@ -21,6 +22,7 @@ import { InviteRepository } from './invite.repository';
 @Injectable()
 export class InviteService {
   constructor(
+    private readonly organizationService: OrganizationService,
     private readonly teamService: TeamService,
     private readonly inviteRepository: InviteRepository,
     private readonly userRepository: UserRepository,
@@ -34,7 +36,11 @@ export class InviteService {
   ): Promise<InviteEntity> {
     const team: TeamEntity = await this.teamService.getById(teamId);
 
-    this.assertIsOrganizationOwner(team, user);
+    const isManager: boolean = await this.assertCanManageRoster(team, user);
+
+    if (!isManager && dto.role !== TeamMemberRole.PLAYER) {
+      throw new ForbiddenException('A coach can only invite players');
+    }
 
     const invitedUser: UserEntity | null =
       (await this.userRepository.findByUsername(dto.identifier)) ??
@@ -113,7 +119,7 @@ export class InviteService {
   ): Promise<InviteEntity[]> {
     const team: TeamEntity = await this.teamService.getById(teamId);
 
-    this.assertIsOrganizationOwner(team, user);
+    await this.assertCanManageRoster(team, user);
 
     return await this.inviteRepository.findPendingByTeam(teamId);
   }
@@ -130,10 +136,9 @@ export class InviteService {
       throw new NotFoundException('Invite not found');
     }
 
-    if (invite.team.game.organization.ownerId !== user.id) {
-      throw new ForbiddenException('Only the organization owner can do this');
-    }
+    const team: TeamEntity = await this.teamService.getById(invite.teamId);
 
+    await this.assertCanManageRoster(team, user);
     await this.inviteRepository.delete(id);
 
     return null;
@@ -153,9 +158,28 @@ export class InviteService {
     return invite;
   }
 
-  private assertIsOrganizationOwner(team: TeamEntity, user: UserEntity): void {
-    if (team.game.organization.ownerId !== user.id) {
-      throw new ForbiddenException('Only the organization owner can do this');
+  private async assertCanManageRoster(
+    team: TeamEntity,
+    user: UserEntity
+  ): Promise<boolean> {
+    const isManager: boolean = await this.organizationService.isManager(
+      team.game.organizationId,
+      user.id
+    );
+
+    if (isManager) {
+      return true;
     }
+
+    const isCoach: boolean = team.members.some(
+      (member: TeamMemberEntity): boolean =>
+        member.userId === user.id && member.role === TeamMemberRole.COACH
+    );
+
+    if (!isCoach) {
+      throw new ForbiddenException('You are not allowed to manage this roster');
+    }
+
+    return false;
   }
 }

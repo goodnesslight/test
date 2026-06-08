@@ -1,8 +1,16 @@
 import { UserEntity } from '@modules/user/user.entity';
-
-import { OrganizationCreateDto, OrganizationUpdateDto } from '@shared/dtos';
+import { UserRepository } from '@modules/user/user.repository';
+import { DataSource, EntityManager } from 'typeorm';
 
 import {
+  OrganizationAddAdminDto,
+  OrganizationCreateDto,
+  OrganizationUpdateDto,
+} from '@shared/dtos';
+import { OrganizationRole } from '@shared/types';
+
+import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -10,26 +18,43 @@ import {
 
 import { OrganizationEntity } from './organization.entity';
 import { OrganizationRepository } from './organization.repository';
+import { OrganizationMemberEntity } from './organization-member/organization-member.entity';
+import { OrganizationMemberRepository } from './organization-member/organization-member.repository';
 
 @Injectable()
 export class OrganizationService {
   constructor(
-    private readonly organizationRepository: OrganizationRepository
+    private readonly organizationRepository: OrganizationRepository,
+    private readonly organizationMemberRepository: OrganizationMemberRepository,
+    private readonly userRepository: UserRepository,
+    private readonly dataSource: DataSource
   ) {}
 
   async create(
     user: UserEntity,
     dto: OrganizationCreateDto
   ): Promise<OrganizationEntity> {
-    const organization: OrganizationEntity =
-      await this.organizationRepository.save(
-        this.organizationRepository.create({
-          name: dto.name,
-          tag: dto.tag,
-          logoUrl: dto.logoUrl ?? null,
-          ownerId: user.id,
-        })
-      );
+    const organization: OrganizationEntity = await this.dataSource.transaction(
+      async (manager: EntityManager): Promise<OrganizationEntity> => {
+        const created: OrganizationEntity = await manager.save(
+          manager.create(OrganizationEntity, {
+            name: dto.name,
+            tag: dto.tag,
+            logoUrl: dto.logoUrl ?? null,
+            ownerId: user.id,
+          })
+        );
+        await manager.save(
+          manager.create(OrganizationMemberEntity, {
+            organizationId: created.id,
+            userId: user.id,
+            role: OrganizationRole.OWNER,
+          })
+        );
+
+        return created;
+      }
+    );
 
     return await this.getById(organization.id);
   }
@@ -48,6 +73,71 @@ export class OrganizationService {
     });
 
     return await this.getById(id);
+  }
+
+  async addAdmin(
+    id: number,
+    user: UserEntity,
+    dto: OrganizationAddAdminDto
+  ): Promise<OrganizationEntity> {
+    const organization: OrganizationEntity = await this.getOwnedById(id, user);
+
+    const target: UserEntity | null =
+      (await this.userRepository.findByUsername(dto.identifier)) ??
+      (await this.userRepository.findByEmail(dto.identifier));
+
+    if (!target) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (target.id === organization.ownerId) {
+      throw new ConflictException('User is the organization owner');
+    }
+
+    const existing: OrganizationMemberEntity | null =
+      await this.organizationMemberRepository.findByOrganizationAndUser(
+        id,
+        target.id
+      );
+
+    if (existing) {
+      throw new ConflictException('User is already an administrator');
+    }
+
+    await this.organizationMemberRepository.save(
+      this.organizationMemberRepository.create({
+        organizationId: id,
+        userId: target.id,
+        role: OrganizationRole.ADMIN,
+      })
+    );
+
+    return await this.getById(id);
+  }
+
+  async isManager(organizationId: number, userId: number): Promise<boolean> {
+    const member: OrganizationMemberEntity | null =
+      await this.organizationMemberRepository.findByOrganizationAndUser(
+        organizationId,
+        userId
+      );
+
+    return (
+      member !== null &&
+      (member.role === OrganizationRole.OWNER ||
+        member.role === OrganizationRole.ADMIN)
+    );
+  }
+
+  async assertCanManage(
+    organizationId: number,
+    user: UserEntity
+  ): Promise<void> {
+    if (!(await this.isManager(organizationId, user.id))) {
+      throw new ForbiddenException(
+        'Only the organization owner or an admin can do this'
+      );
+    }
   }
 
   async getById(id: number): Promise<OrganizationEntity> {
@@ -83,5 +173,26 @@ export class OrganizationService {
     await this.organizationRepository.delete(id);
 
     return null;
+  }
+
+  async removeAdmin(
+    id: number,
+    memberId: number,
+    user: UserEntity
+  ): Promise<OrganizationEntity> {
+    await this.getOwnedById(id, user);
+
+    const member: OrganizationMemberEntity | null =
+      await this.organizationMemberRepository.findOne({
+        where: { id: memberId, organizationId: id },
+      });
+
+    if (!member || member.role !== OrganizationRole.ADMIN) {
+      throw new NotFoundException('Administrator not found');
+    }
+
+    await this.organizationMemberRepository.delete(member.id);
+
+    return await this.getById(id);
   }
 }

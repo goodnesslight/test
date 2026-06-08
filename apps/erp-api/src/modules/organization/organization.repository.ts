@@ -14,8 +14,14 @@ export class OrganizationRepository extends BasicRepository<OrganizationEntity> 
   async findByIdWithGames(id: number): Promise<OrganizationEntity | null> {
     return await this.findOne({
       where: { id },
-      relations: { games: { teams: { members: true } } },
-      order: { games: { createdAt: 'ASC', teams: { createdAt: 'ASC' } } },
+      relations: {
+        games: { teams: { members: true } },
+        members: { user: true },
+      },
+      order: {
+        games: { createdAt: 'ASC', teams: { createdAt: 'ASC' } },
+        members: { createdAt: 'ASC' },
+      },
     });
   }
 
@@ -34,7 +40,10 @@ export class OrganizationRepository extends BasicRepository<OrganizationEntity> 
 
     return await this.find({
       where: rows.map(({ id }: { id: number }): { id: number } => ({ id })),
-      relations: { games: { teams: { members: true } } },
+      relations: {
+        games: { teams: { members: true } },
+        members: { user: true },
+      },
       order: { createdAt: 'DESC' },
     });
   }

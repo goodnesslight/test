@@ -22,6 +22,8 @@ export enum ApiRoute {
   ORGANIZATIONS = 'organizations',
   ORGANIZATIONS_MY = 'organizations/my',
   ORGANIZATIONS_BY_ID = 'organizations/:id',
+  ORGANIZATION_ADMINS = 'organizations/:id/admins',
+  ORGANIZATION_ADMINS_BY_ID = 'organizations/:id/admins/:memberId',
   ORGANIZATION_GAMES = 'organizations/:id/games',
 
   TEAMS_BY_ID = 'teams/:id',
@@ -31,4 +33,5 @@ export enum ApiRoute {
 
   USERS_ME = 'users/me',
   USER_CALENDAR_TOKEN = 'users/me/calendar-token',
+  USERS_BY_ID = 'users/:id',
 }

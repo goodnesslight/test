@@ -11,6 +11,10 @@ export class EventAttendanceRepository extends BasicRepository<EventAttendanceEn
     super(EventAttendanceEntity, dataSource);
   }
 
+  async findByUser(userId: number): Promise<EventAttendanceEntity[]> {
+    return await this.find({ where: { userId } });
+  }
+
   async findByEventAndUser(
     eventId: number,
     userId: number

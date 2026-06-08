@@ -11,6 +11,16 @@ export class TeamMemberRepository extends BasicRepository<TeamMemberEntity> {
     super(TeamMemberEntity, dataSource);
   }
 
+  async findByUser(userId: number): Promise<TeamMemberEntity[]> {
+    return await this.find({
+      where: { userId },
+      relations: {
+        team: { game: { organization: true }, members: { user: true } },
+      },
+      order: { createdAt: 'ASC' },
+    });
+  }
+
   async findByTeamAndUser(
     teamId: number,
     userId: number

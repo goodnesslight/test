@@ -6,4 +6,5 @@ export * from './game';
 export * from './http';
 export * from './invite';
 export * from './locale';
+export * from './organization';
 export * from './team';

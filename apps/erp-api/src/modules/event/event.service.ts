@@ -1,3 +1,4 @@
+import { OrganizationService } from '@modules/organization/organization.service';
 import { TeamEntity } from '@modules/team/team.entity';
 import { TeamService } from '@modules/team/team.service';
 import { TeamMemberEntity } from '@modules/team/team-member/team-member.entity';
@@ -30,10 +31,6 @@ import { EventAttendanceRepository } from './event-attendance/event-attendance.r
 
 @Injectable()
 export class EventService {
-  private readonly MANAGER_ROLES: TeamMemberRole[] = [
-    TeamMemberRole.COACH,
-    TeamMemberRole.CAPTAIN,
-  ];
   private readonly CALENDAR_NAME: string = 'Platform';
   private readonly CALENDAR_UID_DOMAIN: string = 'platform';
   private readonly DAY_MS: number = 24 * 60 * 60 * 1000;
@@ -41,6 +38,7 @@ export class EventService {
   private readonly MAX_SERIES_OCCURRENCES: number = 60;
 
   constructor(
+    private readonly organizationService: OrganizationService,
     private readonly teamService: TeamService,
     private readonly eventRepository: EventRepository,
     private readonly eventAttendanceRepository: EventAttendanceRepository,
@@ -54,7 +52,7 @@ export class EventService {
   ): Promise<EventEntity> {
     const team: TeamEntity = await this.teamService.getById(teamId);
 
-    this.assertCanManage(team, user);
+    await this.assertCanManage(team, user);
     this.assertValidRange(dto.startsAt, dto.endsAt);
 
     if (dto.repeat) {
@@ -83,7 +81,7 @@ export class EventService {
   ): Promise<EventEntity> {
     const event: EventEntity = await this.getById(id);
 
-    this.assertCanManage(event.team, user);
+    await this.assertCanManage(event.team, user);
 
     const startsAt: string | Date = dto.startsAt ?? event.startsAt;
     const endsAt: string | Date | null =
@@ -157,7 +155,7 @@ export class EventService {
   ): Promise<EventEntity[]> {
     const team: TeamEntity = await this.teamService.getById(teamId);
 
-    this.assertCanView(team, user);
+    await this.assertCanView(team, user);
 
     return await this.eventRepository.findByTeam(
       teamId,
@@ -188,7 +186,7 @@ export class EventService {
   ): Promise<null> {
     const event: EventEntity = await this.getById(id);
 
-    this.assertCanManage(event.team, user);
+    await this.assertCanManage(event.team, user);
 
     if (dto.scope === EventScope.SERIES && event.seriesId) {
       await this.eventRepository.deleteSeriesFrom(
@@ -308,31 +306,51 @@ export class EventService {
     return event;
   }
 
-  private assertCanView(team: TeamEntity, user: UserEntity): void {
+  private async assertCanView(
+    team: TeamEntity,
+    user: UserEntity
+  ): Promise<void> {
     const isMember: boolean = team.members.some(
       (member: TeamMemberEntity): boolean => member.userId === user.id
     );
 
-    if (!isMember && team.game.organization.ownerId !== user.id) {
+    if (isMember) {
+      return;
+    }
+
+    if (
+      !(await this.organizationService.isManager(
+        team.game.organizationId,
+        user.id
+      ))
+    ) {
       throw new ForbiddenException(
-        'Only the roster and the organization owner can view the schedule'
+        'Only the roster, the owner and admins can view the schedule'
       );
     }
   }
 
-  private assertCanManage(team: TeamEntity, user: UserEntity): void {
-    if (team.game.organization.ownerId === user.id) {
+  private async assertCanManage(
+    team: TeamEntity,
+    user: UserEntity
+  ): Promise<void> {
+    if (
+      await this.organizationService.isManager(
+        team.game.organizationId,
+        user.id
+      )
+    ) {
       return;
     }
 
-    const isManager: boolean = team.members.some(
+    const isCoach: boolean = team.members.some(
       (member: TeamMemberEntity): boolean =>
-        member.userId === user.id && this.MANAGER_ROLES.includes(member.role)
+        member.userId === user.id && member.role === TeamMemberRole.COACH
     );
 
-    if (!isManager) {
+    if (!isCoach) {
       throw new ForbiddenException(
-        'Only the owner, coach or captain can manage events'
+        'Only the owner, an admin or a coach can manage events'
       );
     }
   }

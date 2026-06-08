@@ -10,8 +10,18 @@ import {
   type WritableComputedRef,
 } from 'vue';
 
-import type { GameDto, OrganizationDto, TeamDto } from '@shared/dtos';
-import { GameType, type HttpResponse, TeamType } from '@shared/types';
+import type {
+  GameDto,
+  OrganizationDto,
+  OrganizationMemberDto,
+  TeamDto,
+} from '@shared/dtos';
+import {
+  GameType,
+  type HttpResponse,
+  OrganizationRole,
+  TeamType,
+} from '@shared/types';
 
 import type { OrganizationService } from '../../composables/use-organization-service';
 
@@ -39,6 +49,7 @@ const organization: Ref<OrganizationDto | null> = ref(null);
 const isLoading: Ref<boolean> = ref(true);
 const isEditDialogVisible: Ref<boolean> = ref(false);
 const isGameDialogVisible: Ref<boolean> = ref(false);
+const isAdminDialogVisible: Ref<boolean> = ref(false);
 const teamDialogGame: Ref<GameDto | null> = ref(null);
 
 const isOwner: ComputedRef<boolean> = computed(
@@ -47,13 +58,31 @@ const isOwner: ComputedRef<boolean> = computed(
     authService.user.value !== null &&
     organization.value.ownerId === authService.user.value.id
 );
+const isManager: ComputedRef<boolean> = computed((): boolean => {
+  if (organization.value === null || authService.user.value === null) {
+    return false;
+  }
+
+  if (isOwner.value) {
+    return true;
+  }
+
+  return organization.value.members.some(
+    (member: OrganizationMemberDto): boolean =>
+      member.role === OrganizationRole.ADMIN &&
+      member.user?.id === authService.user.value?.id
+  );
+});
+const admins: ComputedRef<OrganizationMemberDto[]> = computed(
+  (): OrganizationMemberDto[] => organization.value?.members ?? []
+);
 const existingGameTypes: ComputedRef<GameType[]> = computed(
   (): GameType[] =>
     organization.value?.games.map((game: GameDto): GameType => game.type) ?? []
 );
 const canAddGame: ComputedRef<boolean> = computed(
   (): boolean =>
-    isOwner.value &&
+    isManager.value &&
     existingGameTypes.value.length < Object.values(GameType).length
 );
 const teamsCount: ComputedRef<number> = computed(
@@ -96,6 +125,10 @@ function onSaved(saved: OrganizationDto): void {
   organization.value = { ...saved, games: organization.value?.games ?? [] };
 }
 
+function onAdminSaved(updated: OrganizationDto): void {
+  organization.value = updated;
+}
+
 async function onGameSaved(): Promise<void> {
   await loadOrganization();
 }
@@ -114,6 +147,32 @@ async function openTeam(teamId: number): Promise<void> {
 
 function canCreateTeam(game: GameDto): boolean {
   return (game.teams?.length ?? 0) < Object.values(TeamType).length;
+}
+
+function confirmRemoveAdmin(member: OrganizationMemberDto): void {
+  confirm.require({
+    header: t('organizations.admins.removeHeader'),
+    message: t('organizations.admins.removeConfirm', {
+      username: member.user?.username ?? '',
+    }),
+    icon: 'pi pi-exclamation-triangle',
+    acceptProps: { label: t('organizations.admins.remove'), severity: 'danger' },
+    rejectProps: {
+      label: t('common.cancel'),
+      severity: 'secondary',
+      text: true,
+    },
+    accept: async (): Promise<void> => {
+      const response: HttpResponse<OrganizationDto> =
+        await organizationService.removeAdmin(organizationId, member.id);
+
+      if (response.isSuccess) {
+        organization.value = response.data;
+      } else {
+        notificationService.showError(response.error);
+      }
+    },
+  });
 }
 
 function confirmDeleteGame(game: GameDto): void {
@@ -259,7 +318,7 @@ onMounted(loadOrganization);
                   <i :class="getGameIcon(game.type)" />
                   {{ getGameLabel(game.type) }}
                 </span>
-                <div v-if="isOwner" class="game-section__actions">
+                <div v-if="isManager" class="game-section__actions">
                   <Button
                     v-if="canCreateTeam(game)"
                     :label="t('teams.create')"
@@ -309,6 +368,66 @@ onMounted(loadOrganization);
         </template>
       </Card>
 
+      <Card>
+        <template #title>
+          <div class="org-page__games-header">
+            <span>{{ t('organizations.management') }}</span>
+            <Button
+              v-if="isOwner"
+              :label="t('organizations.admins.add')"
+              icon="pi pi-user-plus"
+              size="small"
+              @click="isAdminDialogVisible = true"
+            />
+          </div>
+        </template>
+        <template #content>
+          <div class="org-members">
+            <div
+              v-for="member in admins"
+              :key="member.id"
+              class="org-member"
+            >
+              <Avatar
+                :image="member.user?.avatarUrl ?? undefined"
+                :label="
+                  member.user?.avatarUrl
+                    ? undefined
+                    : member.user?.username[0]?.toUpperCase()
+                "
+                shape="circle"
+              />
+              <NuxtLink
+                :to="
+                  buildAppRoute(AppRoute.USERS_BY_ID, {
+                    id: member.user?.id ?? 0,
+                  })
+                "
+                class="org-member__name"
+              >
+                {{ member.user?.username }}
+              </NuxtLink>
+              <Tag
+                :value="t(`organizations.roles.${member.role}`)"
+                :severity="
+                  member.role === OrganizationRole.OWNER ? 'warn' : 'info'
+                "
+              />
+              <Button
+                v-if="isOwner && member.role === OrganizationRole.ADMIN"
+                icon="pi pi-times"
+                :aria-label="t('organizations.admins.remove')"
+                severity="danger"
+                text
+                rounded
+                size="small"
+                @click="confirmRemoveAdmin(member)"
+              />
+            </div>
+          </div>
+        </template>
+      </Card>
+
       <OrganizationFormDialog
         v-model:visible="isEditDialogVisible"
         :organization="organization"
@@ -326,6 +445,11 @@ onMounted(loadOrganization);
         :game-id="teamDialogGame.id"
         :existing-types="teamDialogExistingTypes"
         @saved="onTeamSaved"
+      />
+      <OrganizationAdminDialog
+        v-model:visible="isAdminDialogVisible"
+        :organization-id="organizationId"
+        @saved="onAdminSaved"
       />
     </template>
   </div>
@@ -500,6 +624,30 @@ onMounted(loadOrganization);
     gap: 0.35rem;
     font-size: 0.85rem;
     color: $text-dim;
+  }
+}
+
+.org-members {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.org-member {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  &__name {
+    flex: 1;
+    color: $text-primary;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.15s;
+
+    &:hover {
+      color: $accent;
+    }
   }
 }
 </style>

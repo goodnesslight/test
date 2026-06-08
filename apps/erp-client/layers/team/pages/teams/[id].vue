@@ -3,8 +3,17 @@ import { navigateTo, useRoute } from 'nuxt/app';
 import { useConfirm } from 'primevue/useconfirm';
 import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue';
 
-import type { TeamDto } from '@shared/dtos';
-import type { HttpResponse } from '@shared/types';
+import type {
+  OrganizationLiteDto,
+  OrganizationMemberDto,
+  TeamDto,
+  TeamMemberDto,
+} from '@shared/dtos';
+import {
+  type HttpResponse,
+  OrganizationRole,
+  TeamMemberRole,
+} from '@shared/types';
 
 import type { TeamService } from '../../composables/use-team-service';
 
@@ -29,11 +38,48 @@ const teamId: number = Number(route.params.id);
 const team: Ref<TeamDto | null> = ref(null);
 const isLoading: Ref<boolean> = ref(true);
 
-const isOwner: ComputedRef<boolean> = computed(
+const currentUserId: ComputedRef<number | null> = computed(
+  (): number | null => authService.user.value?.id ?? null
+);
+const isManager: ComputedRef<boolean> = computed((): boolean => {
+  const organization: OrganizationLiteDto | undefined =
+    team.value?.game?.organization;
+
+  if (!organization || currentUserId.value === null) {
+    return false;
+  }
+
+  if (organization.ownerId === currentUserId.value) {
+    return true;
+  }
+
+  return (
+    organization.members?.some(
+      (member: OrganizationMemberDto): boolean =>
+        member.role === OrganizationRole.ADMIN &&
+        member.user?.id === currentUserId.value
+    ) ?? false
+  );
+});
+const isCoach: ComputedRef<boolean> = computed(
   (): boolean =>
-    team.value?.game?.organization !== undefined &&
-    authService.user.value !== null &&
-    team.value.game.organization.ownerId === authService.user.value.id
+    team.value?.members.some(
+      (member: TeamMemberDto): boolean =>
+        member.user?.id === currentUserId.value &&
+        member.role === TeamMemberRole.COACH
+    ) ?? false
+);
+const canManageEvents: ComputedRef<boolean> = computed(
+  (): boolean => isManager.value || isCoach.value
+);
+const canManageRoster: ComputedRef<boolean> = computed(
+  (): boolean => isManager.value || isCoach.value
+);
+const canAssignRoles: ComputedRef<boolean> = computed(
+  (): boolean => isManager.value
+);
+const canManageTeam: ComputedRef<boolean> = computed(
+  (): boolean => isManager.value
 );
 const teamName: ComputedRef<string> = computed((): string =>
   team.value ? t(`teams.types.${team.value.type}`) : ''
@@ -140,7 +186,7 @@ onMounted(loadTeam);
                 </span>
               </div>
             </div>
-            <div v-if="isOwner" class="team-page__actions">
+            <div v-if="canManageTeam" class="team-page__actions">
               <Button
                 :label="t('common.delete')"
                 icon="pi pi-trash"
@@ -155,11 +201,12 @@ onMounted(loadTeam);
 
       <TeamRosterCard
         :team="team"
-        :is-owner="isOwner"
+        :can-manage-roster="canManageRoster"
+        :can-assign-roles="canAssignRoles"
         @updated="onRosterUpdated"
       />
 
-      <EventScheduleCard :team="team" :is-owner="isOwner" />
+      <EventScheduleCard :team="team" :can-manage="canManageEvents" />
     </template>
   </div>
 </template>

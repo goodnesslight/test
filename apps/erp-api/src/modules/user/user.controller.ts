@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import {
   UserCalendarTokenDto,
   UserDto,
+  UserProfileDto,
   UserUpdateProfileDto,
 } from '@shared/dtos';
 import { ApiRoute } from '@shared/types';
@@ -12,6 +13,8 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  ParseIntPipe,
   Post,
   Put,
   UseGuards,
@@ -20,7 +23,7 @@ import {
 
 import { CurrentUser } from './user.decorator';
 import { UserEntity } from './user.entity';
-import { UserService } from './user.service';
+import { UserProfileResult, UserService } from './user.service';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -54,5 +57,13 @@ export class UserController {
   @UseInterceptors(new ResponseInterceptor(UserCalendarTokenDto))
   getCalendarToken(@CurrentUser() user: UserEntity): UserEntity {
     return user;
+  }
+
+  @Get(ApiRoute.USERS_BY_ID)
+  @UseInterceptors(new ResponseInterceptor(UserProfileDto))
+  async getProfileById(
+    @Param('id', ParseIntPipe) id: number
+  ): Promise<UserProfileResult> {
+    return await this.userService.getProfileById(id);
   }
 }

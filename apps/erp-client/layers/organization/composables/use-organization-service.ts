@@ -1,4 +1,5 @@
 import type {
+  OrganizationAddAdminDto,
   OrganizationCreateDto,
   OrganizationDto,
   OrganizationUpdateDto,
@@ -13,9 +14,17 @@ export interface OrganizationService {
     id: number,
     dto: OrganizationUpdateDto
   ): Promise<HttpResponse<OrganizationDto>>;
+  addAdmin(
+    id: number,
+    dto: OrganizationAddAdminDto
+  ): Promise<HttpResponse<OrganizationDto>>;
   getMy(): Promise<HttpResponse<OrganizationDto[]>>;
   getById(id: number): Promise<HttpResponse<OrganizationDto>>;
   remove(id: number): Promise<HttpResponse<null>>;
+  removeAdmin(
+    id: number,
+    memberId: number
+  ): Promise<HttpResponse<OrganizationDto>>;
 }
 
 export function useOrganizationService(): OrganizationService {
@@ -39,6 +48,16 @@ export function useOrganizationService(): OrganizationService {
     );
   }
 
+  async function addAdmin(
+    id: number,
+    dto: OrganizationAddAdminDto
+  ): Promise<HttpResponse<OrganizationDto>> {
+    return await apiService.post<OrganizationDto>(
+      ApiRoute.ORGANIZATION_ADMINS,
+      { id, ...dto }
+    );
+  }
+
   async function getMy(): Promise<HttpResponse<OrganizationDto[]>> {
     return await apiService.get<OrganizationDto[]>(ApiRoute.ORGANIZATIONS_MY);
   }
@@ -54,5 +73,23 @@ export function useOrganizationService(): OrganizationService {
     return await apiService.delete<null>(ApiRoute.ORGANIZATIONS_BY_ID, { id });
   }
 
-  return { create, update, getMy, getById, remove };
+  async function removeAdmin(
+    id: number,
+    memberId: number
+  ): Promise<HttpResponse<OrganizationDto>> {
+    return await apiService.delete<OrganizationDto>(
+      ApiRoute.ORGANIZATION_ADMINS_BY_ID,
+      { id, memberId }
+    );
+  }
+
+  return {
+    create,
+    update,
+    addAdmin,
+    getMy,
+    getById,
+    remove,
+    removeAdmin,
+  };
 }
