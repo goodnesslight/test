@@ -91,6 +91,7 @@ export class OrganizationInviteService {
           lastName: dto.lastName ?? null,
           country: dto.country ?? null,
           birthDate: dto.birthDate ?? null,
+          avatarUrl: dto.avatarUrl ?? null,
           invitedUserId: existingUser?.id ?? null,
         })
       );

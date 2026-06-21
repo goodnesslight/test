@@ -4,7 +4,8 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
-    "error": "Error"
+    "error": "Error",
+    "uploadError": "Failed to upload the image"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -133,6 +134,8 @@
     "name": "Name",
     "tag": "Tag",
     "slug": "Subdomain",
+    "logo": "Logo",
+    "uploadLogo": "Upload logo",
     "logoUrl": "Logo URL",
     "teamsCount": "Teams",
     "created": "Created",
@@ -158,6 +161,8 @@
       "lastName": "Last name",
       "country": "Country",
       "birthDate": "Date of birth",
+      "photo": "Photo",
+      "uploadPhoto": "Upload photo",
       "send": "Send invite",
       "sent": "Invitation sent",
       "empty": "No pending invites",

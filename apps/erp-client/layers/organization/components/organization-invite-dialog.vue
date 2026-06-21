@@ -17,6 +17,7 @@ import { type HttpResponse, OrganizationRole } from '@shared/types';
 import type { OrganizationService } from '../composables/use-organization-service';
 
 import type { NotificationService } from '#layers/notification';
+import type { UploadService } from '#layers/upload';
 
 interface OrganizationInviteDialogProps {
   visible: boolean;
@@ -41,15 +42,19 @@ const emit: OrganizationInviteDialogEmits =
 const { t } = useI18n();
 const notificationService: NotificationService = useNotificationService();
 const organizationService: OrganizationService = useOrganizationService();
+const uploadService: UploadService = useUploadService();
 
+const fileInput: Ref<HTMLInputElement | null> = ref(null);
 const email: Ref<string> = ref('');
 const username: Ref<string> = ref('');
 const firstName: Ref<string> = ref('');
 const lastName: Ref<string> = ref('');
 const country: Ref<string> = ref('');
 const birthDate: Ref<string> = ref('');
+const avatarUrl: Ref<string> = ref('');
 const role: Ref<OrganizationRole> = ref(OrganizationRole.MEMBER);
 const isLoading: Ref<boolean> = ref(false);
+const isUploading: Ref<boolean> = ref(false);
 
 const isVisible: WritableComputedRef<boolean> = computed({
   get: (): boolean => props.visible,
@@ -72,10 +77,37 @@ watch(
       lastName.value = '';
       country.value = '';
       birthDate.value = '';
+      avatarUrl.value = '';
       role.value = OrganizationRole.MEMBER;
     }
   }
 );
+
+function triggerFile(): void {
+  fileInput.value?.click();
+}
+
+async function onFileSelect(event: Event): Promise<void> {
+  const input: HTMLInputElement = event.target as HTMLInputElement;
+  const file: File | undefined = input.files?.[0];
+
+  if (!file) {
+    return;
+  }
+
+  isUploading.value = true;
+
+  const url: string | null = await uploadService.uploadImage(file);
+
+  isUploading.value = false;
+  input.value = '';
+
+  if (url) {
+    avatarUrl.value = url;
+  } else {
+    notificationService.showError(t('common.uploadError'));
+  }
+}
 
 async function submit(): Promise<void> {
   isLoading.value = true;
@@ -88,6 +120,7 @@ async function submit(): Promise<void> {
     ...(lastName.value ? { lastName: lastName.value } : {}),
     ...(country.value ? { country: country.value } : {}),
     ...(birthDate.value ? { birthDate: birthDate.value } : {}),
+    ...(avatarUrl.value ? { avatarUrl: avatarUrl.value } : {}),
   };
 
   const response: HttpResponse<OrganizationInviteDto> =
@@ -160,6 +193,34 @@ async function submit(): Promise<void> {
       </div>
 
       <div class="invite-form__field">
+        <label>{{ t('organizations.invites.photo') }}</label>
+        <div class="invite-form__photo">
+          <Avatar
+            :image="avatarUrl || undefined"
+            :label="avatarUrl ? undefined : '?'"
+            size="large"
+            shape="circle"
+          />
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/*"
+            class="invite-form__file"
+            @change="onFileSelect"
+          />
+          <Button
+            type="button"
+            :label="t('organizations.invites.uploadPhoto')"
+            icon="pi pi-upload"
+            severity="secondary"
+            outlined
+            :loading="isUploading"
+            @click="triggerFile"
+          />
+        </div>
+      </div>
+
+      <div class="invite-form__field">
         <label for="invite-role">{{ t('organizations.invites.role') }}</label>
         <Select
           id="invite-role"
@@ -214,6 +275,16 @@ async function submit(): Promise<void> {
       font-size: 0.9rem;
       color: $text-dim;
     }
+  }
+
+  &__photo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__file {
+    display: none;
   }
 
   &__actions {

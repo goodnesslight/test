@@ -6,6 +6,7 @@ import { GameModule } from '@modules/game/game.module';
 import { InviteModule } from '@modules/invite/invite.module';
 import { OrganizationModule } from '@modules/organization/organization.module';
 import { TeamModule } from '@modules/team/team.module';
+import { UploadModule } from '@modules/upload/upload.module';
 import { UserModule } from '@modules/user/user.module';
 
 import { Module } from '@nestjs/common';
@@ -28,6 +29,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     InviteModule,
     OrganizationModule,
     TeamModule,
+    UploadModule,
     UserModule,
   ],
 })

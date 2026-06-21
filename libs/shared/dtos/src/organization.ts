@@ -127,6 +127,9 @@ export class OrganizationInviteDto {
   birthDate: string | null;
 
   @Expose()
+  avatarUrl: string | null;
+
+  @Expose()
   @Type(() => OrganizationLiteDto)
   organization?: OrganizationLiteDto;
 }
@@ -215,4 +218,8 @@ export class OrganizationInviteCreateDto {
   @IsOptional()
   @IsDateString()
   birthDate?: string;
+
+  @IsOptional()
+  @IsUrl()
+  avatarUrl?: string;
 }

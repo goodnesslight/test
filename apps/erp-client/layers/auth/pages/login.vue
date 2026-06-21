@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { navigateTo } from 'nuxt/app';
-import { type Ref, ref } from 'vue';
+import { computed, type ComputedRef, type Ref, ref } from 'vue';
 
-import type { AuthLoginDto, UserDto } from '@shared/dtos';
+import type { AuthLoginDto, OrganizationLiteDto, UserDto } from '@shared/dtos';
 import type { HttpResponse } from '@shared/types';
 
 import type { AuthService } from '../composables/use-auth-service';
 
+import type { OrganizationService } from '#layers/organization';
 import { AppRoute } from '#layers/router';
 
 definePageMeta({
@@ -16,6 +17,11 @@ definePageMeta({
 
 const { t } = useI18n();
 const authService: AuthService = useAuthService();
+const organizationService: OrganizationService = useOrganizationService();
+
+const organization: ComputedRef<OrganizationLiteDto | null> = computed(
+  (): OrganizationLiteDto | null => organizationService.publicInfo.value
+);
 
 const email: Ref<string> = ref('');
 const password: Ref<string> = ref('');
@@ -47,8 +53,13 @@ async function submit(): Promise<void> {
   <Card class="auth-card">
     <template #title>
       <div class="auth-card__title">
-        <i class="pi pi-th-large" />
-        <span>{{ t('auth.loginTitle') }}</span>
+        <Avatar
+          v-if="organization?.logoUrl"
+          :image="organization.logoUrl"
+          shape="circle"
+        />
+        <i v-else class="pi pi-th-large" />
+        <span>{{ organization?.name ?? t('auth.loginTitle') }}</span>
       </div>
     </template>
     <template #content>

@@ -65,6 +65,7 @@ export class AuthService {
         lastName: invite.lastName,
         country: invite.country,
         birthDate: invite.birthDate,
+        avatarUrl: invite.avatarUrl,
         passwordHash,
       })
     );

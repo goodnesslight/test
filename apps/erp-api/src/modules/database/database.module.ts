@@ -17,7 +17,8 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
         database: config.getOrThrow(ConfigKey.POSTGRES_DB),
         username: config.getOrThrow(ConfigKey.POSTGRES_USER),
         password: config.getOrThrow(ConfigKey.POSTGRES_PASSWORD),
-        synchronize: config.getOrThrow(ConfigKey.POSTGRES_SYNCHRONIZE),
+        synchronize:
+          config.getOrThrow(ConfigKey.POSTGRES_SYNCHRONIZE) === 'true',
       }),
     }),
   ],

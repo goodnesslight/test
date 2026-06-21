@@ -35,6 +35,8 @@ export enum ApiRoute {
   TEAM_INVITES = 'teams/:id/invites',
   TEAM_MEMBERS_BY_ID = 'teams/:id/members/:memberId',
 
+  UPLOADS_IMAGE = 'uploads/image',
+
   USERS_ME = 'users/me',
   USER_CALENDAR_TOKEN = 'users/me/calendar-token',
   USERS_BY_ID = 'users/:id',

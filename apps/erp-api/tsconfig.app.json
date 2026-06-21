@@ -19,7 +19,7 @@
       "@common/*": ["src/common/*"],
       "@modules/*": ["src/modules/*"]
     },
-    "types": ["node"]
+    "types": ["node", "multer"]
   },
   "references": [
     {

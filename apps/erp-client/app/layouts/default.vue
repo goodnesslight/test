@@ -11,17 +11,23 @@ import {
   watch,
 } from 'vue';
 
-import type { UserDto } from '@shared/dtos';
+import type { OrganizationDto, UserDto } from '@shared/dtos';
 
 import type { AuthService } from '#layers/auth';
 import type { LocaleService } from '#layers/i18n';
 import type { InviteService } from '#layers/invite';
+import type { OrganizationService } from '#layers/organization';
 import { AppRoute } from '#layers/router';
 
 const { t } = useI18n();
 const authService: AuthService = useAuthService();
 const inviteService: InviteService = useInviteService();
 const localeService: LocaleService = useLocaleService();
+const organizationService: OrganizationService = useOrganizationService();
+
+const organization: ComputedRef<OrganizationDto | null> = computed(
+  (): OrganizationDto | null => organizationService.current.value
+);
 
 const profileMenu: Ref<InstanceType<typeof Menu> | null> = ref(null);
 
@@ -81,10 +87,15 @@ onMounted((): void => {
 
     <aside class="sidebar">
       <NuxtLink :to="AppRoute.HOME" class="brand">
-        <span class="brand__icon">
+        <Avatar
+          v-if="organization?.logoUrl"
+          :image="organization.logoUrl"
+          shape="circle"
+        />
+        <span v-else class="brand__icon">
           <i class="pi pi-th-large" />
         </span>
-        <span class="brand__name">{{ t('nav.brand') }}</span>
+        <span class="brand__name">{{ organization?.name ?? t('nav.brand') }}</span>
       </NuxtLink>
 
       <nav class="nav">

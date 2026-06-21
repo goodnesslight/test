@@ -14,6 +14,7 @@ import type { HttpResponse } from '@shared/types';
 import type { OrganizationService } from '../composables/use-organization-service';
 
 import type { NotificationService } from '#layers/notification';
+import type { UploadService } from '#layers/upload';
 
 interface OrganizationFormDialogProps {
   visible: boolean;
@@ -33,12 +34,15 @@ const emit: OrganizationFormDialogEmits =
 const { t } = useI18n();
 const notificationService: NotificationService = useNotificationService();
 const organizationService: OrganizationService = useOrganizationService();
+const uploadService: UploadService = useUploadService();
 
+const fileInput: Ref<HTMLInputElement | null> = ref(null);
 const name: Ref<string> = ref('');
 const tag: Ref<string> = ref('');
 const slug: Ref<string> = ref('');
 const logoUrl: Ref<string> = ref('');
 const isLoading: Ref<boolean> = ref(false);
+const isUploading: Ref<boolean> = ref(false);
 
 const isEdit: ComputedRef<boolean> = computed(
   (): boolean => Boolean(props.organization)
@@ -59,6 +63,32 @@ watch(
     }
   }
 );
+
+function triggerFile(): void {
+  fileInput.value?.click();
+}
+
+async function onFileSelect(event: Event): Promise<void> {
+  const input: HTMLInputElement = event.target as HTMLInputElement;
+  const file: File | undefined = input.files?.[0];
+
+  if (!file) {
+    return;
+  }
+
+  isUploading.value = true;
+
+  const url: string | null = await uploadService.uploadImage(file);
+
+  isUploading.value = false;
+  input.value = '';
+
+  if (url) {
+    logoUrl.value = url;
+  } else {
+    notificationService.showError(t('common.uploadError'));
+  }
+}
 
 async function submit(): Promise<void> {
   if (!props.organization) {
@@ -112,14 +142,31 @@ async function submit(): Promise<void> {
       </div>
 
       <div class="org-form__field">
-        <label for="org-logo">{{ t('organizations.logoUrl') }}</label>
-        <InputText
-          id="org-logo"
-          v-model="logoUrl"
-          type="url"
-          placeholder="https://"
-          fluid
-        />
+        <label>{{ t('organizations.logo') }}</label>
+        <div class="org-form__photo">
+          <Avatar
+            :image="logoUrl || undefined"
+            :label="logoUrl ? undefined : name[0]?.toUpperCase() ?? '?'"
+            size="large"
+            shape="circle"
+          />
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/*"
+            class="org-form__file"
+            @change="onFileSelect"
+          />
+          <Button
+            type="button"
+            :label="t('organizations.uploadLogo')"
+            icon="pi pi-upload"
+            severity="secondary"
+            outlined
+            :loading="isUploading"
+            @click="triggerFile"
+          />
+        </div>
       </div>
 
       <div class="org-form__actions">
@@ -155,6 +202,16 @@ async function submit(): Promise<void> {
       font-size: 0.9rem;
       color: $text-dim;
     }
+  }
+
+  &__photo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__file {
+    display: none;
   }
 
   &__actions {

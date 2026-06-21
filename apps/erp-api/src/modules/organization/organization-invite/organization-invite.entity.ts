@@ -51,6 +51,9 @@ export class OrganizationInviteEntity extends BasicEntity {
   @Column({ type: 'date', nullable: true })
   birthDate: string | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  avatarUrl: string | null;
+
   @Column({ type: 'int', nullable: true })
   invitedUserId: number | null;
 
