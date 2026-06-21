@@ -8,7 +8,7 @@ import {
   type WritableComputedRef,
 } from 'vue';
 
-import type { OrganizationCreateDto, OrganizationDto } from '@shared/dtos';
+import type { OrganizationDto, OrganizationUpdateDto } from '@shared/dtos';
 import type { HttpResponse } from '@shared/types';
 
 import type { OrganizationService } from '../composables/use-organization-service';
@@ -36,6 +36,7 @@ const organizationService: OrganizationService = useOrganizationService();
 
 const name: Ref<string> = ref('');
 const tag: Ref<string> = ref('');
+const slug: Ref<string> = ref('');
 const logoUrl: Ref<string> = ref('');
 const isLoading: Ref<boolean> = ref(false);
 
@@ -53,23 +54,28 @@ watch(
     if (visible) {
       name.value = props.organization?.name ?? '';
       tag.value = props.organization?.tag ?? '';
+      slug.value = props.organization?.slug ?? '';
       logoUrl.value = props.organization?.logoUrl ?? '';
     }
   }
 );
 
 async function submit(): Promise<void> {
+  if (!props.organization) {
+    return;
+  }
+
   isLoading.value = true;
 
-  const dto: OrganizationCreateDto = {
+  const dto: OrganizationUpdateDto = {
     name: name.value,
     tag: tag.value,
+    slug: slug.value,
     ...(logoUrl.value ? { logoUrl: logoUrl.value } : {}),
   };
 
-  const response: HttpResponse<OrganizationDto> = props.organization
-    ? await organizationService.update(props.organization.id, dto)
-    : await organizationService.create(dto);
+  const response: HttpResponse<OrganizationDto> =
+    await organizationService.update(props.organization.id, dto);
 
   isLoading.value = false;
 
@@ -98,6 +104,11 @@ async function submit(): Promise<void> {
       <div class="org-form__field">
         <label for="org-tag">{{ t('organizations.tag') }}</label>
         <InputText id="org-tag" v-model="tag" maxlength="8" required fluid />
+      </div>
+
+      <div class="org-form__field">
+        <label for="org-slug">{{ t('organizations.slug') }}</label>
+        <InputText id="org-slug" v-model="slug" maxlength="48" required fluid />
       </div>
 
       <div class="org-form__field">

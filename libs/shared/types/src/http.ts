@@ -5,6 +5,10 @@ export enum HttpMethod {
   GET = 'GET',
 }
 
+export enum HttpHeader {
+  ORGANIZATION_SLUG = 'x-organization-slug',
+}
+
 export type HttpResponse<T> = HttpSuccessResponse<T> | HttpErrorResponse;
 
 export interface HttpSuccessResponse<T> {

@@ -1,7 +1,16 @@
 import { Exclude, Expose, Type } from 'class-transformer';
-import { IsOptional, IsString, IsUrl, Length } from 'class-validator';
+import {
+  IsDateString,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Length,
+  Matches,
+} from 'class-validator';
 
-import { OrganizationRole } from '@shared/types';
+import { InviteStatus, OrganizationRole } from '@shared/types';
 
 import { GameDto } from './game';
 import { UserDto } from './user';
@@ -18,7 +27,7 @@ export class OrganizationDto {
   tag: string;
 
   @Expose()
-  ownerId: number;
+  slug: string;
 
   @Expose()
   @Type(() => GameDto)
@@ -30,6 +39,9 @@ export class OrganizationDto {
 
   @Expose()
   createdAt: Date;
+
+  @Expose()
+  ownerId: number | null;
 
   @Expose()
   logoUrl: string | null;
@@ -47,7 +59,10 @@ export class OrganizationLiteDto {
   tag: string;
 
   @Expose()
-  ownerId: number;
+  slug: string;
+
+  @Expose()
+  ownerId: number | null;
 
   @Expose()
   logoUrl: string | null;
@@ -73,6 +88,49 @@ export class OrganizationMemberDto {
   createdAt: Date;
 }
 
+@Exclude()
+export class OrganizationInviteDto {
+  @Expose()
+  id: number;
+
+  @Expose()
+  organizationId: number;
+
+  @Expose()
+  email: string;
+
+  @Expose()
+  username: string;
+
+  @Expose()
+  role: OrganizationRole;
+
+  @Expose()
+  status: InviteStatus;
+
+  @Expose()
+  createdAt: Date;
+
+  @Expose()
+  expiresAt: Date;
+
+  @Expose()
+  firstName: string | null;
+
+  @Expose()
+  lastName: string | null;
+
+  @Expose()
+  country: string | null;
+
+  @Expose()
+  birthDate: string | null;
+
+  @Expose()
+  @Type(() => OrganizationLiteDto)
+  organization?: OrganizationLiteDto;
+}
+
 export class OrganizationCreateDto {
   @IsString()
   @Length(2, 48)
@@ -81,6 +139,13 @@ export class OrganizationCreateDto {
   @IsString()
   @Length(2, 8)
   tag: string;
+
+  @IsString()
+  @Length(2, 48)
+  @Matches(/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/, {
+    message: 'slug can only contain lowercase letters, numbers and dashes',
+  })
+  slug: string;
 
   @IsOptional()
   @IsUrl()
@@ -99,6 +164,14 @@ export class OrganizationUpdateDto {
   tag?: string;
 
   @IsOptional()
+  @IsString()
+  @Length(2, 48)
+  @Matches(/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/, {
+    message: 'slug can only contain lowercase letters, numbers and dashes',
+  })
+  slug?: string;
+
+  @IsOptional()
   @IsUrl()
   logoUrl?: string;
 }
@@ -107,4 +180,39 @@ export class OrganizationAddAdminDto {
   @IsString()
   @Length(3, 320)
   identifier: string;
+}
+
+export class OrganizationInviteCreateDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @Length(3, 32)
+  @Matches(/^[a-zA-Z0-9_.-]+$/, {
+    message:
+      'username can only contain letters, numbers, dots, dashes and underscores',
+  })
+  username: string;
+
+  @IsEnum(OrganizationRole)
+  role: OrganizationRole;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 64)
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 64)
+  lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(2, 64)
+  country?: string;
+
+  @IsOptional()
+  @IsDateString()
+  birthDate?: string;
 }

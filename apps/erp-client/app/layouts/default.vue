@@ -105,14 +105,6 @@ onMounted((): void => {
           <i class="pi pi-calendar" />
           <span>{{ t('nav.calendar') }}</span>
         </NuxtLink>
-        <NuxtLink
-          :to="AppRoute.ORGANIZATIONS"
-          class="nav__item"
-          active-class="nav__item--active"
-        >
-          <i class="pi pi-building" />
-          <span>{{ t('nav.organizations') }}</span>
-        </NuxtLink>
       </nav>
     </aside>
 

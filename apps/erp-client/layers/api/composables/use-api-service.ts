@@ -1,6 +1,7 @@
 import {
   type ApiRoute,
   type HttpErrorResponse,
+  HttpHeader,
   HttpMethod,
   type HttpResponse,
   type HttpSuccessResponse,
@@ -66,12 +67,15 @@ export function useApiService(): ApiService {
     method: HttpMethod,
     dto?: Record<string, unknown>
   ): Promise<HttpResponse<T>> {
+    const slug: string | null = getOrganizationSlug();
+
     try {
       return await $fetch<HttpSuccessResponse<T>>(
         buildUrl(route, method, dto),
         {
           method,
           credentials: 'include',
+          headers: slug ? { [HttpHeader.ORGANIZATION_SLUG]: slug } : undefined,
           body: hasQueryParams(method) ? undefined : dto,
         }
       );

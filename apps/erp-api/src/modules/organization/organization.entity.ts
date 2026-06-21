@@ -13,12 +13,15 @@ export class OrganizationEntity extends BasicEntity {
   @Column({ type: 'varchar', length: 8 })
   tag: string;
 
-  @Column({ type: 'int' })
-  ownerId: number;
+  @Column({ type: 'varchar', length: 48, unique: true })
+  slug: string;
 
-  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
+  @Column({ type: 'int', nullable: true })
+  ownerId: number | null;
+
+  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'ownerId' })
-  owner: UserEntity;
+  owner: UserEntity | null;
 
   @OneToMany(() => GameEntity, (game: GameEntity) => game.organization)
   games: GameEntity[];

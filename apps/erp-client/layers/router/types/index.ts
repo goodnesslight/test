@@ -4,14 +4,11 @@ export enum AppRoute {
   HOME = '/',
 
   LOGIN = '/login',
-  REGISTER = '/register',
+  INVITE_BY_TOKEN = '/invite/:token',
 
   CALENDAR = '/calendar',
 
   INVITES = '/invites',
-
-  ORGANIZATIONS = '/organizations',
-  ORGANIZATIONS_BY_ID = '/organizations/:id',
 
   SETTINGS = '/settings',
 

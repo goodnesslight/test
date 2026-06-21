@@ -32,6 +32,12 @@ export class UserEntity extends BasicEntity {
   @Column({ type: 'varchar', length: 64, nullable: true })
   lastName: string | null;
 
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  country: string | null;
+
+  @Column({ type: 'date', nullable: true })
+  birthDate: string | null;
+
   @Column({ type: 'varchar', nullable: true })
   avatarUrl: string | null;
 

@@ -29,6 +29,12 @@ export class UserDto {
   lastName: string | null;
 
   @Expose()
+  country: string | null;
+
+  @Expose()
+  birthDate: string | null;
+
+  @Expose()
   avatarUrl: string | null;
 
   @Expose()

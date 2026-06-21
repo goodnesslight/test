@@ -25,6 +25,24 @@ export class OrganizationRepository extends BasicRepository<OrganizationEntity> 
     });
   }
 
+  async findBySlug(slug: string): Promise<OrganizationEntity | null> {
+    return await this.findOne({ where: { slug } });
+  }
+
+  async findBySlugWithGames(slug: string): Promise<OrganizationEntity | null> {
+    return await this.findOne({
+      where: { slug },
+      relations: {
+        games: { teams: { members: true } },
+        members: { user: true },
+      },
+      order: {
+        games: { createdAt: 'ASC', teams: { createdAt: 'ASC' } },
+        members: { createdAt: 'ASC' },
+      },
+    });
+  }
+
   async findAllByUser(userId: number): Promise<OrganizationEntity[]> {
     const rows: { id: number }[] = await this.createQueryBuilder('org')
       .select('DISTINCT org.id', 'id')

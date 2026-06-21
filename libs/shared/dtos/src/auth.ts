@@ -1,4 +1,4 @@
-import { IsEmail, IsString, Length, Matches } from 'class-validator';
+import { IsEmail, IsString, Length } from 'class-validator';
 
 export class AuthLoginDto {
   @IsEmail()
@@ -10,16 +10,9 @@ export class AuthLoginDto {
 }
 
 export class AuthRegisterDto {
-  @IsEmail()
-  email: string;
-
   @IsString()
-  @Length(3, 32)
-  @Matches(/^[a-zA-Z0-9_.-]+$/, {
-    message:
-      'username can only contain letters, numbers, dots, dashes and underscores',
-  })
-  username: string;
+  @Length(16, 128)
+  inviteToken: string;
 
   @IsString()
   @Length(8, 64)

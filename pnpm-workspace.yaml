@@ -1,5 +1,15 @@
 packages:
   - 'apps/*'
   - 'libs/**'
+allowBuilds:
+  '@nestjs/core': true
+  '@parcel/watcher': true
+  '@scarf/scarf': true
+  '@swc/core': true
+  argon2: true
+  esbuild: true
+  less: true
+  nx: true
+  unrs-resolver: true
 patchedDependencies:
   '@nx/nuxt@22.5.3': patches/@nx__nuxt@22.5.3.patch

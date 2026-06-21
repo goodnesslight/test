@@ -40,6 +40,7 @@ export class OrganizationService {
           manager.create(OrganizationEntity, {
             name: dto.name,
             tag: dto.tag,
+            slug: dto.slug,
             logoUrl: dto.logoUrl ?? null,
             ownerId: user.id,
           })
@@ -69,6 +70,7 @@ export class OrganizationService {
     await this.organizationRepository.update(id, {
       name: dto.name ?? organization.name,
       tag: dto.tag ?? organization.tag,
+      slug: dto.slug ?? organization.slug,
       logoUrl: dto.logoUrl === undefined ? organization.logoUrl : dto.logoUrl,
     });
 
@@ -115,6 +117,30 @@ export class OrganizationService {
     return await this.getById(id);
   }
 
+  async addMember(
+    organizationId: number,
+    userId: number,
+    role: OrganizationRole
+  ): Promise<OrganizationMemberEntity> {
+    const existing: OrganizationMemberEntity | null =
+      await this.organizationMemberRepository.findByOrganizationAndUser(
+        organizationId,
+        userId
+      );
+
+    if (existing) {
+      return existing;
+    }
+
+    return await this.organizationMemberRepository.save(
+      this.organizationMemberRepository.create({
+        organizationId,
+        userId,
+        role,
+      })
+    );
+  }
+
   async isManager(organizationId: number, userId: number): Promise<boolean> {
     const member: OrganizationMemberEntity | null =
       await this.organizationMemberRepository.findByOrganizationAndUser(
@@ -127,6 +153,16 @@ export class OrganizationService {
       (member.role === OrganizationRole.OWNER ||
         member.role === OrganizationRole.ADMIN)
     );
+  }
+
+  async isMember(organizationId: number, userId: number): Promise<boolean> {
+    const member: OrganizationMemberEntity | null =
+      await this.organizationMemberRepository.findByOrganizationAndUser(
+        organizationId,
+        userId
+      );
+
+    return member !== null;
   }
 
   async assertCanManage(
@@ -146,6 +182,51 @@ export class OrganizationService {
 
     if (!organization) {
       throw new NotFoundException('Organization not found');
+    }
+
+    return organization;
+  }
+
+  async getBySlug(slug: string): Promise<OrganizationEntity> {
+    const organization: OrganizationEntity | null =
+      await this.organizationRepository.findBySlugWithGames(slug);
+
+    if (!organization) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    return organization;
+  }
+
+  async getPublicBySlug(slug: string): Promise<OrganizationEntity> {
+    if (!slug) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    const organization: OrganizationEntity | null =
+      await this.organizationRepository.findBySlug(slug);
+
+    if (!organization) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    return organization;
+  }
+
+  async getCurrent(
+    user: UserEntity,
+    slug: string
+  ): Promise<OrganizationEntity> {
+    if (!slug) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    const organization: OrganizationEntity = await this.getBySlug(slug);
+
+    if (!(await this.isMember(organization.id, user.id))) {
+      throw new ForbiddenException(
+        'You do not have access to this organization'
+      );
     }
 
     return organization;

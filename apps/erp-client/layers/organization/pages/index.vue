@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { navigateTo, useRoute } from 'nuxt/app';
+import { navigateTo } from 'nuxt/app';
 import { useConfirm } from 'primevue/useconfirm';
 import {
   computed,
@@ -13,6 +13,7 @@ import {
 import type {
   GameDto,
   OrganizationDto,
+  OrganizationInviteDto,
   OrganizationMemberDto,
   TeamDto,
 } from '@shared/dtos';
@@ -23,7 +24,7 @@ import {
   TeamType,
 } from '@shared/types';
 
-import type { OrganizationService } from '../../composables/use-organization-service';
+import type { OrganizationService } from '../composables/use-organization-service';
 
 import type { AuthService } from '#layers/auth';
 import type { DateService } from '#layers/date';
@@ -36,7 +37,6 @@ definePageMeta({
 });
 
 const { t } = useI18n();
-const route: ReturnType<typeof useRoute> = useRoute();
 const confirm: ReturnType<typeof useConfirm> = useConfirm();
 const authService: AuthService = useAuthService();
 const dateService: DateService = useDateService();
@@ -44,14 +44,18 @@ const gameService: GameService = useGameService();
 const notificationService: NotificationService = useNotificationService();
 const organizationService: OrganizationService = useOrganizationService();
 
-const organizationId: number = Number(route.params.id);
-const organization: Ref<OrganizationDto | null> = ref(null);
+const organization: Ref<OrganizationDto | null> = organizationService.current;
 const isLoading: Ref<boolean> = ref(true);
 const isEditDialogVisible: Ref<boolean> = ref(false);
 const isGameDialogVisible: Ref<boolean> = ref(false);
 const isAdminDialogVisible: Ref<boolean> = ref(false);
+const isInviteDialogVisible: Ref<boolean> = ref(false);
+const invites: Ref<OrganizationInviteDto[]> = ref([]);
 const teamDialogGame: Ref<GameDto | null> = ref(null);
 
+const organizationId: ComputedRef<number> = computed(
+  (): number => organization.value?.id ?? 0
+);
 const isOwner: ComputedRef<boolean> = computed(
   (): boolean =>
     organization.value !== null &&
@@ -109,16 +113,23 @@ const teamDialogExistingTypes: ComputedRef<TeamType[]> = computed(
 async function loadOrganization(): Promise<void> {
   isLoading.value = true;
 
-  const response: HttpResponse<OrganizationDto> =
-    await organizationService.getById(organizationId);
+  const current: OrganizationDto | null =
+    await organizationService.fetchCurrent();
 
-  if (response.isSuccess) {
-    organization.value = response.data;
-  } else {
-    notificationService.showError(response.error);
+  if (!current) {
+    notificationService.showError(t('organizations.notFound'));
   }
 
   isLoading.value = false;
+}
+
+async function loadInvites(): Promise<void> {
+  const response: HttpResponse<OrganizationInviteDto[]> =
+    await organizationService.getInvites(organizationId.value);
+
+  if (response.isSuccess) {
+    invites.value = response.data;
+  }
 }
 
 function onSaved(saved: OrganizationDto): void {
@@ -135,6 +146,10 @@ async function onGameSaved(): Promise<void> {
 
 async function onTeamSaved(): Promise<void> {
   await loadOrganization();
+}
+
+async function onInviteSaved(): Promise<void> {
+  await loadInvites();
 }
 
 function openTeamDialog(game: GameDto): void {
@@ -156,7 +171,10 @@ function confirmRemoveAdmin(member: OrganizationMemberDto): void {
       username: member.user?.username ?? '',
     }),
     icon: 'pi pi-exclamation-triangle',
-    acceptProps: { label: t('organizations.admins.remove'), severity: 'danger' },
+    acceptProps: {
+      label: t('organizations.admins.remove'),
+      severity: 'danger',
+    },
     rejectProps: {
       label: t('common.cancel'),
       severity: 'secondary',
@@ -164,10 +182,37 @@ function confirmRemoveAdmin(member: OrganizationMemberDto): void {
     },
     accept: async (): Promise<void> => {
       const response: HttpResponse<OrganizationDto> =
-        await organizationService.removeAdmin(organizationId, member.id);
+        await organizationService.removeAdmin(organizationId.value, member.id);
 
       if (response.isSuccess) {
         organization.value = response.data;
+      } else {
+        notificationService.showError(response.error);
+      }
+    },
+  });
+}
+
+function confirmRevokeInvite(invite: OrganizationInviteDto): void {
+  confirm.require({
+    header: t('organizations.invites.revokeHeader'),
+    message: t('organizations.invites.revokeConfirm', { email: invite.email }),
+    icon: 'pi pi-exclamation-triangle',
+    acceptProps: {
+      label: t('organizations.invites.revoke'),
+      severity: 'danger',
+    },
+    rejectProps: {
+      label: t('common.cancel'),
+      severity: 'secondary',
+      text: true,
+    },
+    accept: async (): Promise<void> => {
+      const response: HttpResponse<null> =
+        await organizationService.revokeInvite(organizationId.value, invite.id);
+
+      if (response.isSuccess) {
+        await loadInvites();
       } else {
         notificationService.showError(response.error);
       }
@@ -217,11 +262,12 @@ function confirmDelete(): void {
     },
     accept: async (): Promise<void> => {
       const response: HttpResponse<null> = await organizationService.remove(
-        organizationId
+        organizationId.value
       );
 
       if (response.isSuccess) {
-        await navigateTo(AppRoute.ORGANIZATIONS);
+        organizationService.current.value = null;
+        await navigateTo(AppRoute.LOGIN);
       } else {
         notificationService.showError(response.error);
       }
@@ -229,7 +275,13 @@ function confirmDelete(): void {
   });
 }
 
-onMounted(loadOrganization);
+onMounted(async (): Promise<void> => {
+  await loadOrganization();
+
+  if (isManager.value) {
+    await loadInvites();
+  }
+});
 </script>
 
 <template>
@@ -428,6 +480,53 @@ onMounted(loadOrganization);
         </template>
       </Card>
 
+      <Card v-if="isManager">
+        <template #title>
+          <div class="org-page__games-header">
+            <span>{{ t('organizations.invites.title') }}</span>
+            <Button
+              :label="t('organizations.invites.add')"
+              icon="pi pi-envelope"
+              size="small"
+              @click="isInviteDialogVisible = true"
+            />
+          </div>
+        </template>
+        <template #content>
+          <div v-if="invites.length === 0" class="org-page__empty">
+            <i class="pi pi-envelope" />
+            <p>{{ t('organizations.invites.empty') }}</p>
+          </div>
+
+          <div v-else class="org-invites">
+            <div
+              v-for="invite in invites"
+              :key="invite.id"
+              class="org-invite"
+            >
+              <i class="pi pi-envelope org-invite__icon" />
+              <span class="org-invite__email">
+                {{ invite.username }}
+                <small>{{ invite.email }}</small>
+              </span>
+              <Tag
+                :value="t(`organizations.roles.${invite.role}`)"
+                severity="info"
+              />
+              <Button
+                icon="pi pi-times"
+                :aria-label="t('organizations.invites.revoke')"
+                severity="danger"
+                text
+                rounded
+                size="small"
+                @click="confirmRevokeInvite(invite)"
+              />
+            </div>
+          </div>
+        </template>
+      </Card>
+
       <OrganizationFormDialog
         v-model:visible="isEditDialogVisible"
         :organization="organization"
@@ -450,6 +549,11 @@ onMounted(loadOrganization);
         v-model:visible="isAdminDialogVisible"
         :organization-id="organizationId"
         @saved="onAdminSaved"
+      />
+      <OrganizationInviteDialog
+        v-model:visible="isInviteDialogVisible"
+        :organization-id="organizationId"
+        @saved="onInviteSaved"
       />
     </template>
   </div>
@@ -647,6 +751,35 @@ onMounted(loadOrganization);
 
     &:hover {
       color: $accent;
+    }
+  }
+}
+
+.org-invites {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.org-invite {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  &__icon {
+    color: $accent;
+  }
+
+  &__email {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    color: $text-primary;
+    font-weight: 500;
+
+    small {
+      color: $text-dim;
+      font-weight: 400;
     }
   }
 }

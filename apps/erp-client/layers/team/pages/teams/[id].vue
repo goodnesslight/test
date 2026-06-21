@@ -108,8 +108,6 @@ function confirmDelete(): void {
     return;
   }
 
-  const organizationId: number | undefined = team.value.game?.organizationId;
-
   confirm.require({
     header: t('teams.deleteHeader'),
     message: t('teams.deleteConfirm', { name: teamName.value }),
@@ -124,13 +122,7 @@ function confirmDelete(): void {
       const response: HttpResponse<null> = await teamService.remove(teamId);
 
       if (response.isSuccess) {
-        await navigateTo(
-          organizationId
-            ? buildAppRoute(AppRoute.ORGANIZATIONS_BY_ID, {
-                id: organizationId,
-              })
-            : AppRoute.HOME
-        );
+        await navigateTo(AppRoute.HOME);
       } else {
         notificationService.showError(response.error);
       }
@@ -148,11 +140,7 @@ onMounted(loadTeam);
     <template v-else-if="team">
       <NuxtLink
         v-if="team.game?.organization"
-        :to="
-          buildAppRoute(AppRoute.ORGANIZATIONS_BY_ID, {
-            id: team.game.organizationId,
-          })
-        "
+        :to="AppRoute.HOME"
         class="team-page__breadcrumb"
       >
         <i class="pi pi-arrow-left" />

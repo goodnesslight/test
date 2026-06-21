@@ -7,15 +7,17 @@ import {
   OrganizationAddAdminDto,
   OrganizationCreateDto,
   OrganizationDto,
+  OrganizationLiteDto,
   OrganizationUpdateDto,
 } from '@shared/dtos';
-import { ApiRoute } from '@shared/types';
+import { ApiRoute, HttpHeader } from '@shared/types';
 
 import {
   Body,
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   ParseIntPipe,
   Post,
@@ -28,11 +30,11 @@ import { OrganizationEntity } from './organization.entity';
 import { OrganizationService } from './organization.service';
 
 @Controller()
-@UseGuards(JwtAuthGuard)
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 
   @Post(ApiRoute.ORGANIZATIONS)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
   async create(
     @CurrentUser() user: UserEntity,
@@ -42,6 +44,7 @@ export class OrganizationController {
   }
 
   @Put(ApiRoute.ORGANIZATIONS_BY_ID)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -52,6 +55,7 @@ export class OrganizationController {
   }
 
   @Post(ApiRoute.ORGANIZATION_ADMINS)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
   async addAdmin(
     @Param('id', ParseIntPipe) id: number,
@@ -62,6 +66,7 @@ export class OrganizationController {
   }
 
   @Get(ApiRoute.ORGANIZATIONS_MY)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
   async getMy(
     @CurrentUser() user: UserEntity
@@ -69,7 +74,26 @@ export class OrganizationController {
     return await this.organizationService.getMy(user);
   }
 
+  @Get(ApiRoute.ORGANIZATIONS_CURRENT)
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(new ResponseInterceptor(OrganizationDto))
+  async getCurrent(
+    @CurrentUser() user: UserEntity,
+    @Headers(HttpHeader.ORGANIZATION_SLUG) slug: string
+  ): Promise<OrganizationEntity> {
+    return await this.organizationService.getCurrent(user, slug);
+  }
+
+  @Get(ApiRoute.ORGANIZATIONS_PUBLIC)
+  @UseInterceptors(new ResponseInterceptor(OrganizationLiteDto))
+  async getPublic(
+    @Headers(HttpHeader.ORGANIZATION_SLUG) slug: string
+  ): Promise<OrganizationEntity> {
+    return await this.organizationService.getPublicBySlug(slug);
+  }
+
   @Get(ApiRoute.ORGANIZATIONS_BY_ID)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
   async getById(
     @Param('id', ParseIntPipe) id: number
@@ -78,6 +102,7 @@ export class OrganizationController {
   }
 
   @Delete(ApiRoute.ORGANIZATIONS_BY_ID)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor())
   async delete(
     @Param('id', ParseIntPipe) id: number,
@@ -87,6 +112,7 @@ export class OrganizationController {
   }
 
   @Delete(ApiRoute.ORGANIZATION_ADMINS_BY_ID)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
   async removeAdmin(
     @Param('id', ParseIntPipe) id: number,

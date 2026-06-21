@@ -5,21 +5,18 @@ import type { AuthLoginDto, AuthRegisterDto, UserDto } from '@shared/dtos';
 import { ApiRoute, type HttpResponse } from '@shared/types';
 
 import type { ApiService } from '#layers/api';
-import { ConfigKey, type ConfigService } from '#layers/config';
 
 export interface AuthService {
   user: Ref<UserDto | null>;
   isAuthenticated: ComputedRef<boolean>;
   register(dto: AuthRegisterDto): Promise<HttpResponse<UserDto>>;
   login(dto: AuthLoginDto): Promise<HttpResponse<UserDto>>;
-  loginWithGoogle(): void;
   fetchMe(): Promise<UserDto | null>;
   logout(): Promise<void>;
 }
 
 export function useAuthService(): AuthService {
   const apiService: ApiService = useApiService();
-  const configService: ConfigService = useConfigService();
 
   const user: Ref<UserDto | null> = useState<UserDto | null>(
     'auth:user',
@@ -53,12 +50,6 @@ export function useAuthService(): AuthService {
     }
 
     return response;
-  }
-
-  function loginWithGoogle(): void {
-    const apiUrl: string = configService.getOrThrow(ConfigKey.API_URL);
-
-    window.location.href = `${apiUrl}/${ApiRoute.AUTH_GOOGLE}`;
   }
 
   async function fetchMe(): Promise<UserDto | null> {
@@ -96,7 +87,6 @@ export function useAuthService(): AuthService {
     isAuthenticated,
     register,
     login,
-    loginWithGoogle,
     fetchMe,
     logout,
   };

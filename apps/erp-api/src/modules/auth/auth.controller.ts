@@ -9,7 +9,6 @@ import { ApiRoute } from '@shared/types';
 import {
   Body,
   Controller,
-  Get,
   Post,
   Req,
   Res,
@@ -18,7 +17,6 @@ import {
 } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
-import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller()
@@ -60,20 +58,5 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response
   ): Promise<null> {
     return await this.authService.logout(user, response);
-  }
-
-  @Get(ApiRoute.AUTH_GOOGLE)
-  @UseGuards(GoogleAuthGuard)
-  google(): void {
-    // Guard redirects to the Google OAuth consent page
-  }
-
-  @Get(ApiRoute.AUTH_GOOGLE_CALLBACK)
-  @UseGuards(GoogleAuthGuard)
-  async googleCallback(
-    @CurrentUser() user: UserEntity,
-    @Res() response: Response
-  ): Promise<void> {
-    return await this.authService.googleCallback(user, response);
   }
 }

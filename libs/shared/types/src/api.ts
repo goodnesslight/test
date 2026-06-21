@@ -3,8 +3,6 @@ export enum ApiRoute {
   AUTH_LOGIN = 'auth/login',
   AUTH_REFRESH = 'auth/refresh',
   AUTH_LOGOUT = 'auth/logout',
-  AUTH_GOOGLE = 'auth/google',
-  AUTH_GOOGLE_CALLBACK = 'auth/google/callback',
 
   EVENTS_FEED = 'events/feed',
   EVENTS_MY = 'events/my',
@@ -20,11 +18,17 @@ export enum ApiRoute {
   INVITE_DECLINE = 'invites/:id/decline',
 
   ORGANIZATIONS = 'organizations',
+  ORGANIZATIONS_CURRENT = 'organizations/current',
+  ORGANIZATIONS_PUBLIC = 'organizations/public',
+  ORGANIZATIONS_INVITES_BY_TOKEN = 'organizations/invites/:token',
+  ORGANIZATIONS_INVITES_ACCEPT = 'organizations/invites/:token/accept',
   ORGANIZATIONS_MY = 'organizations/my',
   ORGANIZATIONS_BY_ID = 'organizations/:id',
   ORGANIZATION_ADMINS = 'organizations/:id/admins',
   ORGANIZATION_ADMINS_BY_ID = 'organizations/:id/admins/:memberId',
   ORGANIZATION_GAMES = 'organizations/:id/games',
+  ORGANIZATION_INVITES = 'organizations/:id/invites',
+  ORGANIZATION_INVITES_BY_ID = 'organizations/:id/invites/:inviteId',
 
   TEAMS_BY_ID = 'teams/:id',
   TEAM_EVENTS = 'teams/:id/events',

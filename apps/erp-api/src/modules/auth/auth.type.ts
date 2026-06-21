@@ -11,10 +11,3 @@ export interface AuthTokens {
 export interface RefreshTokenRecord {
   hash: string;
 }
-
-export interface GoogleProfile {
-  googleId: string;
-  email: string | null;
-  displayName: string | null;
-  avatarUrl: string | null;
-}

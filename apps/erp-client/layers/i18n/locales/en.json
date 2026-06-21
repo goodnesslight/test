@@ -19,7 +19,8 @@
     "haveAccount": "Already have an account?",
     "toRegister": "Sign up",
     "toLogin": "Sign in",
-    "or": "or"
+    "or": "or",
+    "inviteOnly": "Access is invite-only."
   },
   "dashboard": {
     "organizations": "Organizations",
@@ -82,6 +83,17 @@
     "deleteHeader": "Delete game direction",
     "deleteConfirm": "Delete the {game} direction with all of its teams? This cannot be undone."
   },
+  "invite": {
+    "title": "Invitation",
+    "lead": "You have been invited to join {organization}.",
+    "invalid": "This invitation is invalid or has expired.",
+    "fullName": "Full name",
+    "setPassword": "Set a password",
+    "register": "Create account & join",
+    "join": "Join",
+    "wrongAccount": "This invitation is for {email}. Log out to accept it as that person.",
+    "logout": "Log out"
+  },
   "invites": {
     "title": "Invites",
     "invite": "Invite player",
@@ -113,11 +125,14 @@
   },
   "organizations": {
     "title": "My organizations",
+    "switcherHint": "Pick an organization to open its workspace.",
     "create": "Create organization",
     "edit": "Edit organization",
-    "empty": "You have no organizations yet — create your first one!",
+    "empty": "You don't have access to any organization yet.",
+    "notFound": "Organization not found or you don't have access.",
     "name": "Name",
     "tag": "Tag",
+    "slug": "Subdomain",
     "logoUrl": "Logo URL",
     "teamsCount": "Teams",
     "created": "Created",
@@ -126,13 +141,29 @@
     "management": "Management",
     "roles": {
       "owner": "Owner",
-      "admin": "Administrator"
+      "admin": "Administrator",
+      "member": "Member"
     },
     "admins": {
       "add": "Add administrator",
       "remove": "Remove",
       "removeHeader": "Remove administrator",
       "removeConfirm": "Remove {username} from administrators?"
+    },
+    "invites": {
+      "title": "Pending invites",
+      "add": "Invite member",
+      "role": "Role",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "country": "Country",
+      "birthDate": "Date of birth",
+      "send": "Send invite",
+      "sent": "Invitation sent",
+      "empty": "No pending invites",
+      "revoke": "Revoke",
+      "revokeHeader": "Revoke invite",
+      "revokeConfirm": "Revoke the invite for {email}?"
     }
   },
   "players": {

@@ -41,10 +41,6 @@ async function submit(): Promise<void> {
     errorMessage.value = response.error;
   }
 }
-
-function loginWithGoogle(): void {
-  authService.loginWithGoogle();
-}
 </script>
 
 <template>
@@ -93,25 +89,7 @@ function loginWithGoogle(): void {
           fluid
         />
 
-        <Divider align="center">
-          <span class="auth-form__divider">{{ t('auth.or') }}</span>
-        </Divider>
-
-        <Button
-          type="button"
-          severity="secondary"
-          outlined
-          fluid
-          @click="loginWithGoogle"
-        >
-          <i class="pi pi-google" />
-          <span>{{ t('auth.google') }}</span>
-        </Button>
-
-        <div class="auth-form__footer">
-          <span>{{ t('auth.noAccount') }}</span>
-          <NuxtLink :to="AppRoute.REGISTER">{{ t('auth.toRegister') }}</NuxtLink>
-        </div>
+        <p class="auth-form__note">{{ t('auth.inviteOnly') }}</p>
       </form>
     </template>
   </Card>
@@ -149,22 +127,10 @@ function loginWithGoogle(): void {
     }
   }
 
-  &__divider {
-    font-size: 0.8rem;
+  &__note {
+    text-align: center;
+    font-size: 0.85rem;
     color: $text-muted;
-  }
-
-  &__footer {
-    display: flex;
-    justify-content: center;
-    gap: 0.4rem;
-    font-size: 0.9rem;
-    color: $text-dim;
-
-    a {
-      color: $accent;
-      text-decoration: none;
-    }
   }
 }
 </style>

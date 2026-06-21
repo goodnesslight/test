@@ -74,7 +74,7 @@ const config: NuxtConfig = defineNuxtConfig({
     },
   },
   devServer: {
-    host: 'localhost',
+    host: '0.0.0.0',
     port: 4200,
   },
   typescript: {
@@ -91,6 +91,18 @@ const config: NuxtConfig = defineNuxtConfig({
   runtimeConfig: {
     public: {
       API_URL: process.env.API_URL,
+      BASE_DOMAIN: process.env.BASE_DOMAIN,
+    },
+  },
+  nitro: {
+    // Proxy the API through the dev server so the browser talks to it on the
+    // same origin as the page (e.g. navi.localhost:4200/api). This keeps the
+    // auth cookie same-origin — cross-site cookies are not sent on fetch.
+    devProxy: {
+      '/api': {
+        target: 'http://localhost:3000/api',
+        changeOrigin: true,
+      },
     },
   },
   vite: {
