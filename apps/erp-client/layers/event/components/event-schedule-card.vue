@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { navigateTo } from 'nuxt/app';
 import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue';
 
 import type {
@@ -7,6 +8,7 @@ import type {
   EventDto,
   EventSetAttendanceDto,
   TeamDto,
+  TournamentDto,
 } from '@erp/dtos';
 import { type HttpResponse } from '@shared/types';
 import { EventAttendanceStatus, EventScope, EventType } from '@erp/types';
@@ -17,6 +19,8 @@ import { EVENT_ATTENDANCE_OPTIONS, EVENT_TYPE_SEVERITIES } from '../constants';
 import type { AuthService } from '#layers/auth';
 import type { DateService } from '#layers/date';
 import type { NotificationService } from '#layers/notification';
+import type { OrganizationService } from '#layers/organization';
+import { AppRoute } from '#layers/router';
 
 interface EventScheduleCardProps {
   team: TeamDto;
@@ -37,6 +41,7 @@ const authService: AuthService = useAuthService();
 const dateService: DateService = useDateService();
 const eventService: EventService = useEventService();
 const notificationService: NotificationService = useNotificationService();
+const organizationService: OrganizationService = useOrganizationService();
 
 const VIEW_OPTIONS: EventScheduleViewOption[] = [
   { view: 'list', icon: 'pi pi-list' },
@@ -53,7 +58,15 @@ const selectedEvent: Ref<EventDto | null> = ref(null);
 const deletedEvent: Ref<EventDto | null> = ref(null);
 const createStartsAt: Ref<Date | null> = ref(null);
 const isPastVisible: Ref<boolean> = ref(false);
+const isTournamentDialogVisible: Ref<boolean> = ref(false);
 const view: Ref<EventScheduleView> = ref('list');
+
+const organizationId: ComputedRef<number | null> = computed(
+  (): number | null =>
+    organizationService.current.value?.id ??
+    props.team.game?.organizationId ??
+    null
+);
 
 const currentUserId: ComputedRef<number | null> = computed(
   (): number | null => authService.user.value?.id ?? null
@@ -147,6 +160,15 @@ function onDetailsUpdated(updated: EventDto): void {
 
 async function onSaved(): Promise<void> {
   await loadEvents();
+}
+
+function onCreateTournament(): void {
+  isDialogVisible.value = false;
+  isTournamentDialogVisible.value = true;
+}
+
+async function onTournamentCreated(created: TournamentDto): Promise<void> {
+  await navigateTo(buildAppRoute(AppRoute.TOURNAMENTS_BY_ID, { id: created.id }));
 }
 
 async function onDeleteConfirmed(scope: EventScope): Promise<void> {
@@ -401,6 +423,14 @@ onMounted(loadEvents);
     :event="editedEvent"
     :initial-starts-at="createStartsAt"
     @saved="onSaved"
+    @create-tournament="onCreateTournament"
+  />
+
+  <TournamentCreateDialog
+    v-if="organizationId"
+    v-model:visible="isTournamentDialogVisible"
+    :organization-id="organizationId"
+    @saved="onTournamentCreated"
   />
 
   <EventDetailsDialog

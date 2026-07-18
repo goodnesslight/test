@@ -66,10 +66,9 @@
     },
     "types": {
       "practice": "Тренировка",
-      "scrim": "Скрим",
-      "match": "Матч",
-      "tournament": "Турнир"
+      "match": "Матч"
     },
+    "tournamentOption": "Турнир",
     "attendance": {
       "going": "Иду",
       "maybe": "Возможно",
@@ -228,6 +227,50 @@
     "typeDescriptions": {
       "main": "Главный соревновательный состав организации",
       "academy": "Состав для развития молодых игроков"
+    }
+  },
+  "tournaments": {
+    "title": "Турниры",
+    "subtitle": "Создавайте и вручную ведите турнирные сетки и группы.",
+    "create": "Создать турнир",
+    "created": "Турнир создан",
+    "empty": "Турниров пока нет — создайте первый!",
+    "notFound": "Турнир не найден.",
+    "name": "Название",
+    "format": "Формат",
+    "startsAt": "Начало",
+    "endsAt": "Окончание",
+    "description": "Описание",
+    "groupCount": "Групп",
+    "advanceCount": "Проходят из группы",
+    "participants": "Участники",
+    "addParticipant": "Добавить участника",
+    "participantName": "Название команды",
+    "ownTeam": "Своя команда (опц.)",
+    "team": "Команда",
+    "played": "И",
+    "wins": "В",
+    "diff": "Разн.",
+    "group": "Группа {name}",
+    "round": "Раунд {round}",
+    "final": "Финал",
+    "tbd": "TBD",
+    "winner": "Победитель",
+    "matchResult": "Результат матча",
+    "matchTime": "Время матча",
+    "seedPlayoff": "Сформировать плей-офф",
+    "playoffSeeded": "Плей-офф сформирован по итогам групп",
+    "deleteHeader": "Удалить турнир",
+    "deleteConfirm": "Удалить турнир «{name}»? Действие необратимо.",
+    "formats": {
+      "single_elimination": "Single elimination",
+      "round_robin": "Круговой",
+      "groups_playoff": "Группы + плей-офф"
+    },
+    "statuses": {
+      "draft": "Черновик",
+      "ongoing": "Идёт",
+      "completed": "Завершён"
     }
   }
 }

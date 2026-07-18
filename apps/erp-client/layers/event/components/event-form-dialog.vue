@@ -26,11 +26,12 @@ interface EventFormDialogProps {
 interface EventFormDialogEmits {
   (event: 'update:visible', value: boolean): void;
   (event: 'saved', saved: EventDto): void;
+  (event: 'createTournament'): void;
 }
 
 interface EventTypeOption {
   label: string;
-  value: EventType;
+  value: string;
 }
 
 interface EventScopeOption {
@@ -50,6 +51,7 @@ const { t } = useI18n();
 const eventService: EventService = useEventService();
 const notificationService: NotificationService = useNotificationService();
 
+const TOURNAMENT_LAUNCH: string = 'tournament';
 const WEEKDAY_VALUES: number[] = [1, 2, 3, 4, 5, 6, 0];
 const WEEKDAY_KEYS: string[] = [
   'mon',
@@ -74,13 +76,23 @@ const scope: Ref<EventScope> = ref(EventScope.SINGLE);
 const isLoading: Ref<boolean> = ref(false);
 
 const typeOptions: ComputedRef<EventTypeOption[]> = computed(
-  (): EventTypeOption[] =>
-    Object.values(EventType).map(
+  (): EventTypeOption[] => {
+    const options: EventTypeOption[] = Object.values(EventType).map(
       (value: EventType): EventTypeOption => ({
         label: t(`events.types.${value}`),
         value,
       })
-    )
+    );
+
+    if (!isEdit.value) {
+      options.push({
+        label: t('events.tournamentOption'),
+        value: TOURNAMENT_LAUNCH,
+      });
+    }
+
+    return options;
+  }
 );
 const weekdayOptions: ComputedRef<EventWeekdayOption[]> = computed(
   (): EventWeekdayOption[] =>
@@ -135,6 +147,17 @@ watch(
     }
   }
 );
+
+function onTypeChange(value: string): void {
+  if (value === TOURNAMENT_LAUNCH) {
+    emit('createTournament');
+    emit('update:visible', false);
+
+    return;
+  }
+
+  type.value = value as EventType;
+}
 
 async function submit(): Promise<void> {
   if (!startsAt.value) {
@@ -193,11 +216,12 @@ async function submit(): Promise<void> {
         <label for="event-type">{{ t('events.type') }}</label>
         <Select
           id="event-type"
-          v-model="type"
+          :model-value="type"
           :options="typeOptions"
           option-label="label"
           option-value="value"
           fluid
+          @update:model-value="onTypeChange"
         />
       </div>
 

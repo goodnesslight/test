@@ -14,5 +14,7 @@ export enum AppRoute {
 
   TEAMS_BY_ID = '/teams/:id',
 
+  TOURNAMENTS_BY_ID = '/tournaments/:id',
+
   USERS_BY_ID = '/users/:id',
 }

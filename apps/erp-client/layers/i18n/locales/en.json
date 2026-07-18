@@ -66,10 +66,9 @@
     },
     "types": {
       "practice": "Practice",
-      "scrim": "Scrim",
-      "match": "Match",
-      "tournament": "Tournament"
+      "match": "Match"
     },
+    "tournamentOption": "Tournament",
     "attendance": {
       "going": "Going",
       "maybe": "Maybe",
@@ -228,6 +227,50 @@
     "typeDescriptions": {
       "main": "The organization's primary competitive roster",
       "academy": "A development roster for upcoming players"
+    }
+  },
+  "tournaments": {
+    "title": "Tournaments",
+    "subtitle": "Create and hand-manage tournament brackets and groups.",
+    "create": "Create tournament",
+    "created": "Tournament created",
+    "empty": "No tournaments yet — create the first one!",
+    "notFound": "Tournament not found.",
+    "name": "Name",
+    "format": "Format",
+    "startsAt": "Starts at",
+    "endsAt": "Ends at",
+    "description": "Description",
+    "groupCount": "Groups",
+    "advanceCount": "Advance per group",
+    "participants": "Participants",
+    "addParticipant": "Add participant",
+    "participantName": "Team name",
+    "ownTeam": "Own team (optional)",
+    "team": "Team",
+    "played": "P",
+    "wins": "W",
+    "diff": "Diff",
+    "group": "Group {name}",
+    "round": "Round {round}",
+    "final": "Final",
+    "tbd": "TBD",
+    "winner": "Winner",
+    "matchResult": "Match result",
+    "matchTime": "Match time",
+    "seedPlayoff": "Seed playoff",
+    "playoffSeeded": "Playoff seeded from group standings",
+    "deleteHeader": "Delete tournament",
+    "deleteConfirm": "Delete tournament \"{name}\"? This cannot be undone.",
+    "formats": {
+      "single_elimination": "Single elimination",
+      "round_robin": "Round robin",
+      "groups_playoff": "Groups + playoff"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "ongoing": "Ongoing",
+      "completed": "Completed"
     }
   }
 }

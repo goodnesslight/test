@@ -10,7 +10,5 @@ export const EVENT_ATTENDANCE_OPTIONS: EventAttendanceOption[] = [
 
 export const EVENT_TYPE_SEVERITIES: Record<EventType, string> = {
   [EventType.PRACTICE]: 'info',
-  [EventType.SCRIM]: 'warn',
   [EventType.MATCH]: 'danger',
-  [EventType.TOURNAMENT]: 'success',
 };

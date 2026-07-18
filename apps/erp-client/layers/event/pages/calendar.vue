@@ -1,14 +1,33 @@
 <script setup lang="ts">
-import { computed, type ComputedRef, type Ref, ref, watch } from 'vue';
+import { navigateTo } from 'nuxt/app';
+import {
+  computed,
+  type ComputedRef,
+  onMounted,
+  type Ref,
+  ref,
+  watch,
+} from 'vue';
 
-import type { EventDto, EventGetListDto } from '@erp/dtos';
+import type {
+  EventDto,
+  EventGetListDto,
+  OrganizationDto,
+  OrganizationMemberDto,
+  TournamentDto,
+  TournamentMatchDto,
+} from '@erp/dtos';
 import { type HttpResponse } from '@shared/types';
-import { EventType } from '@erp/types';
+import { EventType, OrganizationRole } from '@erp/types';
 
 import type EventCalendar from '../components/event-calendar.vue';
 import type { EventService } from '../composables/use-event-service';
 
+import type { AuthService } from '#layers/auth';
 import type { NotificationService } from '#layers/notification';
+import type { OrganizationService } from '#layers/organization';
+import { AppRoute } from '#layers/router';
+import type { TournamentService } from '#layers/tournament';
 
 definePageMeta({
   middleware: 'auth',
@@ -25,11 +44,38 @@ interface EventTypeOption {
 }
 
 const { t } = useI18n();
+const authService: AuthService = useAuthService();
 const eventService: EventService = useEventService();
 const notificationService: NotificationService = useNotificationService();
+const organizationService: OrganizationService = useOrganizationService();
+const tournamentService: TournamentService = useTournamentService();
 
 const calendarRef: Ref<InstanceType<typeof EventCalendar> | null> = ref(null);
 const events: Ref<EventDto[]> = ref([]);
+const matches: Ref<TournamentMatchDto[]> = ref([]);
+const tournaments: Ref<TournamentDto[]> = ref([]);
+const isCreateDialogVisible: Ref<boolean> = ref(false);
+
+const organization: ComputedRef<OrganizationDto | null> = computed(
+  (): OrganizationDto | null => organizationService.current.value
+);
+const isManager: ComputedRef<boolean> = computed((): boolean => {
+  const org: OrganizationDto | null = organization.value;
+  const userId: number | undefined = authService.user.value?.id;
+
+  if (!org || userId === undefined) {
+    return false;
+  }
+
+  if (org.ownerId === userId) {
+    return true;
+  }
+
+  return org.members.some(
+    (member: OrganizationMemberDto): boolean =>
+      member.role === OrganizationRole.ADMIN && member.user?.id === userId
+  );
+});
 const selectedEvent: Ref<EventDto | null> = ref(null);
 const isDetailsVisible: Ref<boolean> = ref(false);
 const selectedDate: Ref<Date> = ref(new Date());
@@ -89,9 +135,54 @@ async function loadEvents(dto: EventGetListDto): Promise<void> {
   }
 }
 
-async function onRangeChange(dto: EventGetListDto): Promise<void> {
-  await loadEvents(dto);
+async function loadMatches(dto: EventGetListDto): Promise<void> {
+  const response: HttpResponse<TournamentMatchDto[]> =
+    await tournamentService.getMatchesForMember(dto);
+
+  if (response.isSuccess) {
+    matches.value = response.data;
+  }
 }
+
+async function onRangeChange(dto: EventGetListDto): Promise<void> {
+  await Promise.all([loadEvents(dto), loadMatches(dto)]);
+}
+
+async function loadTournaments(): Promise<void> {
+  const org: OrganizationDto | null =
+    organization.value ?? (await organizationService.fetchCurrent());
+
+  if (!org) {
+    return;
+  }
+
+  const response: HttpResponse<TournamentDto[]> =
+    await tournamentService.getForOrganization(org.id);
+
+  if (response.isSuccess) {
+    tournaments.value = response.data;
+  }
+}
+
+async function onMatchClick(match: TournamentMatchDto): Promise<void> {
+  await navigateTo(
+    buildAppRoute(AppRoute.TOURNAMENTS_BY_ID, { id: match.tournamentId })
+  );
+}
+
+async function onTournamentClick(tournament: TournamentDto): Promise<void> {
+  await navigateTo(
+    buildAppRoute(AppRoute.TOURNAMENTS_BY_ID, { id: tournament.id })
+  );
+}
+
+async function onTournamentCreated(created: TournamentDto): Promise<void> {
+  await navigateTo(buildAppRoute(AppRoute.TOURNAMENTS_BY_ID, { id: created.id }));
+}
+
+onMounted(async (): Promise<void> => {
+  await loadTournaments();
+});
 
 function onEventClick(event: EventDto): void {
   selectedEvent.value = event;
@@ -122,7 +213,16 @@ function syncTeamSelection(loaded: EventDto[]): void {
 
 <template>
   <div class="calendar-page">
-    <h1>{{ t('events.calendarTitle') }}</h1>
+    <div class="calendar-page__header">
+      <h1>{{ t('events.calendarTitle') }}</h1>
+      <Button
+        v-if="isManager && organization"
+        :label="t('tournaments.create')"
+        icon="pi pi-sitemap"
+        size="small"
+        @click="isCreateDialogVisible = true"
+      />
+    </div>
 
     <div class="calendar-page__body">
       <aside class="calendar-page__sidebar">
@@ -191,7 +291,11 @@ function syncTeamSelection(loaded: EventDto[]): void {
             <EventCalendar
               ref="calendarRef"
               :events="visibleEvents"
+              :matches="matches"
+              :tournaments="tournaments"
               @event-click="onEventClick"
+              @match-click="onMatchClick"
+              @tournament-click="onTournamentClick"
               @range-change="onRangeChange"
             />
             <template #fallback>
@@ -209,6 +313,13 @@ function syncTeamSelection(loaded: EventDto[]): void {
       show-team-link
       @updated="onDetailsUpdated"
     />
+
+    <TournamentCreateDialog
+      v-if="organization"
+      v-model:visible="isCreateDialogVisible"
+      :organization-id="organization.id"
+      @saved="onTournamentCreated"
+    />
   </div>
 </template>
 
@@ -220,6 +331,13 @@ function syncTeamSelection(loaded: EventDto[]): void {
 
   h1 {
     font-size: 1.5rem;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
   }
 
   &__body {
@@ -307,16 +425,8 @@ function syncTeamSelection(loaded: EventDto[]): void {
       background: $accent;
     }
 
-    &--scrim::before {
-      background: $color-warn;
-    }
-
     &--match::before {
       background: $color-loss;
-    }
-
-    &--tournament::before {
-      background: $color-win;
     }
   }
 }

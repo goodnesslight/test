@@ -16,15 +16,24 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import FullCalendar from '@fullcalendar/vue3';
 import { computed, type ComputedRef, type Ref, ref } from 'vue';
 
-import type { EventDto, EventGetListDto } from '@erp/dtos';
+import type {
+  EventDto,
+  EventGetListDto,
+  TournamentDto,
+  TournamentMatchDto,
+} from '@erp/dtos';
 
 interface EventCalendarProps {
   events: EventDto[];
+  matches?: TournamentMatchDto[];
+  tournaments?: TournamentDto[];
   initialView?: EventCalendarView;
 }
 
 interface EventCalendarEmits {
   (event: 'eventClick', value: EventDto): void;
+  (event: 'matchClick', value: TournamentMatchDto): void;
+  (event: 'tournamentClick', value: TournamentDto): void;
   (event: 'slotClick', value: Date): void;
   (event: 'rangeChange', value: EventGetListDto): void;
 }
@@ -69,7 +78,11 @@ const calendarOptions: ComputedRef<CalendarOptions> = computed(
     scrollTime: '08:00:00',
     dayMaxEvents: true,
     headerToolbar: HEADER_TOOLBAR,
-    events: props.events.map(toCalendarEvent),
+    events: [
+      ...props.events.map(toCalendarEvent),
+      ...(props.matches ?? []).map(toMatchEvent),
+      ...(props.tournaments ?? []).map(toTournamentEvent),
+    ],
     datesSet: onDatesSet,
     dateClick: onDateClick,
     eventClick: onEventClick,
@@ -102,6 +115,36 @@ function onDateClick(arg: DateClickArg): void {
 }
 
 function onEventClick(arg: EventClickArg): void {
+  if (arg.event.id.startsWith('tournament-')) {
+    const tournamentId: number = Number(
+      arg.event.id.slice('tournament-'.length)
+    );
+    const tournament: TournamentDto | undefined = (
+      props.tournaments ?? []
+    ).find(
+      (candidate: TournamentDto): boolean => candidate.id === tournamentId
+    );
+
+    if (tournament) {
+      emit('tournamentClick', tournament);
+    }
+
+    return;
+  }
+
+  if (arg.event.id.startsWith('match-')) {
+    const matchId: number = Number(arg.event.id.slice('match-'.length));
+    const match: TournamentMatchDto | undefined = (props.matches ?? []).find(
+      (candidate: TournamentMatchDto): boolean => candidate.id === matchId
+    );
+
+    if (match) {
+      emit('matchClick', match);
+    }
+
+    return;
+  }
+
   const event: EventDto | undefined = props.events.find(
     (candidate: EventDto): boolean => String(candidate.id) === arg.event.id
   );
@@ -126,6 +169,28 @@ function toCalendarEvent(event: EventDto): EventInput {
       'event-calendar__event',
       `event-calendar__event--${event.type}`,
     ],
+  };
+}
+
+function toMatchEvent(match: TournamentMatchDto): EventInput {
+  const one: string = match.participantOne?.name ?? 'TBD';
+  const two: string = match.participantTwo?.name ?? 'TBD';
+
+  return {
+    id: `match-${match.id}`,
+    title: `🏆 ${one} vs ${two}`,
+    start: match.startsAt ?? undefined,
+    classNames: ['event-calendar__event', 'event-calendar__event--tournament'],
+  };
+}
+
+function toTournamentEvent(tournament: TournamentDto): EventInput {
+  return {
+    id: `tournament-${tournament.id}`,
+    title: `🏆 ${tournament.name}`,
+    start: tournament.startsAt,
+    end: tournament.endsAt ?? undefined,
+    classNames: ['event-calendar__event', 'event-calendar__event--tournament'],
   };
 }
 
@@ -233,10 +298,6 @@ defineExpose({ gotoDate });
 
   :deep(.event-calendar__event--practice) {
     background: $accent;
-  }
-
-  :deep(.event-calendar__event--scrim) {
-    background: $color-warn;
   }
 
   :deep(.event-calendar__event--match) {

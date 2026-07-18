@@ -4,5 +4,6 @@ export * from './game';
 export * from './invite';
 export * from './organization';
 export * from './team';
+export * from './tournament';
 export * from './upload';
 export * from './user';

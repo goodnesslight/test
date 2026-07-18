@@ -29,11 +29,17 @@ export enum ApiRoute {
   ORGANIZATION_GAMES = 'organizations/:id/games',
   ORGANIZATION_INVITES = 'organizations/:id/invites',
   ORGANIZATION_INVITES_BY_ID = 'organizations/:id/invites/:inviteId',
+  ORGANIZATION_TOURNAMENTS = 'organizations/:id/tournaments',
 
   TEAMS_BY_ID = 'teams/:id',
   TEAM_EVENTS = 'teams/:id/events',
   TEAM_INVITES = 'teams/:id/invites',
   TEAM_MEMBERS_BY_ID = 'teams/:id/members/:memberId',
+
+  TOURNAMENTS_MATCHES_MY = 'tournaments/matches/my',
+  TOURNAMENTS_BY_ID = 'tournaments/:id',
+  TOURNAMENT_PLAYOFF = 'tournaments/:id/playoff',
+  TOURNAMENT_MATCHES_BY_ID = 'tournaments/:id/matches/:matchId',
 
   UPLOADS_IMAGE = 'uploads/image',
 
