@@ -1,17 +1,21 @@
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
-import { OrganizationCreateDto, OrganizationDto } from '@backoffice/dtos';
+import {
+  OrganizationCreateDto,
+  OrganizationDto,
+  OrganizationSetActiveDto,
+} from '@backoffice/dtos';
 import { ApiRoute } from '@backoffice/types';
 import { ResponseInterceptor } from '@shared/nest';
 
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   ParseIntPipe,
   Post,
+  Put,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -48,10 +52,13 @@ export class OrganizationController {
     return await this.organizationService.getById(id);
   }
 
-  @Delete(ApiRoute.ORGANIZATIONS_BY_ID)
+  @Put(ApiRoute.ORGANIZATIONS_BY_ID)
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(new ResponseInterceptor())
-  async delete(@Param('id', ParseIntPipe) id: number): Promise<null> {
-    return await this.organizationService.delete(id);
+  @UseInterceptors(new ResponseInterceptor(OrganizationDto))
+  async setActive(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: OrganizationSetActiveDto
+  ): Promise<OrganizationEntity> {
+    return await this.organizationService.setActive(id, dto);
   }
 }

@@ -4,7 +4,10 @@ import { ConfigKey } from '@common/types/config.type';
 import { MailService } from '@modules/mail/mail.service';
 import { DataSource, EntityManager } from 'typeorm';
 
-import { OrganizationCreateDto } from '@backoffice/dtos';
+import {
+  OrganizationCreateDto,
+  OrganizationSetActiveDto,
+} from '@backoffice/dtos';
 import { InviteStatus, OrganizationRole } from '@backoffice/types';
 
 import {
@@ -94,11 +97,14 @@ export class OrganizationService {
     return organization;
   }
 
-  async delete(id: number): Promise<null> {
+  async setActive(
+    id: number,
+    dto: OrganizationSetActiveDto
+  ): Promise<OrganizationEntity> {
     await this.getById(id);
-    await this.organizationRepository.delete(id);
+    await this.organizationRepository.update(id, { isActive: dto.isActive });
 
-    return null;
+    return await this.getById(id);
   }
 
   private buildInviteUrl(slug: string, token: string): string {

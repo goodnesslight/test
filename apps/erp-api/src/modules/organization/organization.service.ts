@@ -191,7 +191,7 @@ export class OrganizationService {
     const organization: OrganizationEntity | null =
       await this.organizationRepository.findBySlugWithGames(slug);
 
-    if (!organization) {
+    if (!organization || !organization.isActive) {
       throw new NotFoundException('Organization not found');
     }
 
@@ -206,7 +206,7 @@ export class OrganizationService {
     const organization: OrganizationEntity | null =
       await this.organizationRepository.findBySlug(slug);
 
-    if (!organization) {
+    if (!organization || !organization.isActive) {
       throw new NotFoundException('Organization not found');
     }
 

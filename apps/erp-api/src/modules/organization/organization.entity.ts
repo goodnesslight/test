@@ -16,6 +16,9 @@ export class OrganizationEntity extends BasicEntity {
   @Column({ type: 'varchar', length: 48, unique: true })
   slug: string;
 
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
+
   @Column({ type: 'int', nullable: true })
   ownerId: number | null;
 

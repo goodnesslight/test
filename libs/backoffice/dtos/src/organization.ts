@@ -1,5 +1,6 @@
 import { Exclude, Expose } from 'class-transformer';
 import {
+  IsBoolean,
   IsEmail,
   IsOptional,
   IsString,
@@ -21,6 +22,9 @@ export class OrganizationDto {
 
   @Expose()
   slug: string;
+
+  @Expose()
+  isActive: boolean;
 
   @Expose()
   createdAt: Date;
@@ -59,4 +63,9 @@ export class OrganizationCreateDto {
   @IsOptional()
   @IsUrl()
   logoUrl?: string;
+}
+
+export class OrganizationSetActiveDto {
+  @IsBoolean()
+  isActive: boolean;
 }

@@ -2,7 +2,10 @@
 import { useConfirm } from 'primevue/useconfirm';
 import { onMounted, type Ref, ref } from 'vue';
 
-import type { OrganizationDto } from '@backoffice/dtos';
+import type {
+  OrganizationDto,
+  OrganizationSetActiveDto,
+} from '@backoffice/dtos';
 import type { HttpResponse } from '@shared/types';
 
 import type { OrganizationService } from '../composables/use-organization-service';
@@ -41,26 +44,36 @@ function onCreated(created: OrganizationDto): void {
   notificationService.showSuccess('Организация создана', created.name);
 }
 
-function confirmDelete(organization: OrganizationDto): void {
+async function setActive(
+  organization: OrganizationDto,
+  isActive: boolean
+): Promise<void> {
+  const dto: OrganizationSetActiveDto = { isActive };
+  const response: HttpResponse<OrganizationDto> =
+    await organizationService.setActive(organization.id, dto);
+
+  if (response.isSuccess) {
+    organizations.value = organizations.value.map(
+      (item: OrganizationDto): OrganizationDto =>
+        item.id === organization.id ? response.data : item
+    );
+    notificationService.showSuccess(
+      isActive ? 'Организация включена' : 'Организация отключена'
+    );
+  } else {
+    notificationService.showError(response.error);
+  }
+}
+
+function confirmDisable(organization: OrganizationDto): void {
   confirm.require({
-    header: 'Удалить организацию',
-    message: `Удалить организацию «${organization.name}»? Действие необратимо.`,
+    header: 'Отключить организацию',
+    message: `Отключить организацию «${organization.name}»? Она станет недоступна на платформе, данные сохранятся.`,
     icon: 'pi pi-exclamation-triangle',
-    acceptProps: { label: 'Удалить', severity: 'danger' },
+    acceptProps: { label: 'Отключить', severity: 'danger' },
     rejectProps: { label: 'Отмена', severity: 'secondary', text: true },
     accept: async (): Promise<void> => {
-      const response: HttpResponse<null> = await organizationService.remove(
-        organization.id
-      );
-
-      if (response.isSuccess) {
-        organizations.value = organizations.value.filter(
-          (item: OrganizationDto): boolean => item.id !== organization.id
-        );
-        notificationService.showSuccess('Организация удалена');
-      } else {
-        notificationService.showError(response.error);
-      }
+      await setActive(organization, false);
     },
   });
 }
@@ -76,7 +89,7 @@ onMounted(async (): Promise<void> => {
       <div>
         <h1>Организации</h1>
         <p class="orgs-page__subtitle">
-          Создавайте и удаляйте организации платформы.
+          Создавайте, отключайте и включайте организации платформы.
         </p>
       </div>
       <Button
@@ -96,7 +109,10 @@ onMounted(async (): Promise<void> => {
     <div v-else class="orgs-grid">
       <Card v-for="organization in organizations" :key="organization.id">
         <template #content>
-          <div class="org-card">
+          <div
+            class="org-card"
+            :class="{ 'org-card--disabled': !organization.isActive }"
+          >
             <Avatar
               :image="organization.logoUrl ?? undefined"
               :label="
@@ -111,16 +127,30 @@ onMounted(async (): Promise<void> => {
               <div class="org-card__name">
                 <span>{{ organization.name }}</span>
                 <Tag :value="organization.tag" severity="secondary" />
+                <Tag
+                  :value="organization.isActive ? 'Активна' : 'Отключена'"
+                  :severity="organization.isActive ? 'success' : 'danger'"
+                />
               </div>
               <span class="org-card__slug">{{ organization.slug }}</span>
             </div>
             <Button
-              icon="pi pi-trash"
-              aria-label="Удалить"
+              v-if="organization.isActive"
+              icon="pi pi-ban"
+              label="Отключить"
               severity="danger"
-              text
-              rounded
-              @click="confirmDelete(organization)"
+              size="small"
+              outlined
+              @click="confirmDisable(organization)"
+            />
+            <Button
+              v-else
+              icon="pi pi-check"
+              label="Включить"
+              severity="success"
+              size="small"
+              outlined
+              @click="setActive(organization, true)"
             />
           </div>
         </template>
@@ -183,6 +213,13 @@ onMounted(async (): Promise<void> => {
   display: flex;
   align-items: center;
   gap: 1rem;
+
+  &--disabled {
+    .org-card__info,
+    .p-avatar {
+      opacity: 0.55;
+    }
+  }
 
   &__info {
     flex: 1;
