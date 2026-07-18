@@ -43,8 +43,7 @@ export class InviteService {
     }
 
     const invitedUser: UserEntity | null =
-      (await this.userRepository.findByUsername(dto.identifier)) ??
-      (await this.userRepository.findByEmail(dto.identifier));
+      await this.userRepository.findByEmail(dto.email);
 
     if (!invitedUser) {
       throw new NotFoundException('Player not found');
@@ -72,6 +71,7 @@ export class InviteService {
       this.inviteRepository.create({
         teamId,
         invitedUserId: invitedUser.id,
+        nickname: dto.nickname,
         role: dto.role,
         status: InviteStatus.PENDING,
       })
@@ -91,6 +91,7 @@ export class InviteService {
           manager.create(TeamMemberEntity, {
             teamId: invite.teamId,
             userId: user.id,
+            nickname: invite.nickname,
             role: invite.role,
           })
         );

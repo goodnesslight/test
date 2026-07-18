@@ -93,7 +93,7 @@ function confirmRemove(member: TeamMemberDto): void {
     header: isSelf ? t('invites.leaveHeader') : t('invites.kickHeader'),
     message: isSelf
       ? t('invites.leaveConfirm')
-      : t('invites.kickConfirm', { username: member.user?.username ?? '' }),
+      : t('invites.kickConfirm', { username: member.nickname }),
     icon: 'pi pi-exclamation-triangle',
     acceptProps: {
       label: isSelf ? t('invites.leave') : t('invites.kick'),
@@ -169,7 +169,7 @@ onMounted(loadPendingInvites);
       </div>
 
       <DataTable v-else :value="team.members" data-key="id">
-        <Column :header="t('auth.username')">
+        <Column :header="t('teams.nickname')">
           <template #body="{ data }">
             <NuxtLink
               :to="
@@ -182,11 +182,11 @@ onMounted(loadPendingInvites);
                 :label="
                   data.user?.avatarUrl
                     ? undefined
-                    : data.user?.username[0]?.toUpperCase()
+                    : data.nickname[0]?.toUpperCase()
                 "
                 shape="circle"
               />
-              <span>{{ data.user?.username }}</span>
+              <span>{{ data.nickname }}</span>
             </NuxtLink>
           </template>
         </Column>
@@ -258,12 +258,12 @@ onMounted(loadPendingInvites);
               :label="
                 invite.invitedUser?.avatarUrl
                   ? undefined
-                  : invite.invitedUser?.username[0]?.toUpperCase()
+                  : invite.nickname[0]?.toUpperCase()
               "
               shape="circle"
             />
             <span class="roster__invite-name">
-              {{ invite.invitedUser?.username }}
+              {{ invite.nickname }}
             </span>
             <Tag
               :value="t(`teams.roles.${invite.role}`)"

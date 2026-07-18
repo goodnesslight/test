@@ -14,9 +14,6 @@ export class OrganizationInviteEntity extends BasicEntity {
   @Column({ type: 'varchar', length: 320 })
   email: string;
 
-  @Column({ type: 'varchar', length: 32 })
-  username: string;
-
   @Column({ type: 'varchar', length: 128, unique: true })
   token: string;
 
@@ -39,11 +36,11 @@ export class OrganizationInviteEntity extends BasicEntity {
   @Column({ type: 'timestamp' })
   expiresAt: Date;
 
-  @Column({ type: 'varchar', length: 64, nullable: true })
-  firstName: string | null;
+  @Column({ type: 'varchar', length: 64 })
+  firstName: string;
 
-  @Column({ type: 'varchar', length: 64, nullable: true })
-  lastName: string | null;
+  @Column({ type: 'varchar', length: 64 })
+  lastName: string;
 
   @Column({ type: 'varchar', length: 64, nullable: true })
   country: string | null;

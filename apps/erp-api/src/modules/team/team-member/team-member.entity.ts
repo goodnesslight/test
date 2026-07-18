@@ -15,6 +15,9 @@ export class TeamMemberEntity extends BasicEntity {
   @Column({ type: 'int' })
   userId: number;
 
+  @Column({ type: 'varchar', length: 32 })
+  nickname: string;
+
   @Column({
     type: 'enum',
     enum: TeamMemberRole,

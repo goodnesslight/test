@@ -11,7 +11,6 @@
     "loginTitle": "Sign in",
     "registerTitle": "Sign up",
     "email": "Email",
-    "username": "Username",
     "password": "Password",
     "login": "Sign in",
     "register": "Create account",
@@ -98,7 +97,6 @@
   "invites": {
     "title": "Invites",
     "invite": "Invite player",
-    "identifier": "Username or email",
     "send": "Send",
     "pending": "Pending",
     "accept": "Accept",
@@ -213,6 +211,7 @@
     "empty": "No teams in this direction yet — create the first one!",
     "members": "Roster",
     "noMembers": "No players yet — invites are coming in the next feature",
+    "nickname": "Nickname",
     "role": "Role",
     "created": "Created",
     "joined": "Joined",

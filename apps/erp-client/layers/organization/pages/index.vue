@@ -164,7 +164,7 @@ function confirmRemoveAdmin(member: OrganizationMemberDto): void {
   confirm.require({
     header: t('organizations.admins.removeHeader'),
     message: t('organizations.admins.removeConfirm', {
-      username: member.user?.username ?? '',
+      username: formatUserName(member.user),
     }),
     icon: 'pi pi-exclamation-triangle',
     acceptProps: {
@@ -437,7 +437,7 @@ onMounted(async (): Promise<void> => {
                 :label="
                   member.user?.avatarUrl
                     ? undefined
-                    : member.user?.username[0]?.toUpperCase()
+                    : member.user?.firstName[0]?.toUpperCase()
                 "
                 shape="circle"
               />
@@ -449,7 +449,7 @@ onMounted(async (): Promise<void> => {
                 "
                 class="org-member__name"
               >
-                {{ member.user?.username }}
+                {{ formatUserName(member.user) }}
               </NuxtLink>
               <Tag
                 :value="t(`organizations.roles.${member.role}`)"
@@ -494,7 +494,7 @@ onMounted(async (): Promise<void> => {
             <div v-for="invite in invites" :key="invite.id" class="org-invite">
               <i class="pi pi-envelope org-invite__icon" />
               <span class="org-invite__email">
-                {{ invite.username }}
+                {{ `${invite.firstName} ${invite.lastName}` }}
                 <small>{{ invite.email }}</small>
               </span>
               <Tag

@@ -11,7 +11,10 @@ export class UserDto {
   id: number;
 
   @Expose()
-  username: string;
+  firstName: string;
+
+  @Expose()
+  lastName: string;
 
   @Expose()
   locale: Locale;
@@ -21,12 +24,6 @@ export class UserDto {
 
   @Expose()
   email: string | null;
-
-  @Expose()
-  firstName: string | null;
-
-  @Expose()
-  lastName: string | null;
 
   @Expose()
   country: string | null;
@@ -87,7 +84,10 @@ export class UserProfileDto {
   id: number;
 
   @Expose()
-  username: string;
+  firstName: string;
+
+  @Expose()
+  lastName: string;
 
   @Expose()
   createdAt: Date;
@@ -101,24 +101,18 @@ export class UserProfileDto {
   attendance: UserProfileAttendanceDto;
 
   @Expose()
-  firstName: string | null;
-
-  @Expose()
-  lastName: string | null;
-
-  @Expose()
   avatarUrl: string | null;
 }
 
 export class UserUpdateProfileDto {
   @IsOptional()
   @IsString()
-  @Length(0, 64)
+  @Length(1, 64)
   firstName?: string;
 
   @IsOptional()
   @IsString()
-  @Length(0, 64)
+  @Length(1, 64)
   lastName?: string;
 
   @IsOptional()

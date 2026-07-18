@@ -49,18 +49,10 @@ export class AuthService {
       );
     }
 
-    const existingByUsername: UserEntity | null =
-      await this.userRepository.findByUsername(invite.username);
-
-    if (existingByUsername) {
-      throw new ConflictException('Username is already taken');
-    }
-
     const passwordHash: string = await argon2.hash(dto.password);
     const user: UserEntity = await this.userRepository.save(
       this.userRepository.create({
         email: invite.email,
-        username: invite.username,
         firstName: invite.firstName,
         lastName: invite.lastName,
         country: invite.country,
@@ -149,7 +141,7 @@ export class AuthService {
   }
 
   private async issueTokens(user: UserEntity): Promise<AuthTokens> {
-    const payload: JwtPayload = { sub: user.id, username: user.username };
+    const payload: JwtPayload = { sub: user.id };
     const accessToken: string = await this.jwtService.signAsync(payload, {
       secret: this.configService.getOrThrow(ConfigKey.AUTH_ACCESS_TOKEN_SECRET),
       expiresIn: Number(

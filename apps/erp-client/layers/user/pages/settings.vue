@@ -186,8 +186,8 @@ onMounted(loadCalendarFeedUrl);
               />
             </div>
             <div class="settings-form__field">
-              <label>{{ t('auth.username') }}</label>
-              <InputText :model-value="user.username" disabled fluid />
+              <label>{{ t('auth.email') }}</label>
+              <InputText :model-value="user.email ?? ''" disabled fluid />
             </div>
           </div>
 

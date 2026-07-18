@@ -100,7 +100,10 @@ export class OrganizationInviteDto {
   email: string;
 
   @Expose()
-  username: string;
+  firstName: string;
+
+  @Expose()
+  lastName: string;
 
   @Expose()
   role: OrganizationRole;
@@ -113,12 +116,6 @@ export class OrganizationInviteDto {
 
   @Expose()
   expiresAt: Date;
-
-  @Expose()
-  firstName: string | null;
-
-  @Expose()
-  lastName: string | null;
 
   @Expose()
   country: string | null;
@@ -180,9 +177,8 @@ export class OrganizationUpdateDto {
 }
 
 export class OrganizationAddAdminDto {
-  @IsString()
-  @Length(3, 320)
-  identifier: string;
+  @IsEmail()
+  email: string;
 }
 
 export class OrganizationInviteCreateDto {
@@ -190,25 +186,15 @@ export class OrganizationInviteCreateDto {
   email: string;
 
   @IsString()
-  @Length(3, 32)
-  @Matches(/^[a-zA-Z0-9_.-]+$/, {
-    message:
-      'username can only contain letters, numbers, dots, dashes and underscores',
-  })
-  username: string;
+  @Length(1, 64)
+  firstName: string;
+
+  @IsString()
+  @Length(1, 64)
+  lastName: string;
 
   @IsEnum(OrganizationRole)
   role: OrganizationRole;
-
-  @IsOptional()
-  @IsString()
-  @Length(1, 64)
-  firstName?: string;
-
-  @IsOptional()
-  @IsString()
-  @Length(1, 64)
-  lastName?: string;
 
   @IsOptional()
   @IsString()

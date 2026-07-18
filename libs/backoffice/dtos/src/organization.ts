@@ -49,24 +49,14 @@ export class OrganizationCreateDto {
   ownerEmail: string;
 
   @IsString()
-  @Length(3, 32)
-  @Matches(/^[a-zA-Z0-9_.-]+$/, {
-    message:
-      'username can only contain letters, numbers, dots, dashes and underscores',
-  })
-  ownerUsername: string;
+  @Length(1, 64)
+  ownerFirstName: string;
+
+  @IsString()
+  @Length(1, 64)
+  ownerLastName: string;
 
   @IsOptional()
   @IsUrl()
   logoUrl?: string;
-
-  @IsOptional()
-  @IsString()
-  @Length(1, 64)
-  ownerFirstName?: string;
-
-  @IsOptional()
-  @IsString()
-  @Length(1, 64)
-  ownerLastName?: string;
 }

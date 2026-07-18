@@ -36,7 +36,8 @@ const inviteService: InviteService = useInviteService();
 const notificationService: NotificationService = useNotificationService();
 const roleOptions: ComputedRef<TeamRoleOption[]> = useTeamRoleOptions();
 
-const identifier: Ref<string> = ref('');
+const email: Ref<string> = ref('');
+const nickname: Ref<string> = ref('');
 const role: Ref<TeamMemberRole> = ref(TeamMemberRole.PLAYER);
 const isLoading: Ref<boolean> = ref(false);
 
@@ -58,7 +59,8 @@ watch(
   (): boolean => props.visible,
   (visible: boolean): void => {
     if (visible) {
-      identifier.value = '';
+      email.value = '';
+      nickname.value = '';
       role.value = TeamMemberRole.PLAYER;
     }
   }
@@ -68,7 +70,8 @@ async function submit(): Promise<void> {
   isLoading.value = true;
 
   const dto: InviteCreateDto = {
-    identifier: identifier.value,
+    email: email.value,
+    nickname: nickname.value,
     role: role.value,
   };
 
@@ -97,8 +100,25 @@ async function submit(): Promise<void> {
   >
     <form class="invite-form" @submit.prevent="submit">
       <div class="invite-form__field">
-        <label for="invite-identifier">{{ t('invites.identifier') }}</label>
-        <InputText id="invite-identifier" v-model="identifier" required fluid />
+        <label for="invite-email">{{ t('auth.email') }}</label>
+        <InputText
+          id="invite-email"
+          v-model="email"
+          type="email"
+          required
+          fluid
+        />
+      </div>
+
+      <div class="invite-form__field">
+        <label for="invite-nickname">{{ t('teams.nickname') }}</label>
+        <InputText
+          id="invite-nickname"
+          v-model="nickname"
+          maxlength="32"
+          required
+          fluid
+        />
       </div>
 
       <div class="invite-form__field">

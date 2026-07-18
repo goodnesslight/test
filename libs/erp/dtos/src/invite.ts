@@ -1,5 +1,5 @@
 import { Exclude, Expose, Type } from 'class-transformer';
-import { IsEnum, IsString, Length } from 'class-validator';
+import { IsEmail, IsEnum, IsString, Length } from 'class-validator';
 
 import { InviteStatus, TeamMemberRole } from '@erp/types';
 
@@ -21,6 +21,9 @@ export class InviteDto {
   role: TeamMemberRole;
 
   @Expose()
+  nickname: string;
+
+  @Expose()
   createdAt: Date;
 
   @Expose()
@@ -33,9 +36,12 @@ export class InviteDto {
 }
 
 export class InviteCreateDto {
+  @IsEmail()
+  email: string;
+
   @IsString()
-  @Length(3, 320)
-  identifier: string;
+  @Length(2, 32)
+  nickname: string;
 
   @IsEnum(TeamMemberRole)
   role: TeamMemberRole;

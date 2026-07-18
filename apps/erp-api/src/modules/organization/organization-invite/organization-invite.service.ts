@@ -60,13 +60,6 @@ export class OrganizationInviteService {
       );
     }
 
-    const usernameTaken: UserEntity | null =
-      await this.userRepository.findByUsername(dto.username);
-
-    if (usernameTaken) {
-      throw new ConflictException('Username is already taken');
-    }
-
     const pendingInvite: OrganizationInviteEntity | null =
       await this.organizationInviteRepository.findPendingByOrganizationAndEmail(
         organizationId,
@@ -84,13 +77,12 @@ export class OrganizationInviteService {
         this.organizationInviteRepository.create({
           organizationId,
           email: dto.email,
-          username: dto.username,
           token: randomBytes(32).toString('hex'),
           role: dto.role,
           status: InviteStatus.PENDING,
           expiresAt: new Date(Date.now() + this.INVITE_TTL_MS),
-          firstName: dto.firstName ?? null,
-          lastName: dto.lastName ?? null,
+          firstName: dto.firstName,
+          lastName: dto.lastName,
           country: dto.country ?? null,
           birthDate: dto.birthDate ?? null,
           avatarUrl: dto.avatarUrl ?? null,

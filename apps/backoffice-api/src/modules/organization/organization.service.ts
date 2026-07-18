@@ -44,13 +44,12 @@ export class OrganizationService {
     const invite: OrganizationInviteEntity =
       this.organizationInviteRepository.create({
         email: dto.ownerEmail,
-        username: dto.ownerUsername,
         token: randomBytes(32).toString('hex'),
         status: InviteStatus.PENDING,
         role: OrganizationRole.OWNER,
         expiresAt: new Date(Date.now() + this.INVITE_TTL_MS),
-        firstName: dto.ownerFirstName ?? null,
-        lastName: dto.ownerLastName ?? null,
+        firstName: dto.ownerFirstName,
+        lastName: dto.ownerLastName,
       });
 
     const organization: OrganizationEntity = await this.dataSource.transaction(

@@ -35,7 +35,10 @@ const user: ComputedRef<UserDto | null> = computed(
   (): UserDto | null => authService.user.value
 );
 const greetingName: ComputedRef<string> = computed(
-  (): string => user.value?.firstName || user.value?.username || ''
+  (): string => user.value?.firstName ?? ''
+);
+const fullName: ComputedRef<string> = computed(
+  (): string => formatUserName(user.value)
 );
 const profileMenuItems: ComputedRef<MenuItem[]> = computed((): MenuItem[] => [
   {
@@ -151,11 +154,11 @@ onMounted((): void => {
             <Avatar
               :image="user.avatarUrl ?? undefined"
               :label="
-                user.avatarUrl ? undefined : user.username[0]?.toUpperCase()
+                user.avatarUrl ? undefined : user.firstName[0]?.toUpperCase()
               "
               shape="circle"
             />
-            <span class="topbar__username">{{ user.username }}</span>
+            <span class="topbar__username">{{ fullName }}</span>
             <i class="pi pi-angle-down topbar__chevron" />
           </button>
           <Menu ref="profileMenu" :model="profileMenuItems" popup />

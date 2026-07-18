@@ -35,6 +35,9 @@ export class TeamMemberDto {
   id: number;
 
   @Expose()
+  nickname: string;
+
+  @Expose()
   role: TeamMemberRole;
 
   @Expose()

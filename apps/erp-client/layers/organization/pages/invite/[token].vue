@@ -129,10 +129,6 @@ onMounted(async (): Promise<void> => {
         </p>
 
         <dl class="invite__details">
-          <div class="invite__row">
-            <dt>{{ t('auth.username') }}</dt>
-            <dd>{{ invite.username }}</dd>
-          </div>
           <div v-if="fullName" class="invite__row">
             <dt>{{ t('invite.fullName') }}</dt>
             <dd>{{ fullName }}</dd>

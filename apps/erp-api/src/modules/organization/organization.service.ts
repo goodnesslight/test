@@ -84,9 +84,9 @@ export class OrganizationService {
   ): Promise<OrganizationEntity> {
     const organization: OrganizationEntity = await this.getOwnedById(id, user);
 
-    const target: UserEntity | null =
-      (await this.userRepository.findByUsername(dto.identifier)) ??
-      (await this.userRepository.findByEmail(dto.identifier));
+    const target: UserEntity | null = await this.userRepository.findByEmail(
+      dto.email
+    );
 
     if (!target) {
       throw new NotFoundException('User not found');

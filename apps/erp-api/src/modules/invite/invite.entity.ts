@@ -13,6 +13,9 @@ export class InviteEntity extends BasicEntity {
   @Column({ type: 'int' })
   invitedUserId: number;
 
+  @Column({ type: 'varchar', length: 32 })
+  nickname: string;
+
   @Column({
     type: 'enum',
     enum: InviteStatus,

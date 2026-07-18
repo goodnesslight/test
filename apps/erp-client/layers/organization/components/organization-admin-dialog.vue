@@ -27,7 +27,7 @@ const { t } = useI18n();
 const notificationService: NotificationService = useNotificationService();
 const organizationService: OrganizationService = useOrganizationService();
 
-const identifier: Ref<string> = ref('');
+const email: Ref<string> = ref('');
 const isLoading: Ref<boolean> = ref(false);
 
 const isVisible: WritableComputedRef<boolean> = computed({
@@ -39,7 +39,7 @@ watch(
   (): boolean => props.visible,
   (visible: boolean): void => {
     if (visible) {
-      identifier.value = '';
+      email.value = '';
     }
   }
 );
@@ -47,7 +47,7 @@ watch(
 async function submit(): Promise<void> {
   isLoading.value = true;
 
-  const dto: OrganizationAddAdminDto = { identifier: identifier.value };
+  const dto: OrganizationAddAdminDto = { email: email.value };
 
   const response: HttpResponse<OrganizationDto> =
     await organizationService.addAdmin(props.organizationId, dto);
@@ -72,8 +72,14 @@ async function submit(): Promise<void> {
   >
     <form class="admin-form" @submit.prevent="submit">
       <div class="admin-form__field">
-        <label for="admin-identifier">{{ t('invites.identifier') }}</label>
-        <InputText id="admin-identifier" v-model="identifier" required fluid />
+        <label for="admin-email">{{ t('auth.email') }}</label>
+        <InputText
+          id="admin-email"
+          v-model="email"
+          type="email"
+          required
+          fluid
+        />
       </div>
 
       <div class="admin-form__actions">

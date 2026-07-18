@@ -15,12 +15,11 @@ import { UserRepository } from './user.repository';
 
 export interface UserProfileResult {
   id: number;
-  username: string;
+  firstName: string;
+  lastName: string;
   createdAt: Date;
   teams: UserProfileTeamResult[];
   attendance: UserProfileAttendanceResult;
-  firstName: string | null;
-  lastName: string | null;
   avatarUrl: string | null;
 }
 
@@ -52,13 +51,9 @@ export class UserService {
   ): Promise<UserEntity> {
     await this.userRepository.update(user.id, {
       firstName:
-        dto.firstName === undefined
-          ? user.firstName
-          : dto.firstName.trim() || null,
+        dto.firstName === undefined ? user.firstName : dto.firstName.trim(),
       lastName:
-        dto.lastName === undefined
-          ? user.lastName
-          : dto.lastName.trim() || null,
+        dto.lastName === undefined ? user.lastName : dto.lastName.trim(),
       locale: dto.locale ?? user.locale,
     });
 
@@ -87,7 +82,8 @@ export class UserService {
 
     return {
       id: user.id,
-      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
       createdAt: user.createdAt,
       teams: memberships.map(
         (member: TeamMemberEntity): UserProfileTeamResult => ({
@@ -97,8 +93,6 @@ export class UserService {
         })
       ),
       attendance: this.buildAttendanceStats(attendances),
-      firstName: user.firstName,
-      lastName: user.lastName,
       avatarUrl: user.avatarUrl,
     };
   }

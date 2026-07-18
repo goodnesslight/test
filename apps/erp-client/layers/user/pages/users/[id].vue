@@ -45,7 +45,7 @@ const fullName: ComputedRef<string> = computed((): string =>
     : ''
 );
 const initial: ComputedRef<string | undefined> = computed(
-  (): string | undefined => profile.value?.username[0]?.toUpperCase()
+  (): string | undefined => profile.value?.firstName[0]?.toUpperCase()
 );
 const attendanceStats: ComputedRef<UserProfileStat[]> = computed(
   (): UserProfileStat[] => {
@@ -116,10 +116,7 @@ onMounted(loadProfile);
               shape="circle"
             />
             <div class="player-page__info">
-              <h1>{{ profile.username }}</h1>
-              <span v-if="fullName" class="player-page__fullname">
-                {{ fullName }}
-              </span>
+              <h1>{{ fullName }}</h1>
               <div class="player-page__meta">
                 <span>
                   <i class="pi pi-calendar" />

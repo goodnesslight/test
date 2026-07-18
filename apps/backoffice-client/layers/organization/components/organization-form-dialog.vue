@@ -36,7 +36,6 @@ const tag: Ref<string> = ref('');
 const slug: Ref<string> = ref('');
 const logoUrl: Ref<string> = ref('');
 const ownerEmail: Ref<string> = ref('');
-const ownerUsername: Ref<string> = ref('');
 const ownerFirstName: Ref<string> = ref('');
 const ownerLastName: Ref<string> = ref('');
 const isLoading: Ref<boolean> = ref(false);
@@ -55,7 +54,6 @@ watch(
       slug.value = '';
       logoUrl.value = '';
       ownerEmail.value = props.initial?.ownerEmail ?? '';
-      ownerUsername.value = '';
       ownerFirstName.value = '';
       ownerLastName.value = '';
     }
@@ -70,10 +68,9 @@ async function submit(): Promise<void> {
     tag: tag.value,
     slug: slug.value,
     ownerEmail: ownerEmail.value,
-    ownerUsername: ownerUsername.value,
+    ownerFirstName: ownerFirstName.value,
+    ownerLastName: ownerLastName.value,
     ...(logoUrl.value ? { logoUrl: logoUrl.value } : {}),
-    ...(ownerFirstName.value ? { ownerFirstName: ownerFirstName.value } : {}),
-    ...(ownerLastName.value ? { ownerLastName: ownerLastName.value } : {}),
   };
 
   const response: HttpResponse<OrganizationDto> =
@@ -137,25 +134,26 @@ async function submit(): Promise<void> {
         />
       </div>
 
-      <div class="org-form__field">
-        <label for="owner-username">Имя пользователя владельца</label>
-        <InputText
-          id="owner-username"
-          v-model="ownerUsername"
-          maxlength="32"
-          required
-          fluid
-        />
-      </div>
-
       <div class="org-form__row">
         <div class="org-form__field">
           <label for="owner-first-name">Имя</label>
-          <InputText id="owner-first-name" v-model="ownerFirstName" fluid />
+          <InputText
+            id="owner-first-name"
+            v-model="ownerFirstName"
+            maxlength="64"
+            required
+            fluid
+          />
         </div>
         <div class="org-form__field">
           <label for="owner-last-name">Фамилия</label>
-          <InputText id="owner-last-name" v-model="ownerLastName" fluid />
+          <InputText
+            id="owner-last-name"
+            v-model="ownerLastName"
+            maxlength="64"
+            required
+            fluid
+          />
         </div>
       </div>
 

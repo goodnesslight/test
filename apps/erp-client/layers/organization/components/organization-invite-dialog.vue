@@ -47,7 +47,6 @@ const uploadService: UploadService = useUploadService();
 
 const fileInput: Ref<HTMLInputElement | null> = ref(null);
 const email: Ref<string> = ref('');
-const username: Ref<string> = ref('');
 const firstName: Ref<string> = ref('');
 const lastName: Ref<string> = ref('');
 const country: Ref<string> = ref('');
@@ -73,7 +72,6 @@ watch(
   (visible: boolean): void => {
     if (visible) {
       email.value = '';
-      username.value = '';
       firstName.value = '';
       lastName.value = '';
       country.value = '';
@@ -115,10 +113,9 @@ async function submit(): Promise<void> {
 
   const dto: OrganizationInviteCreateDto = {
     email: email.value,
-    username: username.value,
+    firstName: firstName.value,
+    lastName: lastName.value,
     role: role.value,
-    ...(firstName.value ? { firstName: firstName.value } : {}),
-    ...(lastName.value ? { lastName: lastName.value } : {}),
     ...(country.value ? { country: country.value } : {}),
     ...(birthDate.value ? { birthDate: birthDate.value } : {}),
     ...(avatarUrl.value ? { avatarUrl: avatarUrl.value } : {}),
@@ -158,23 +155,18 @@ async function submit(): Promise<void> {
         />
       </div>
 
-      <div class="invite-form__field">
-        <label for="invite-username">{{ t('auth.username') }}</label>
-        <InputText id="invite-username" v-model="username" required fluid />
-      </div>
-
       <div class="invite-form__row">
         <div class="invite-form__field">
           <label for="invite-first">
             {{ t('organizations.invites.firstName') }}
           </label>
-          <InputText id="invite-first" v-model="firstName" fluid />
+          <InputText id="invite-first" v-model="firstName" required fluid />
         </div>
         <div class="invite-form__field">
           <label for="invite-last">
             {{ t('organizations.invites.lastName') }}
           </label>
-          <InputText id="invite-last" v-model="lastName" fluid />
+          <InputText id="invite-last" v-model="lastName" required fluid />
         </div>
       </div>
 

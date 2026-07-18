@@ -1,6 +1,5 @@
 export interface JwtPayload {
   sub: number;
-  username: string;
 }
 
 export interface AuthTokens {

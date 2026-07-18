@@ -5,8 +5,11 @@ import { Locale } from '@erp/types';
 
 @Entity('users')
 export class UserEntity extends BasicEntity {
-  @Column({ type: 'varchar', length: 32, unique: true })
-  username: string;
+  @Column({ type: 'varchar', length: 64 })
+  firstName: string;
+
+  @Column({ type: 'varchar', length: 64 })
+  lastName: string;
 
   @Column({
     type: 'enum',
@@ -25,12 +28,6 @@ export class UserEntity extends BasicEntity {
 
   @Column({ type: 'varchar', nullable: true })
   passwordHash: string | null;
-
-  @Column({ type: 'varchar', length: 64, nullable: true })
-  firstName: string | null;
-
-  @Column({ type: 'varchar', length: 64, nullable: true })
-  lastName: string | null;
 
   @Column({ type: 'varchar', length: 64, nullable: true })
   country: string | null;
