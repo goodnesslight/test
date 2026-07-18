@@ -1,6 +1,6 @@
 import { computed, type ComputedRef } from 'vue';
 
-import { TeamMemberRole } from '@shared/types';
+import { TeamMemberRole } from '@erp/types';
 
 export interface TeamRoleOption {
   label: string;

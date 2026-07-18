@@ -1,5 +1,6 @@
-import type { TeamCreateDto, TeamDto, TeamUpdateMemberDto } from '@shared/dtos';
-import { ApiRoute, type HttpResponse } from '@shared/types';
+import type { TeamCreateDto, TeamDto, TeamUpdateMemberDto } from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { ApiRoute } from '@erp/types';
 
 import type { ApiService } from '#layers/api';
 

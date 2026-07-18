@@ -9,8 +9,9 @@ import {
   OrganizationDto,
   OrganizationLiteDto,
   OrganizationUpdateDto,
-} from '@shared/dtos';
-import { ApiRoute, HttpHeader } from '@shared/types';
+} from '@erp/dtos';
+import { HttpHeader } from '@shared/types';
+import { ApiRoute } from '@erp/types';
 
 import {
   Body,
@@ -68,9 +69,7 @@ export class OrganizationController {
   @Get(ApiRoute.ORGANIZATIONS_MY)
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(new ResponseInterceptor(OrganizationDto))
-  async getMy(
-    @CurrentUser() user: UserEntity
-  ): Promise<OrganizationEntity[]> {
+  async getMy(@CurrentUser() user: UserEntity): Promise<OrganizationEntity[]> {
     return await this.organizationService.getMy(user);
   }
 

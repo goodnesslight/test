@@ -2,7 +2,7 @@ import { BasicEntity } from '@modules/database/basic/entity.basic';
 import { UserEntity } from '@modules/user/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
-import { InviteStatus, OrganizationRole } from '@shared/types';
+import { InviteStatus, OrganizationRole } from '@erp/types';
 
 import { OrganizationEntity } from '../organization.entity';
 

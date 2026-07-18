@@ -9,8 +9,9 @@ import type {
   OrganizationInviteDto,
   OrganizationLiteDto,
   OrganizationUpdateDto,
-} from '@shared/dtos';
-import { ApiRoute, type HttpResponse } from '@shared/types';
+} from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { ApiRoute } from '@erp/types';
 
 import type { ApiService } from '#layers/api';
 
@@ -36,9 +37,7 @@ export interface OrganizationService {
   getMy(): Promise<HttpResponse<OrganizationDto[]>>;
   getById(id: number): Promise<HttpResponse<OrganizationDto>>;
   getInvites(id: number): Promise<HttpResponse<OrganizationInviteDto[]>>;
-  getInviteByToken(
-    token: string
-  ): Promise<HttpResponse<OrganizationInviteDto>>;
+  getInviteByToken(token: string): Promise<HttpResponse<OrganizationInviteDto>>;
   remove(id: number): Promise<HttpResponse<null>>;
   removeAdmin(
     id: number,
@@ -72,10 +71,10 @@ export function useOrganizationService(): OrganizationService {
     id: number,
     dto: OrganizationUpdateDto
   ): Promise<HttpResponse<OrganizationDto>> {
-    return await apiService.put<OrganizationDto>(
-      ApiRoute.ORGANIZATIONS_BY_ID,
-      { id, ...dto }
-    );
+    return await apiService.put<OrganizationDto>(ApiRoute.ORGANIZATIONS_BY_ID, {
+      id,
+      ...dto,
+    });
   }
 
   async function addAdmin(
@@ -130,10 +129,9 @@ export function useOrganizationService(): OrganizationService {
   }
 
   async function getById(id: number): Promise<HttpResponse<OrganizationDto>> {
-    return await apiService.get<OrganizationDto>(
-      ApiRoute.ORGANIZATIONS_BY_ID,
-      { id }
-    );
+    return await apiService.get<OrganizationDto>(ApiRoute.ORGANIZATIONS_BY_ID, {
+      id,
+    });
   }
 
   async function getInvites(

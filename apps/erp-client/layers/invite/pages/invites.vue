@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, type Ref, ref } from 'vue';
 
-import type { InviteDto } from '@shared/dtos';
+import type { InviteDto } from '@erp/dtos';
 import type { HttpResponse } from '@shared/types';
 
 import type { InviteService } from '../composables/use-invite-service';

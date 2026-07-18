@@ -1,7 +1,7 @@
 import { BasicRepository } from '@modules/database/basic/repository.basic';
 import { DataSource } from 'typeorm';
 
-import { InviteStatus } from '@shared/types';
+import { InviteStatus } from '@erp/types';
 
 import { Injectable } from '@nestjs/common';
 

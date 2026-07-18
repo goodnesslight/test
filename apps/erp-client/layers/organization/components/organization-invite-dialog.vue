@@ -11,8 +11,9 @@ import {
 import type {
   OrganizationInviteCreateDto,
   OrganizationInviteDto,
-} from '@shared/dtos';
-import { type HttpResponse, OrganizationRole } from '@shared/types';
+} from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { OrganizationRole } from '@erp/types';
 
 import type { OrganizationService } from '../composables/use-organization-service';
 

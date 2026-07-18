@@ -1,8 +1,9 @@
 import { useState } from 'nuxt/app';
 import { computed, type ComputedRef, type Ref } from 'vue';
 
-import type { AuthLoginDto, AuthRegisterDto, UserDto } from '@shared/dtos';
-import { ApiRoute, type HttpResponse } from '@shared/types';
+import type { AuthLoginDto, AuthRegisterDto, UserDto } from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { ApiRoute } from '@erp/types';
 
 import type { ApiService } from '#layers/api';
 
@@ -26,7 +27,9 @@ export function useAuthService(): AuthService {
     (): boolean => user.value !== null
   );
 
-  async function register(dto: AuthRegisterDto): Promise<HttpResponse<UserDto>> {
+  async function register(
+    dto: AuthRegisterDto
+  ): Promise<HttpResponse<UserDto>> {
     const response: HttpResponse<UserDto> = await apiService.post<UserDto>(
       ApiRoute.AUTH_REGISTER,
       { ...dto }

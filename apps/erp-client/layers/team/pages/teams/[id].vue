@@ -8,12 +8,9 @@ import type {
   OrganizationMemberDto,
   TeamDto,
   TeamMemberDto,
-} from '@shared/dtos';
-import {
-  type HttpResponse,
-  OrganizationRole,
-  TeamMemberRole,
-} from '@shared/types';
+} from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { OrganizationRole, TeamMemberRole } from '@erp/types';
 
 import type { TeamService } from '../../composables/use-team-service';
 

@@ -3,7 +3,7 @@ import { TeamEntity } from '@modules/team/team.entity';
 import { UserEntity } from '@modules/user/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
-import { InviteStatus, TeamMemberRole } from '@shared/types';
+import { InviteStatus, TeamMemberRole } from '@erp/types';
 
 @Entity('team_invites')
 export class InviteEntity extends BasicEntity {

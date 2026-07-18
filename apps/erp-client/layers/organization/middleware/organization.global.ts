@@ -6,7 +6,7 @@ import {
 } from 'nuxt/app';
 import type { RouteLocationNormalized } from 'vue-router';
 
-import type { OrganizationDto, OrganizationLiteDto } from '@shared/dtos';
+import type { OrganizationDto, OrganizationLiteDto } from '@erp/dtos';
 
 import type { OrganizationService } from '../composables/use-organization-service';
 

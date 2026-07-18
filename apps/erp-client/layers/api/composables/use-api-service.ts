@@ -1,11 +1,11 @@
 import {
-  type ApiRoute,
   type HttpErrorResponse,
   HttpHeader,
   HttpMethod,
   type HttpResponse,
   type HttpSuccessResponse,
 } from '@shared/types';
+import { type ApiRoute } from '@erp/types';
 import { isRecord } from '@shared/utils';
 
 import { ConfigKey, type ConfigService } from '#layers/config';

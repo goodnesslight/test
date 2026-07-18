@@ -8,8 +8,9 @@ import {
   type WritableComputedRef,
 } from 'vue';
 
-import type { GameCreateDto, GameDto } from '@shared/dtos';
-import { GameType, type HttpResponse } from '@shared/types';
+import type { GameCreateDto, GameDto } from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { GameType } from '@erp/types';
 
 import type { GameService } from '../composables/use-game-service';
 import { GAME_ICONS, GAME_LABELS } from '../constants';

@@ -1,0 +1,47 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "jsx": "preserve",
+    "module": "esnext",
+    "jsxImportSource": "vue",
+    "moduleResolution": "bundler",
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "noUnusedLocals": false,
+    "resolveJsonModule": true,
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "paths": {
+      "#layers/*": ["./layers/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "../../libs/backoffice/dtos"
+    },
+    {
+      "path": "../../libs/backoffice/types"
+    },
+    {
+      "path": "../../libs/shared/types"
+    },
+    {
+      "path": "../../libs/shared/utils"
+    }
+  ],
+  "include": [
+    ".nuxt/nuxt.d.ts",
+    "app/**/*",
+    "server/**/*",
+    "layers/**/*",
+    "layers/**/*.json"
+  ],
+  "exclude": [
+    "out-tsc",
+    "dist",
+    "vite.config.ts",
+    "vite.config.mts",
+    "eslint.config.js",
+    "eslint.config.cjs",
+    "eslint.config.mjs"
+  ]
+}

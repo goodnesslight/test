@@ -2,7 +2,7 @@ import { BasicEntity } from '@modules/database/basic/entity.basic';
 import { UserEntity } from '@modules/user/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 
-import { TeamMemberRole } from '@shared/types';
+import { TeamMemberRole } from '@erp/types';
 
 import { TeamEntity } from '../team.entity';
 
@@ -23,11 +23,9 @@ export class TeamMemberEntity extends BasicEntity {
   })
   role: TeamMemberRole;
 
-  @ManyToOne(
-    () => TeamEntity,
-    (team: TeamEntity) => team.members,
-    { onDelete: 'CASCADE' }
-  )
+  @ManyToOne(() => TeamEntity, (team: TeamEntity) => team.members, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'teamId' })
   team: TeamEntity;
 

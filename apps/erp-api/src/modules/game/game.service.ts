@@ -1,7 +1,7 @@
 import { OrganizationService } from '@modules/organization/organization.service';
 import { UserEntity } from '@modules/user/user.entity';
 
-import { GameCreateDto } from '@shared/dtos';
+import { GameCreateDto } from '@erp/dtos';
 
 import {
   ConflictException,

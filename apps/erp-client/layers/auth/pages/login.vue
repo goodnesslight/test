@@ -2,7 +2,7 @@
 import { navigateTo } from 'nuxt/app';
 import { computed, type ComputedRef, type Ref, ref } from 'vue';
 
-import type { AuthLoginDto, OrganizationLiteDto, UserDto } from '@shared/dtos';
+import type { AuthLoginDto, OrganizationLiteDto, UserDto } from '@erp/dtos';
 import type { HttpResponse } from '@shared/types';
 
 import type { AuthService } from '../composables/use-auth-service';

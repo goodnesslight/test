@@ -7,8 +7,9 @@ import type {
   TeamDto,
   TeamMemberDto,
   TeamUpdateMemberDto,
-} from '@shared/dtos';
-import { type HttpResponse, TeamMemberRole } from '@shared/types';
+} from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { TeamMemberRole } from '@erp/types';
 
 import type { TeamRoleOption } from '../composables/use-team-role-options';
 import type { TeamService } from '../composables/use-team-service';
@@ -171,7 +172,9 @@ onMounted(loadPendingInvites);
         <Column :header="t('auth.username')">
           <template #body="{ data }">
             <NuxtLink
-              :to="buildAppRoute(AppRoute.USERS_BY_ID, { id: data.user?.id ?? 0 })"
+              :to="
+                buildAppRoute(AppRoute.USERS_BY_ID, { id: data.user?.id ?? 0 })
+              "
               class="roster__member"
             >
               <Avatar

@@ -6,7 +6,7 @@ import type {
   AuthRegisterDto,
   OrganizationInviteDto,
   UserDto,
-} from '@shared/dtos';
+} from '@erp/dtos';
 import type { HttpResponse } from '@shared/types';
 
 import type { OrganizationService } from '../../composables/use-organization-service';

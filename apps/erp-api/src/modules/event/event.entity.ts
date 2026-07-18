@@ -2,7 +2,7 @@ import { BasicEntity } from '@modules/database/basic/entity.basic';
 import { TeamEntity } from '@modules/team/team.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
-import { EventType } from '@shared/types';
+import { EventType } from '@erp/types';
 
 import { EventAttendanceEntity } from './event-attendance/event-attendance.entity';
 

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, type ComputedRef, type Ref, ref, watch } from 'vue';
 
-import type { EventDto, EventGetListDto } from '@shared/dtos';
-import { EventType, type HttpResponse } from '@shared/types';
+import type { EventDto, EventGetListDto } from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { EventType } from '@erp/types';
 
 import type EventCalendar from '../components/event-calendar.vue';
 import type { EventService } from '../composables/use-event-service';

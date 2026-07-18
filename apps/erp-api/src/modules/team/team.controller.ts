@@ -3,8 +3,8 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { CurrentUser } from '@modules/user/user.decorator';
 import { UserEntity } from '@modules/user/user.entity';
 
-import { TeamCreateDto, TeamDto, TeamUpdateMemberDto } from '@shared/dtos';
-import { ApiRoute } from '@shared/types';
+import { TeamCreateDto, TeamDto, TeamUpdateMemberDto } from '@erp/dtos';
+import { ApiRoute } from '@erp/types';
 
 import {
   Body,

@@ -6,8 +6,8 @@ import {
   OrganizationAddAdminDto,
   OrganizationCreateDto,
   OrganizationUpdateDto,
-} from '@shared/dtos';
-import { OrganizationRole } from '@shared/types';
+} from '@erp/dtos';
+import { OrganizationRole } from '@erp/types';
 
 import {
   ConflictException,

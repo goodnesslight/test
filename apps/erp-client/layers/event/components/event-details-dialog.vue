@@ -7,8 +7,9 @@ import {
   type WritableComputedRef,
 } from 'vue';
 
-import type { EventAttendanceDto, EventDto } from '@shared/dtos';
-import type { EventAttendanceStatus, HttpResponse } from '@shared/types';
+import type { EventAttendanceDto, EventDto } from '@erp/dtos';
+import type { HttpResponse } from '@shared/types';
+import type { EventAttendanceStatus } from '@erp/types';
 
 import type { EventService } from '../composables/use-event-service';
 import { EVENT_ATTENDANCE_OPTIONS, EVENT_TYPE_SEVERITIES } from '../constants';

@@ -1,7 +1,7 @@
 import { BasicRepository } from '@modules/database/basic/repository.basic';
 import { DataSource } from 'typeorm';
 
-import { GameType } from '@shared/types';
+import { GameType } from '@erp/types';
 
 import { Injectable } from '@nestjs/common';
 

@@ -1,4 +1,4 @@
-import type { EventAttendanceStatus } from '@shared/types';
+import type { EventAttendanceStatus } from '@erp/types';
 
 export interface EventAttendanceOption {
   status: EventAttendanceStatus;

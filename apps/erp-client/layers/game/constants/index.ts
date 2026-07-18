@@ -1,4 +1,4 @@
-import { GameType } from '@shared/types';
+import { GameType } from '@erp/types';
 
 export const GAME_ICONS: Record<GameType, string> = {
   [GameType.CS2]: 'pi pi-bullseye',

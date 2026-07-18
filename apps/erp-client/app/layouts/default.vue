@@ -11,7 +11,7 @@ import {
   watch,
 } from 'vue';
 
-import type { OrganizationDto, UserDto } from '@shared/dtos';
+import type { OrganizationDto, UserDto } from '@erp/dtos';
 
 import type { AuthService } from '#layers/auth';
 import type { LocaleService } from '#layers/i18n';
@@ -95,7 +95,9 @@ onMounted((): void => {
         <span v-else class="brand__icon">
           <i class="pi pi-th-large" />
         </span>
-        <span class="brand__name">{{ organization?.name ?? t('nav.brand') }}</span>
+        <span class="brand__name">{{
+          organization?.name ?? t('nav.brand')
+        }}</span>
       </NuxtLink>
 
       <nav class="nav">

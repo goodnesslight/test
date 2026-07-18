@@ -2,8 +2,8 @@ import { GameService } from '@modules/game/game.service';
 import { OrganizationService } from '@modules/organization/organization.service';
 import { UserEntity } from '@modules/user/user.entity';
 
-import { TeamCreateDto, TeamUpdateMemberDto } from '@shared/dtos';
-import { TeamMemberRole } from '@shared/types';
+import { TeamCreateDto, TeamUpdateMemberDto } from '@erp/dtos';
+import { TeamMemberRole } from '@erp/types';
 
 import {
   ConflictException,
@@ -109,16 +109,13 @@ export class TeamService {
     );
     const isCoach: boolean = team.members.some(
       (candidate: TeamMemberEntity): boolean =>
-        candidate.userId === user.id &&
-        candidate.role === TeamMemberRole.COACH
+        candidate.userId === user.id && candidate.role === TeamMemberRole.COACH
     );
     const canCoachRemove: boolean =
       isCoach && member.role === TeamMemberRole.PLAYER;
 
     if (!isSelf && !isManager && !canCoachRemove) {
-      throw new ForbiddenException(
-        'You are not allowed to remove this member'
-      );
+      throw new ForbiddenException('You are not allowed to remove this member');
     }
 
     await this.teamMemberRepository.delete(member.id);

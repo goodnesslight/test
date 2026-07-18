@@ -8,7 +8,7 @@ import {
   type WritableComputedRef,
 } from 'vue';
 
-import type { OrganizationDto, OrganizationUpdateDto } from '@shared/dtos';
+import type { OrganizationDto, OrganizationUpdateDto } from '@erp/dtos';
 import type { HttpResponse } from '@shared/types';
 
 import type { OrganizationService } from '../composables/use-organization-service';
@@ -44,8 +44,8 @@ const logoUrl: Ref<string> = ref('');
 const isLoading: Ref<boolean> = ref(false);
 const isUploading: Ref<boolean> = ref(false);
 
-const isEdit: ComputedRef<boolean> = computed(
-  (): boolean => Boolean(props.organization)
+const isEdit: ComputedRef<boolean> = computed((): boolean =>
+  Boolean(props.organization)
 );
 const isVisible: WritableComputedRef<boolean> = computed({
   get: (): boolean => props.visible,
@@ -177,11 +177,7 @@ async function submit(): Promise<void> {
           text
           @click="isVisible = false"
         />
-        <Button
-          type="submit"
-          :label="t('common.save')"
-          :loading="isLoading"
-        />
+        <Button type="submit" :label="t('common.save')" :loading="isLoading" />
       </div>
     </form>
   </Dialog>

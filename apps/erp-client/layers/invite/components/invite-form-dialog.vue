@@ -8,8 +8,9 @@ import {
   type WritableComputedRef,
 } from 'vue';
 
-import type { InviteCreateDto, InviteDto } from '@shared/dtos';
-import { type HttpResponse, TeamMemberRole } from '@shared/types';
+import type { InviteCreateDto, InviteDto } from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { TeamMemberRole } from '@erp/types';
 
 import type { InviteService } from '../composables/use-invite-service';
 
@@ -97,12 +98,7 @@ async function submit(): Promise<void> {
     <form class="invite-form" @submit.prevent="submit">
       <div class="invite-form__field">
         <label for="invite-identifier">{{ t('invites.identifier') }}</label>
-        <InputText
-          id="invite-identifier"
-          v-model="identifier"
-          required
-          fluid
-        />
+        <InputText id="invite-identifier" v-model="identifier" required fluid />
       </div>
 
       <div class="invite-form__field">

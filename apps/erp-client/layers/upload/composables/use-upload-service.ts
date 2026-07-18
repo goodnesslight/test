@@ -1,9 +1,6 @@
-import type { UploadResultDto } from '@shared/dtos';
-import {
-  ApiRoute,
-  HttpHeader,
-  type HttpSuccessResponse,
-} from '@shared/types';
+import type { UploadResultDto } from '@erp/dtos';
+import { HttpHeader, type HttpSuccessResponse } from '@shared/types';
+import { ApiRoute } from '@erp/types';
 
 import { ConfigKey, type ConfigService } from '#layers/config';
 

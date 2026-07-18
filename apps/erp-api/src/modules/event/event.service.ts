@@ -14,8 +14,8 @@ import {
   EventGetListDto,
   EventSetAttendanceDto,
   EventUpdateDto,
-} from '@shared/dtos';
-import { EventScope, TeamMemberRole } from '@shared/types';
+} from '@erp/dtos';
+import { EventScope, TeamMemberRole } from '@erp/types';
 
 import {
   BadRequestException,

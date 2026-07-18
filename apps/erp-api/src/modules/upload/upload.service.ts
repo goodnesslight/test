@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { ConfigKey } from '@common/types/config.type';
 import axios from 'axios';
 
-import { UploadResultDto } from '@shared/dtos';
+import { UploadResultDto } from '@erp/dtos';
 
 import {
   BadRequestException,

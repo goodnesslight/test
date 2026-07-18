@@ -10,7 +10,7 @@ import { UserRepository } from '@modules/user/user.repository';
 import * as argon2 from 'argon2';
 import type { CookieOptions, Request, Response } from 'express';
 
-import { AuthLoginDto, AuthRegisterDto } from '@shared/dtos';
+import { AuthLoginDto, AuthRegisterDto } from '@erp/dtos';
 import { CookieKey, EnvironmentType } from '@shared/types';
 
 import {

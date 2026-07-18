@@ -1,8 +1,8 @@
 import { ResponseInterceptor } from '@common/interceptors/response.interceptor';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
-import { UploadResultDto } from '@shared/dtos';
-import { ApiRoute } from '@shared/types';
+import { UploadResultDto } from '@erp/dtos';
+import { ApiRoute } from '@erp/types';
 
 import {
   Controller,

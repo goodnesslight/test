@@ -16,13 +16,16 @@
   },
   "references": [
     {
-      "path": "../../libs/shared/utils"
+      "path": "../../libs/erp/dtos"
+    },
+    {
+      "path": "../../libs/erp/types"
     },
     {
       "path": "../../libs/shared/types"
     },
     {
-      "path": "../../libs/shared/dtos"
+      "path": "../../libs/shared/utils"
     }
   ],
   "include": [

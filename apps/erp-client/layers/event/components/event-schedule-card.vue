@@ -7,13 +7,9 @@ import type {
   EventDto,
   EventSetAttendanceDto,
   TeamDto,
-} from '@shared/dtos';
-import {
-  EventAttendanceStatus,
-  EventScope,
-  EventType,
-  type HttpResponse,
-} from '@shared/types';
+} from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { EventAttendanceStatus, EventScope, EventType } from '@erp/types';
 
 import type { EventService } from '../composables/use-event-service';
 import { EVENT_ATTENDANCE_OPTIONS, EVENT_TYPE_SEVERITIES } from '../constants';

@@ -6,8 +6,8 @@ import {
   UserDto,
   UserProfileDto,
   UserUpdateProfileDto,
-} from '@shared/dtos';
-import { ApiRoute } from '@shared/types';
+} from '@erp/dtos';
+import { ApiRoute } from '@erp/types';
 
 import {
   Body,

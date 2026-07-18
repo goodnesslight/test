@@ -3,8 +3,8 @@ import { CurrentUser } from '@modules/user/user.decorator';
 import { UserEntity } from '@modules/user/user.entity';
 import type { Request, Response } from 'express';
 
-import { AuthLoginDto, AuthRegisterDto, UserDto } from '@shared/dtos';
-import { ApiRoute } from '@shared/types';
+import { AuthLoginDto, AuthRegisterDto, UserDto } from '@erp/dtos';
+import { ApiRoute } from '@erp/types';
 
 import {
   Body,

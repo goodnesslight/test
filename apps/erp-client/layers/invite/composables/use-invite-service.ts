@@ -1,8 +1,9 @@
 import { useState } from 'nuxt/app';
 import type { Ref } from 'vue';
 
-import type { InviteCreateDto, InviteDto } from '@shared/dtos';
-import { ApiRoute, type HttpResponse } from '@shared/types';
+import type { InviteCreateDto, InviteDto } from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { ApiRoute } from '@erp/types';
 
 import type { ApiService } from '#layers/api';
 

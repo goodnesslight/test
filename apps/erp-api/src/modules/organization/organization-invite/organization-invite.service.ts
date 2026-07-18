@@ -6,8 +6,8 @@ import { UserEntity } from '@modules/user/user.entity';
 import { UserRepository } from '@modules/user/user.repository';
 import { DataSource, EntityManager } from 'typeorm';
 
-import { OrganizationInviteCreateDto } from '@shared/dtos';
-import { InviteStatus, OrganizationRole } from '@shared/types';
+import { OrganizationInviteCreateDto } from '@erp/dtos';
+import { InviteStatus, OrganizationRole } from '@erp/types';
 
 import {
   ConflictException,
@@ -74,7 +74,9 @@ export class OrganizationInviteService {
       );
 
     if (pendingInvite) {
-      throw new ConflictException('An invite is already pending for this email');
+      throw new ConflictException(
+        'An invite is already pending for this email'
+      );
     }
 
     const invite: OrganizationInviteEntity =
@@ -112,12 +114,11 @@ export class OrganizationInviteService {
     token: string,
     user: UserEntity
   ): Promise<OrganizationInviteEntity> {
-    const invite: OrganizationInviteEntity = await this.getPendingByToken(token);
+    const invite: OrganizationInviteEntity = await this.getPendingByToken(
+      token
+    );
 
-    if (
-      user.email &&
-      user.email.toLowerCase() !== invite.email.toLowerCase()
-    ) {
+    if (user.email && user.email.toLowerCase() !== invite.email.toLowerCase()) {
       throw new ForbiddenException(
         'This invitation was issued for a different email address'
       );
@@ -128,7 +129,10 @@ export class OrganizationInviteService {
     return invite;
   }
 
-  async consume(invite: OrganizationInviteEntity, user: UserEntity): Promise<void> {
+  async consume(
+    invite: OrganizationInviteEntity,
+    user: UserEntity
+  ): Promise<void> {
     await this.dataSource.transaction(
       async (manager: EntityManager): Promise<void> => {
         const existing: OrganizationMemberEntity | null = await manager.findOne(

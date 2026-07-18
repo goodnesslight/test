@@ -16,13 +16,9 @@ import type {
   OrganizationInviteDto,
   OrganizationMemberDto,
   TeamDto,
-} from '@shared/dtos';
-import {
-  GameType,
-  type HttpResponse,
-  OrganizationRole,
-  TeamType,
-} from '@shared/types';
+} from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { GameType, OrganizationRole, TeamType } from '@erp/types';
 
 import type { OrganizationService } from '../composables/use-organization-service';
 
@@ -435,11 +431,7 @@ onMounted(async (): Promise<void> => {
         </template>
         <template #content>
           <div class="org-members">
-            <div
-              v-for="member in admins"
-              :key="member.id"
-              class="org-member"
-            >
+            <div v-for="member in admins" :key="member.id" class="org-member">
               <Avatar
                 :image="member.user?.avatarUrl ?? undefined"
                 :label="
@@ -499,11 +491,7 @@ onMounted(async (): Promise<void> => {
           </div>
 
           <div v-else class="org-invites">
-            <div
-              v-for="invite in invites"
-              :key="invite.id"
-              class="org-invite"
-            >
+            <div v-for="invite in invites" :key="invite.id" class="org-invite">
               <i class="pi pi-envelope org-invite__icon" />
               <span class="org-invite__email">
                 {{ invite.username }}

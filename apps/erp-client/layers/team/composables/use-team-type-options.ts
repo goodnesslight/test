@@ -1,6 +1,6 @@
 import { computed, type ComputedRef } from 'vue';
 
-import { TeamType } from '@shared/types';
+import { TeamType } from '@erp/types';
 
 export interface TeamTypeOption {
   label: string;

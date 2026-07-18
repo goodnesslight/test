@@ -1,13 +1,7 @@
 <script setup lang="ts">
-import {
-  computed,
-  type Ref,
-  ref,
-  watch,
-  type WritableComputedRef,
-} from 'vue';
+import { computed, type Ref, ref, watch, type WritableComputedRef } from 'vue';
 
-import type { OrganizationAddAdminDto, OrganizationDto } from '@shared/dtos';
+import type { OrganizationAddAdminDto, OrganizationDto } from '@erp/dtos';
 import type { HttpResponse } from '@shared/types';
 
 import type { OrganizationService } from '../composables/use-organization-service';

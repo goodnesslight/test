@@ -6,8 +6,8 @@ import { UserEntity } from '@modules/user/user.entity';
 import { UserRepository } from '@modules/user/user.repository';
 import { DataSource, EntityManager } from 'typeorm';
 
-import { InviteCreateDto } from '@shared/dtos';
-import { InviteStatus, TeamMemberRole } from '@shared/types';
+import { InviteCreateDto } from '@erp/dtos';
+import { InviteStatus, TeamMemberRole } from '@erp/types';
 
 import {
   ConflictException,

@@ -1,3 +1,1 @@
-export type Constructor<T extends object = object> = new (
-  ...args: unknown[]
-) => T;
+export type { Constructor } from '@shared/nest';

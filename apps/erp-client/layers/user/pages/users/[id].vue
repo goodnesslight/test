@@ -2,8 +2,9 @@
 import { navigateTo, useRoute } from 'nuxt/app';
 import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue';
 
-import type { UserProfileDto, UserProfileTeamDto } from '@shared/dtos';
-import { type HttpResponse, TeamMemberRole } from '@shared/types';
+import type { UserProfileDto, UserProfileTeamDto } from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { TeamMemberRole } from '@erp/types';
 
 import type { UserService } from '../../composables/use-user-service';
 
@@ -134,10 +135,7 @@ onMounted(loadProfile);
       <Card>
         <template #title>{{ t('players.attendance.title') }}</template>
         <template #content>
-          <p
-            v-if="profile.attendance.total === 0"
-            class="player-page__empty"
-          >
+          <p v-if="profile.attendance.total === 0" class="player-page__empty">
             {{ t('players.attendance.empty') }}
           </p>
 

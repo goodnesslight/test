@@ -1,6 +1,6 @@
 import { defineNuxtRouteMiddleware, navigateTo } from 'nuxt/app';
 
-import type { UserDto } from '@shared/dtos';
+import type { UserDto } from '@erp/dtos';
 
 import type { AuthService } from '../composables/use-auth-service';
 

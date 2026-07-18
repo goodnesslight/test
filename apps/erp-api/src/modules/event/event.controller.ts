@@ -11,8 +11,8 @@ import {
   EventGetListDto,
   EventSetAttendanceDto,
   EventUpdateDto,
-} from '@shared/dtos';
-import { ApiRoute } from '@shared/types';
+} from '@erp/dtos';
+import { ApiRoute } from '@erp/types';
 
 import {
   Body,

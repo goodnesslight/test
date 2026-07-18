@@ -5,8 +5,8 @@ import { TeamMemberEntity } from '@modules/team/team-member/team-member.entity';
 import { TeamMemberRepository } from '@modules/team/team-member/team-member.repository';
 import { randomUUID } from 'crypto';
 
-import { UserUpdateProfileDto } from '@shared/dtos';
-import { EventAttendanceStatus, TeamMemberRole } from '@shared/types';
+import { UserUpdateProfileDto } from '@erp/dtos';
+import { EventAttendanceStatus, TeamMemberRole } from '@erp/types';
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 

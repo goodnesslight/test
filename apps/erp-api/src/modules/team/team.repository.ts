@@ -1,7 +1,7 @@
 import { BasicRepository } from '@modules/database/basic/repository.basic';
 import { DataSource } from 'typeorm';
 
-import { TeamType } from '@shared/types';
+import { TeamType } from '@erp/types';
 
 import { Injectable } from '@nestjs/common';
 

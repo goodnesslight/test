@@ -8,8 +8,9 @@ import {
   type WritableComputedRef,
 } from 'vue';
 
-import type { EventCreateDto, EventDto, EventUpdateDto } from '@shared/dtos';
-import { EventScope, EventType, type HttpResponse } from '@shared/types';
+import type { EventCreateDto, EventDto, EventUpdateDto } from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { EventScope, EventType } from '@erp/types';
 
 import type { EventService } from '../composables/use-event-service';
 

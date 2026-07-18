@@ -8,8 +8,9 @@ import {
   type WritableComputedRef,
 } from 'vue';
 
-import type { TeamCreateDto, TeamDto } from '@shared/dtos';
-import { type HttpResponse, TeamType } from '@shared/types';
+import type { TeamCreateDto, TeamDto } from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { TeamType } from '@erp/types';
 
 import type { TeamService } from '../composables/use-team-service';
 import type { TeamTypeOption } from '../composables/use-team-type-options';

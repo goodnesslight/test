@@ -10,7 +10,7 @@ import {
   Unique,
 } from 'typeorm';
 
-import { GameType } from '@shared/types';
+import { GameType } from '@erp/types';
 
 @Entity('games')
 @Unique(['organizationId', 'type'])

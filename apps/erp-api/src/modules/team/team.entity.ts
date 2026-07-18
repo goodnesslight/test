@@ -9,7 +9,7 @@ import {
   Unique,
 } from 'typeorm';
 
-import { TeamType } from '@shared/types';
+import { TeamType } from '@erp/types';
 
 import { TeamMemberEntity } from './team-member/team-member.entity';
 

@@ -3,8 +3,9 @@ import type {
   UserDto,
   UserProfileDto,
   UserUpdateProfileDto,
-} from '@shared/dtos';
-import { ApiRoute, type HttpResponse } from '@shared/types';
+} from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { ApiRoute } from '@erp/types';
 
 import type { ApiService } from '#layers/api';
 import type { AuthService } from '#layers/auth';

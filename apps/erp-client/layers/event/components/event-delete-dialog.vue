@@ -8,8 +8,8 @@ import {
   type WritableComputedRef,
 } from 'vue';
 
-import type { EventDto } from '@shared/dtos';
-import { EventScope } from '@shared/types';
+import type { EventDto } from '@erp/dtos';
+import { EventScope } from '@erp/types';
 
 interface EventDeleteDialogProps {
   visible: boolean;

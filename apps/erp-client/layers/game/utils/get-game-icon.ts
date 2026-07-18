@@ -1,4 +1,4 @@
-import type { GameType } from '@shared/types';
+import type { GameType } from '@erp/types';
 
 import { GAME_ICONS } from '../constants';
 

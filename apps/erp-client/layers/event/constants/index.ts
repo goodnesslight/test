@@ -1,4 +1,4 @@
-import { EventAttendanceStatus, EventType } from '@shared/types';
+import { EventAttendanceStatus, EventType } from '@erp/types';
 
 import type { EventAttendanceOption } from '../types';
 

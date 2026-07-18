@@ -13,8 +13,9 @@ import type {
   UserCalendarTokenDto,
   UserDto,
   UserUpdateProfileDto,
-} from '@shared/dtos';
-import { type HttpResponse, Locale } from '@shared/types';
+} from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { Locale } from '@erp/types';
 
 import type { UserService } from '../composables/use-user-service';
 

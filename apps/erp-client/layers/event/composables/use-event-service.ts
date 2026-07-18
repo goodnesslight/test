@@ -5,8 +5,9 @@ import type {
   EventGetListDto,
   EventSetAttendanceDto,
   EventUpdateDto,
-} from '@shared/dtos';
-import { ApiRoute, type HttpResponse } from '@shared/types';
+} from '@erp/dtos';
+import { type HttpResponse } from '@shared/types';
+import { ApiRoute } from '@erp/types';
 
 import type { ApiService } from '#layers/api';
 import { ConfigKey, type ConfigService } from '#layers/config';

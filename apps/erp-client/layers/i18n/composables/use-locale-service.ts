@@ -1,4 +1,4 @@
-import { Locale } from '@shared/types';
+import { Locale } from '@erp/types';
 
 import { StorageKey, type StorageService } from '#layers/storage';
 

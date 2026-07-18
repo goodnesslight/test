@@ -53,7 +53,7 @@ Keep registration/re-export lists sorted alphabetically:
 
 - **Auth strategies and guards share the `<scheme>-auth` name.** A strategy file is named like its guard: `jwt-auth.strategy.ts` (`JwtAuthStrategy`) pairs with `jwt-auth.guard.ts` (`JwtAuthGuard`), `google-auth.strategy.ts` (`GoogleAuthStrategy`) with `google-auth.guard.ts` (`GoogleAuthGuard`) — not `jwt.strategy.ts`/`JwtStrategy`.
 - **Thin controllers — no logic in controllers, everything lives in services.** A handler body is a single delegation: `return await this.someService.method(...)`. No branching, no cookie/token work, no `return null` after a void call (the service returns `null` itself), no building responses. When HTTP primitives are needed (cookies, redirects), pass `request`/`response` through to the service and let it do the work there.
-- **Route paths come from the shared `ApiRoute` enum** (`@shared/types`). Never hand-write route strings in controller decorators: `@Delete(ApiRoute.TEAM_MEMBERS_BY_ID)`, not `@Delete('teams/:id/members/:memberId')`. This applies everywhere a path is built, including auth strategies (`callbackURL: \`${origin}/api/${ApiRoute.AUTH_GOOGLE_CALLBACK}\``).
+- **Route paths come from the `ApiRoute` enum** (`@erp/types` for the platform; `@backoffice/types` for the backoffice). Never hand-write route strings in controller decorators: `@Delete(ApiRoute.TEAM_MEMBERS_BY_ID)`, not `@Delete('teams/:id/members/:memberId')`. This applies everywhere a path is built, including auth strategies (`callbackURL: \`${origin}/api/${ApiRoute.AUTH_GOOGLE_CALLBACK}\``).
 - **Parameter order in controller handlers and service methods:** entity ids first (in path order: `id` → `memberId`), then `user`, then `dto`:
 
   ```ts
@@ -78,7 +78,7 @@ Keep registration/re-export lists sorted alphabetically:
 
   Constant-like `private readonly` class members are named in `UPPER_CASE`, same as regular constants (`private readonly MANAGER_ROLES`, not `managerRoles`).
 
-## API routes (`ApiRoute` enum in `libs/shared/types/src/api.ts`)
+## API routes (`ApiRoute` enum in `libs/erp/types/src/api.ts`)
 
 - **Key naming — plural vs singular prefix.** Plural when the route hangs on the collection root (`ORGANIZATIONS`, `ORGANIZATIONS_MY`, `ORGANIZATIONS_BY_ID`, `EVENTS_BY_ID`); singular when the route hangs under one entity, i.e. after `:id/...` (`ORGANIZATION_TEAMS`, `TEAM_EVENTS`, `INVITE_ACCEPT`, `EVENT_ATTENDANCE`).
 - **Group order:** `AUTH` first (infrastructure group, like `ConfigModule` in module imports), then resource groups alphabetically (`EVENTS` → `INVITES` → `ORGANIZATIONS` → `TEAMS` → `USERS`). Groups are separated by a blank line; no header comments — the key prefix is the header.
@@ -174,18 +174,30 @@ Declaration order inside `<script setup lang="ts">`:
 - **While a migration has not been run anywhere, edit it in place** instead of stacking a new alter-migration on top (no `user-create` + `user-add-profile` pairs for unreleased schema).
 - `down()` reverses `up()` exactly, in reverse statement order.
 
-## Shared DTOs (`libs/shared/dtos`)
+## Library organization (`libs/`)
 
-- **One file per domain.** All DTOs for a domain live in a single file named after the domain: `libs/shared/dtos/src/<domain>.ts` (e.g. `event.ts`, `auth.ts`, `team.ts`). Do not create per-DTO files or domain subfolders.
+Libraries are grouped by **scope** (Nx convention), one folder per scope, and each holds type-specific libs:
+
+- `libs/shared/*` (`@shared/*`) — cross-app primitives used by BOTH the platform and the backoffice: `types` (`http`, `cookie`, `environment`), `utils` (`isRecord`), `nest` (`BasicEntity`, `BasicRepository`, `ResponseInterceptor`, `ExceptionFilter`, `ValidationPipe`, `Constructor`). Nothing app-specific goes here.
+- `libs/erp/*` (`@erp/*`) — platform-specific: `dtos`, `types` (domain enums + the platform `ApiRoute`).
+- `libs/backoffice/*` (`@backoffice/*`) — backoffice-specific: `dtos`, `types` (the backoffice `ApiRoute`).
+
+Dependencies only point **inward toward `shared`** (`@erp/*` and `@backoffice/*` may depend on `@shared/*`, never the reverse; `@erp` and `@backoffice` never depend on each other). A new domain concept goes in the scope that owns it; only promote to `@shared/*` when both apps genuinely need it.
+
+## DTO libraries (`libs/<scope>/dtos`)
+
+Platform DTOs live in `libs/erp/dtos` (`@erp/dtos`); backoffice DTOs in `libs/backoffice/dtos`.
+
+- **One file per domain.** All DTOs for a domain live in a single file named after the domain: `src/<domain>.ts` (e.g. `event.ts`, `auth.ts`, `team.ts`). Do not create per-DTO files or domain subfolders.
 - **Domain prefix in type names.** Every type in a domain file must start with the domain name in PascalCase: `auth.ts` → `AuthLoginDto`, `AuthRegisterDto`; `event.ts` → `EventDto`, `EventCreateDto`, `EventSetAttendanceDto`.
 - Re-export every domain file from `src/index.ts` (`export * from './<domain>';`).
 - **Logical DTO order inside a domain file.** The main entity DTO comes first, then related/nested entity DTOs, then action/request DTOs in CRUD order: `EventDto` → `EventAttendanceDto` → `EventCreateDto` → `EventUpdateDto` → remaining query/action DTOs (e.g. `EventGetListDto`, `EventSetAttendanceDto`).
 
-## Shared types (`libs/shared/types`)
+## Type libraries (`libs/<scope>/types`)
 
-Same rules as shared DTOs:
+Platform domain types live in `libs/erp/types` (`@erp/types`); backoffice types in `libs/backoffice/types`; cross-app primitives in `libs/shared/types` (`@shared/types`). Same rules as DTO libraries:
 
-- **One file per domain:** `libs/shared/types/src/<domain>.ts` (e.g. `event.ts`, `team.ts`, `http.ts`). No `.type` suffix, no per-type files.
+- **One file per domain:** `src/<domain>.ts` (e.g. `event.ts`, `team.ts`, `http.ts`). No `.type` suffix, no per-type files.
 - **Domain prefix in type names:** every type/enum must start with the domain name in PascalCase: `event.ts` → `EventType`, `EventAttendanceStatus`; `http.ts` → `HttpMethod`, `HttpResponse`. If a type doesn't fit the domain prefix, it belongs to its own domain file (e.g. `GameType` lives in `game.ts`, not `team.ts`).
 - Re-export every domain file from `src/index.ts`.
 - **Logical order inside a file:** the main domain type first, then related/secondary types.

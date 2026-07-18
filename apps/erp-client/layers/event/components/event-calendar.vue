@@ -16,7 +16,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import FullCalendar from '@fullcalendar/vue3';
 import { computed, type ComputedRef, type Ref, ref } from 'vue';
 
-import type { EventDto, EventGetListDto } from '@shared/dtos';
+import type { EventDto, EventGetListDto } from '@erp/dtos';
 
 interface EventCalendarProps {
   events: EventDto[];
