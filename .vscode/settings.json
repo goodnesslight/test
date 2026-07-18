@@ -29,34 +29,5 @@
     "vue",
     "json",
     "jsonc"
-  ],
-  "restoreTerminals.terminals": [
-    {
-      "splitTerminals": [
-        {
-          "name": "ERP API",
-          "commands": ["cd apps/erp-api", "pnpm dev"]
-        },
-        {
-          "name": "ERP Client",
-          "commands": ["cd apps/erp-client", "pnpm dev"]
-        }
-      ]
-    },
-    {
-      "splitTerminals": [
-        {
-          "name": "Root"
-        }
-      ]
-    },
-    {
-      "splitTerminals": [
-        {
-          "name": "Claude Code",
-          "commands": ["claude --dangerously-skip-permissions"]
-        }
-      ]
-    }
   ]
 }

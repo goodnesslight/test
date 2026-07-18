@@ -1,0 +1,60 @@
+{
+  "theme": "default",
+  "active": "default",
+  "activateOnStartup": true,
+  "keepExistingTerminals": false,
+  "sessions": {
+    "default": [
+      [
+        {
+          "name": "erp-api",
+          "autoExecuteCommands": true,
+          "icon": "server",
+          "color": "terminal.ansiGreen",
+          "commands": ["cd apps/erp-api;", "pnpm dev"]
+        },
+        {
+          "name": "erp-client",
+          "autoExecuteCommands": true,
+          "icon": "browser",
+          "color": "terminal.ansiGreen",
+          "commands": ["cd apps/erp-client;", "pnpm dev"]
+        }
+      ],
+      [
+        {
+          "name": "backoffice-api",
+          "autoExecuteCommands": true,
+          "icon": "server",
+          "color": "terminal.ansiBlue",
+          "commands": ["cd apps/backoffice-api;", "pnpm dev"]
+        },
+        {
+          "name": "backoffice-client",
+          "autoExecuteCommands": true,
+          "icon": "browser",
+          "color": "terminal.ansiBlue",
+          "commands": ["cd apps/backoffice-client;", "pnpm dev"]
+        }
+      ],
+      [
+        {
+          "name": "landing",
+          "autoExecuteCommands": true,
+          "icon": "globe",
+          "color": "terminal.ansiYellow",
+          "commands": ["cd apps/landing-client;", "pnpm dev"]
+        }
+      ],
+      [
+        {
+          "name": "claude",
+          "autoExecuteCommands": true,
+          "icon": "sparkle",
+          "color": "terminal.ansiMagenta",
+          "commands": ["claude --dangerously-skip-permissions"]
+        }
+      ]
+    ]
+  }
+}
