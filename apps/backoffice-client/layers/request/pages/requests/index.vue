@@ -1,43 +1,42 @@
 <script setup lang="ts">
 import { useConfirm } from 'primevue/useconfirm';
-import { onMounted, type Ref, ref } from 'vue';
+import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue';
 
-import type { RequestDto, RequestUpdateDto } from '@backoffice/dtos';
+import type { RequestDto } from '@backoffice/dtos';
 import { RequestStatus } from '@backoffice/types';
 import type { HttpResponse } from '@shared/types';
 
-import type { RequestService } from '../composables/use-request-service';
+import {
+  REQUEST_STATUS_LABEL,
+  REQUEST_STATUS_SEVERITY,
+} from '../../constants';
+import type { RequestService } from '../../composables/use-request-service';
 
+import type { AuthService } from '#layers/auth';
 import type { NotificationService } from '#layers/notification';
+import { AppRoute } from '#layers/router';
 
 definePageMeta({
   middleware: 'auth',
 });
 
-type Severity = 'warn' | 'success' | 'danger';
-
 const confirm: ReturnType<typeof useConfirm> = useConfirm();
+const authService: AuthService = useAuthService();
 const notificationService: NotificationService = useNotificationService();
 const requestService: RequestService = useRequestService();
-
-const STATUS_SEVERITY: Record<RequestStatus, Severity> = {
-  [RequestStatus.PENDING]: 'warn',
-  [RequestStatus.APPROVED]: 'success',
-  [RequestStatus.REJECTED]: 'danger',
-};
-const STATUS_LABEL: Record<RequestStatus, string> = {
-  [RequestStatus.PENDING]: 'На рассмотрении',
-  [RequestStatus.APPROVED]: 'Одобрена',
-  [RequestStatus.REJECTED]: 'Отклонена',
-};
 
 const requests: Ref<RequestDto[]> = ref([]);
 const isLoading: Ref<boolean> = ref(true);
 
+const currentAdminId: ComputedRef<number | null> = computed(
+  (): number | null => authService.admin.value?.id ?? null
+);
+
 async function loadRequests(): Promise<void> {
   isLoading.value = true;
 
-  const response: HttpResponse<RequestDto[]> = await requestService.getAll();
+  const response: HttpResponse<RequestDto[]> =
+    await requestService.getIncoming();
 
   if (response.isSuccess) {
     requests.value = response.data;
@@ -48,21 +47,14 @@ async function loadRequests(): Promise<void> {
   isLoading.value = false;
 }
 
-async function setStatus(
-  request: RequestDto,
-  status: RequestStatus
-): Promise<void> {
-  const dto: RequestUpdateDto = { status };
-  const response: HttpResponse<RequestDto> = await requestService.update(
-    request.id,
-    dto
+async function takeIntoWork(request: RequestDto): Promise<void> {
+  const response: HttpResponse<RequestDto> = await requestService.takeIntoWork(
+    request.id
   );
 
   if (response.isSuccess) {
-    requests.value = requests.value.map(
-      (item: RequestDto): RequestDto =>
-        item.id === request.id ? response.data : item
-    );
+    replaceRequest(response.data);
+    notificationService.showSuccess('Заявка взята в работу');
   } else {
     notificationService.showError(response.error);
   }
@@ -92,6 +84,26 @@ function confirmDelete(request: RequestDto): void {
   });
 }
 
+function replaceRequest(updated: RequestDto): void {
+  requests.value = requests.value.map(
+    (item: RequestDto): RequestDto =>
+      item.id === updated.id ? updated : item
+  );
+}
+
+function isMine(request: RequestDto): boolean {
+  return request.assigneeId !== null && request.assigneeId === currentAdminId.value;
+}
+
+function assigneeName(request: RequestDto): string {
+  const parts: string[] = [
+    request.assignee?.firstName,
+    request.assignee?.lastName,
+  ].filter((part): part is string => Boolean(part));
+
+  return parts.length > 0 ? parts.join(' ') : 'администратор';
+}
+
 onMounted(async (): Promise<void> => {
   await loadRequests();
 });
@@ -101,7 +113,7 @@ onMounted(async (): Promise<void> => {
   <div class="requests-page">
     <div class="requests-page__header">
       <div>
-        <h1>Заявки</h1>
+        <h1>Входящие заявки</h1>
         <p class="requests-page__subtitle">
           Заявки на демо-организации, оставленные через лендинг.
         </p>
@@ -125,8 +137,8 @@ onMounted(async (): Promise<void> => {
                   request.organizationName
                 }}</span>
                 <Tag
-                  :value="STATUS_LABEL[request.status]"
-                  :severity="STATUS_SEVERITY[request.status]"
+                  :value="REQUEST_STATUS_LABEL[request.status]"
+                  :severity="REQUEST_STATUS_SEVERITY[request.status]"
                 />
               </div>
               <div class="request-row__meta">
@@ -135,28 +147,40 @@ onMounted(async (): Promise<void> => {
                   <i class="pi pi-envelope" /> {{ request.email }}
                 </a>
               </div>
-              <p v-if="request.message" class="request-row__message">
-                {{ request.message }}
+              <p
+                v-if="request.status === RequestStatus.IN_PROGRESS"
+                class="request-row__handler"
+              >
+                <i class="pi pi-user-edit" />
+                <template v-if="isMine(request)">Вы обрабатываете</template>
+                <template v-else
+                  >Обрабатывает: {{ assigneeName(request) }}</template
+                >
               </p>
             </div>
 
             <div class="request-row__actions">
               <Button
-                v-if="request.status !== RequestStatus.APPROVED"
-                label="Одобрить"
-                icon="pi pi-check"
+                v-if="request.status === RequestStatus.PENDING"
+                label="Взять в работу"
+                icon="pi pi-play"
                 size="small"
-                severity="success"
-                @click="setStatus(request, RequestStatus.APPROVED)"
+                @click="takeIntoWork(request)"
               />
+              <NuxtLink
+                v-else-if="isMine(request)"
+                :to="buildAppRoute(AppRoute.REQUESTS_BY_ID, { id: request.id })"
+              >
+                <Button label="Открыть" icon="pi pi-arrow-right" size="small" />
+              </NuxtLink>
               <Button
-                v-if="request.status !== RequestStatus.REJECTED"
-                label="Отклонить"
-                icon="pi pi-times"
+                v-else-if="request.status === RequestStatus.IN_PROGRESS"
+                label="Взять себе"
+                icon="pi pi-user-plus"
                 size="small"
                 severity="secondary"
                 outlined
-                @click="setStatus(request, RequestStatus.REJECTED)"
+                @click="takeIntoWork(request)"
               />
               <Button
                 icon="pi pi-trash"
@@ -259,10 +283,16 @@ onMounted(async (): Promise<void> => {
     }
   }
 
-  &__message {
+  &__handler {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     color: $text-secondary;
-    font-size: 0.92rem;
-    line-height: 1.5;
+    font-size: 0.9rem;
+
+    .pi {
+      color: $accent;
+    }
   }
 
   &__actions {

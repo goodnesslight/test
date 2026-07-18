@@ -6,4 +6,6 @@ export enum AppRoute {
   LOGIN = '/login',
 
   REQUESTS = '/requests',
+  REQUESTS_MY = '/requests/my',
+  REQUESTS_BY_ID = '/requests/:id',
 }

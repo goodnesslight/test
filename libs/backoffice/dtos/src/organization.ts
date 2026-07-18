@@ -1,5 +1,12 @@
 import { Exclude, Expose } from 'class-transformer';
-import { IsOptional, IsString, IsUrl, Length, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Length,
+  Matches,
+} from 'class-validator';
 
 @Exclude()
 export class OrganizationDto {
@@ -38,7 +45,28 @@ export class OrganizationCreateDto {
   })
   slug: string;
 
+  @IsEmail()
+  ownerEmail: string;
+
+  @IsString()
+  @Length(3, 32)
+  @Matches(/^[a-zA-Z0-9_.-]+$/, {
+    message:
+      'username can only contain letters, numbers, dots, dashes and underscores',
+  })
+  ownerUsername: string;
+
   @IsOptional()
   @IsUrl()
   logoUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 64)
+  ownerFirstName?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 64)
+  ownerLastName?: string;
 }

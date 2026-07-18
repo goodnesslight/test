@@ -47,10 +47,18 @@ async function logout(): Promise<void> {
         <NuxtLink
           :to="AppRoute.REQUESTS"
           class="nav__item"
-          active-class="nav__item--active"
+          exact-active-class="nav__item--active"
         >
           <i class="pi pi-inbox" />
-          <span>Заявки</span>
+          <span>Входящие заявки</span>
+        </NuxtLink>
+        <NuxtLink
+          :to="AppRoute.REQUESTS_MY"
+          class="nav__item"
+          active-class="nav__item--active"
+        >
+          <i class="pi pi-briefcase" />
+          <span>Мои заявки</span>
         </NuxtLink>
       </nav>
 

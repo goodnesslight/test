@@ -1,4 +1,5 @@
-import { Column, Entity } from 'typeorm';
+import { AdminEntity } from '@modules/admin/admin.entity';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { RequestStatus } from '@backoffice/types';
 
@@ -23,6 +24,13 @@ export class RequestEntity extends BasicEntity {
   })
   status: RequestStatus;
 
+  @Column({ type: 'int', nullable: true })
+  assigneeId: number | null;
+
   @Column({ type: 'text', nullable: true })
   message: string | null;
+
+  @ManyToOne(() => AdminEntity, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'assigneeId' })
+  assignee: AdminEntity | null;
 }

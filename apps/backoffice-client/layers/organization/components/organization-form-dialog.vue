@@ -10,11 +10,17 @@ import type { NotificationService } from '#layers/notification';
 
 interface OrganizationFormDialogProps {
   visible: boolean;
+  initial?: OrganizationFormInitial;
 }
 
 interface OrganizationFormDialogEmits {
   (event: 'update:visible', value: boolean): void;
   (event: 'saved', organization: OrganizationDto): void;
+}
+
+interface OrganizationFormInitial {
+  name?: string;
+  ownerEmail?: string;
 }
 
 const props: OrganizationFormDialogProps =
@@ -29,6 +35,10 @@ const name: Ref<string> = ref('');
 const tag: Ref<string> = ref('');
 const slug: Ref<string> = ref('');
 const logoUrl: Ref<string> = ref('');
+const ownerEmail: Ref<string> = ref('');
+const ownerUsername: Ref<string> = ref('');
+const ownerFirstName: Ref<string> = ref('');
+const ownerLastName: Ref<string> = ref('');
 const isLoading: Ref<boolean> = ref(false);
 
 const isVisible: WritableComputedRef<boolean> = computed({
@@ -40,10 +50,14 @@ watch(
   (): boolean => props.visible,
   (visible: boolean): void => {
     if (visible) {
-      name.value = '';
+      name.value = props.initial?.name ?? '';
       tag.value = '';
       slug.value = '';
       logoUrl.value = '';
+      ownerEmail.value = props.initial?.ownerEmail ?? '';
+      ownerUsername.value = '';
+      ownerFirstName.value = '';
+      ownerLastName.value = '';
     }
   }
 );
@@ -55,7 +69,11 @@ async function submit(): Promise<void> {
     name: name.value,
     tag: tag.value,
     slug: slug.value,
+    ownerEmail: ownerEmail.value,
+    ownerUsername: ownerUsername.value,
     ...(logoUrl.value ? { logoUrl: logoUrl.value } : {}),
+    ...(ownerFirstName.value ? { ownerFirstName: ownerFirstName.value } : {}),
+    ...(ownerLastName.value ? { ownerLastName: ownerLastName.value } : {}),
   };
 
   const response: HttpResponse<OrganizationDto> =
@@ -77,7 +95,7 @@ async function submit(): Promise<void> {
     v-model:visible="isVisible"
     header="Создать организацию"
     modal
-    :style="{ width: '420px' }"
+    :style="{ width: '460px' }"
   >
     <form class="org-form" @submit.prevent="submit">
       <div class="org-form__field">
@@ -98,6 +116,47 @@ async function submit(): Promise<void> {
       <div class="org-form__field">
         <label for="org-logo">Логотип (URL)</label>
         <InputText id="org-logo" v-model="logoUrl" fluid />
+      </div>
+
+      <div class="org-form__section">
+        <h3 class="org-form__section-title">Владелец</h3>
+        <p class="org-form__section-hint">
+          На указанную почту придёт приглашение — владелец сам задаст пароль на
+          поддомене организации.
+        </p>
+      </div>
+
+      <div class="org-form__field">
+        <label for="owner-email">Email владельца</label>
+        <InputText
+          id="owner-email"
+          v-model="ownerEmail"
+          type="email"
+          required
+          fluid
+        />
+      </div>
+
+      <div class="org-form__field">
+        <label for="owner-username">Имя пользователя владельца</label>
+        <InputText
+          id="owner-username"
+          v-model="ownerUsername"
+          maxlength="32"
+          required
+          fluid
+        />
+      </div>
+
+      <div class="org-form__row">
+        <div class="org-form__field">
+          <label for="owner-first-name">Имя</label>
+          <InputText id="owner-first-name" v-model="ownerFirstName" fluid />
+        </div>
+        <div class="org-form__field">
+          <label for="owner-last-name">Фамилия</label>
+          <InputText id="owner-last-name" v-model="ownerLastName" fluid />
+        </div>
       </div>
 
       <div class="org-form__actions">
@@ -124,11 +183,36 @@ async function submit(): Promise<void> {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+    flex: 1;
+    min-width: 0;
 
     label {
       font-size: 0.9rem;
       color: $text-dim;
     }
+  }
+
+  &__row {
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__section {
+    margin-top: 0.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid $border;
+  }
+
+  &__section-title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  &__section-hint {
+    margin-top: 0.3rem;
+    color: $text-dim;
+    font-size: 0.82rem;
+    line-height: 1.4;
   }
 
   &__actions {
