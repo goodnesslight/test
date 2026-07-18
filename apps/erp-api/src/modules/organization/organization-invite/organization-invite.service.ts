@@ -150,6 +150,23 @@ export class OrganizationInviteService {
           );
         }
 
+        // An owner invite (e.g. issued by the backoffice when creating a new
+        // organization) also establishes ownership: the organization is created
+        // without an ownerId, so set it here when the owner accepts. Guard on
+        // null so a stray owner invite can never hijack an already-owned org.
+        if (invite.role === OrganizationRole.OWNER) {
+          const organization: OrganizationEntity | null = await manager.findOne(
+            OrganizationEntity,
+            { where: { id: invite.organizationId } }
+          );
+
+          if (organization && organization.ownerId === null) {
+            await manager.update(OrganizationEntity, invite.organizationId, {
+              ownerId: user.id,
+            });
+          }
+        }
+
         await manager.update(OrganizationInviteEntity, invite.id, {
           status: InviteStatus.ACCEPTED,
           invitedUserId: user.id,
